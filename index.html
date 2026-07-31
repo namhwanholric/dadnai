@@ -273,10 +273,44 @@
     html{scroll-behavior:auto}
     *{transition:none!important;animation:none!important}
   }
+
+  /* ---------- 내비게이션 ---------- */
+
+  .booknav{
+    position:sticky;top:0;z-index:40;
+    background:var(--paper);
+    border-bottom:1px solid var(--line);
+    padding:14px 0;
+    display:flex;align-items:center;justify-content:space-between;
+    gap:16px;
+  }
+  .booknav .brand{
+    font-weight:800;font-size:15px;color:var(--ink);
+    text-decoration:none;white-space:nowrap;
+  }
+  .booknav .links{display:flex;gap:18px;font-size:13px}
+  .booknav .links a{color:var(--ink-soft);text-decoration:none}
+  .booknav .links a:hover{color:var(--seal)}
+  .booknav a:focus-visible{outline:2px solid var(--seal);outline-offset:2px}
+
+  @media (max-width:680px){
+    .booknav{padding:11px 0}
+    .booknav .brand{font-size:13px}
+    .booknav .links{gap:12px;font-size:12px}
+  }
 </style>
 </head>
 <body>
 <div class="page" id="top">
+
+  <nav class="booknav">
+    <a class="brand" href="#top">아빠표 AI 학습법</a>
+    <div class="links">
+      <a href="#toc">차례</a>
+      <a href="#appendix">부록</a>
+      <a href="./tools.html">도구함</a>
+    </div>
+  </nav>
 
   <!-- 표제지 -->
   <div class="titlepage">

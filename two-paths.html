@@ -167,10 +167,26 @@
   @media (prefers-reduced-motion:reduce){
     *{transition:none!important;animation:none!important}
   }
+
+  .sitenav{
+    position:sticky;top:0;z-index:40;
+    background:var(--paper);border-bottom:1px solid var(--rule-soft);
+    padding:10px 0;margin-bottom:-4px;
+    display:flex;align-items:center;justify-content:space-between;gap:14px;
+    font-size:13px;
+  }
+  .sitenav a{color:var(--graphite);text-decoration:none}
+  .sitenav a:hover{color:var(--rule)}
+  .sitenav a:focus-visible{outline:2px solid var(--rule);outline-offset:2px}
 </style>
 </head>
 <body>
 <div class="wrap">
+
+  <nav class="sitenav">
+    <a href="./index.html">← 처음으로</a>
+    <a href="./tools.html">도구함</a>
+  </nav>
 
   <header>
     <p class="eyebrow">부모용 판별 카드</p>
