@@ -36,7 +36,7 @@
 
   .clock{
     position:sticky;
-    top:0;
+    top:var(--dn-rh-h, 0px);
     z-index:20;
     background:var(--paper);
     border-bottom:1px solid var(--rule-soft);
@@ -207,24 +207,18 @@
     h1{font-size:26px}
     .step-title{font-size:19px}
     .prompt-box{margin-left:-20px;margin-right:-20px}
-    .clock{flex-wrap:wrap;row-gap:10px}
-    .clock .nav-back{order:-1;flex-basis:100%}
   }
 
   @media (prefers-reduced-motion:reduce){
     *{transition:none!important;animation:none!important}
   }
 
-  .nav-back{font-size:13px;color:var(--graphite);text-decoration:none;white-space:nowrap}
-  .nav-back:hover{color:var(--rule)}
-  .nav-back:focus-visible{outline:2px solid var(--rule);outline-offset:2px}
 </style>
 </head>
-<body>
+<body data-page="appendix-d">
 <div class="wrap">
 
   <div class="clock">
-    <a class="nav-back" href="./index.html">← 처음으로</a>
     <div>
       <div class="clock-label">경과</div>
       <div class="clock-time" id="time">00:00</div>
@@ -429,5 +423,6 @@
   paint();
 })();
 </script>
+<script src="./nav.js"></script>
 </body>
 </html>

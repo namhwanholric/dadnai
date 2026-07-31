@@ -34,7 +34,7 @@
   /* ---------- 모드 전환 ---------- */
 
   .bar{
-    position:sticky;top:0;z-index:20;
+    position:sticky;top:var(--dn-rh-h, 0px);z-index:20;
     background:var(--paper);
     border-bottom:1px solid var(--rule-soft);
     display:flex;align-items:center;justify-content:space-between;
@@ -145,22 +145,16 @@
     .item-title{font-size:18px}
     .q{font-size:20px}
     .answer{margin-left:-20px;margin-right:-20px}
-    .bar{flex-wrap:wrap;row-gap:10px}
-    .bar .nav-back{order:-1;flex-basis:100%}
   }
 
   @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 
-  .nav-back{font-size:13px;color:var(--graphite);text-decoration:none;white-space:nowrap}
-  .nav-back:hover{color:var(--rule)}
-  .nav-back:focus-visible{outline:2px solid var(--rule);outline-offset:2px}
 </style>
 </head>
-<body>
+<body data-page="appendix-b">
 <div class="wrap">
 
   <div class="bar">
-    <a class="nav-back" href="./index.html">← 처음으로</a>
     <div>
       <div class="bar-label">지금 화면</div>
       <div class="bar-mode" id="mode">아이용 · 답 가림</div>
@@ -364,5 +358,6 @@
   });
 })();
 </script>
+<script src="./nav.js"></script>
 </body>
 </html>

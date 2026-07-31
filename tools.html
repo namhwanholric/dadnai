@@ -75,24 +75,10 @@
 
   @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 
-  .sitenav{
-    position:sticky;top:0;z-index:40;
-    background:var(--paper);border-bottom:1px solid var(--rule-soft);
-    padding:10px 0;margin-bottom:-4px;
-    display:flex;align-items:center;justify-content:space-between;gap:14px;
-    font-size:13px;
-  }
-  .sitenav a{color:var(--graphite);text-decoration:none}
-  .sitenav a:hover{color:var(--rule)}
-  .sitenav a:focus-visible{outline:2px solid var(--rule);outline-offset:2px}
 </style>
 </head>
-<body>
+<body data-page="tools">
 <div class="wrap">
-
-  <nav class="sitenav">
-    <a href="./index.html">← 처음으로</a>
-  </nav>
 
   <header>
     <p class="eyebrow">비공개 · 우리 집 전용</p>
@@ -194,5 +180,6 @@
   </footer>
 
 </div>
+<script src="./nav.js"></script>
 </body>
 </html>
