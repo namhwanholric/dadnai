@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>같은 20분, 두 갈래 — 판별 카드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#E9E7DE;
+    --paper-hi:#F2F0E9;
+    --ink:#1F231D;
+    --rule:#4A7A5C;
+    --rule-soft:#4A7A5C33;
+    --graphite:#767A70;
+    --faint:#A8AAA0;
+    --pen:#B23A2E;
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Gowun Batang","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",serif;
+    font-size:16px;
+    line-height:1.7;
+    -webkit-text-size-adjust:100%;
+  }
+
+  .wrap{max-width:760px;margin:0 auto;padding:0 20px 80px}
+
+  header{padding:44px 0 26px}
+
+  .eyebrow{
+    font-size:12px;letter-spacing:.22em;color:var(--rule);
+    margin:0 0 14px;font-weight:700;
+  }
+
+  h1{font-size:33px;line-height:1.25;margin:0 0 14px;font-weight:700}
+
+  .lede{margin:0;max-width:36em;color:var(--graphite);font-size:15px}
+
+  .rule{height:1px;background:var(--rule);opacity:.45;margin:28px 0}
+
+  /* ---------- 두 갈래 머리 ---------- */
+
+  .legend{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+    margin-bottom:8px;
+  }
+
+  .legend div{
+    font-size:12px;
+    letter-spacing:.16em;
+    font-weight:700;
+    padding-bottom:8px;
+  }
+
+  .legend .out{color:var(--faint);border-bottom:1px solid var(--faint)}
+  .legend .own{color:var(--rule);border-bottom:2px solid var(--rule)}
+
+  /* ---------- 장면 ---------- */
+
+  .scene{
+    border-top:1px solid var(--rule-soft);
+    padding:26px 0 6px;
+  }
+
+  .scene:first-of-type{border-top:none}
+
+  .scene-head{display:flex;align-items:baseline;gap:14px;margin-bottom:16px}
+
+  .scene-no{
+    font-size:12px;letter-spacing:.14em;color:var(--rule);
+    font-weight:700;white-space:nowrap;
+  }
+
+  .scene-title{font-size:21px;font-weight:700;margin:0;flex:1}
+
+  .pair{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+  .col{padding:0}
+
+  .col ul{margin:0;padding-left:1.05em}
+  .col li{margin:9px 0;font-size:15px;line-height:1.55}
+
+  .col.out{color:var(--faint)}
+  .col.out li::marker{color:var(--faint)}
+
+  .col.own{color:var(--ink)}
+  .col.own li::marker{color:var(--rule)}
+
+  .tell{
+    margin-top:16px;
+    border-left:3px solid var(--rule);
+    background:var(--paper-hi);
+    padding:12px 14px;
+    font-size:15px;
+  }
+
+  .tell span{
+    display:block;font-size:11px;letter-spacing:.16em;
+    color:var(--rule);font-weight:700;margin-bottom:4px;
+  }
+
+  /* ---------- 판정 ---------- */
+
+  h2{
+    font-size:12px;letter-spacing:.2em;color:var(--rule);
+    margin:46px 0 16px;font-weight:700;
+  }
+
+  .verdict{
+    background:var(--ink);
+    color:var(--paper);
+    padding:26px 22px;
+    margin:0 -22px;
+  }
+
+  .verdict p{margin:0 0 12px;font-size:16px}
+  .verdict p:last-child{margin-bottom:0}
+  .verdict strong{color:#8FB79C}
+
+  .warn{
+    border-left:3px solid var(--pen);
+    padding:10px 14px;
+    margin:26px 0 0;
+    font-size:14px;
+  }
+
+  .warn span{
+    display:block;font-size:11px;letter-spacing:.16em;
+    color:var(--pen);font-weight:700;margin-bottom:4px;
+  }
+
+  footer{
+    margin-top:52px;padding-top:20px;
+    border-top:1px solid var(--rule-soft);
+    font-size:13px;color:var(--graphite);
+  }
+
+  @media (max-width:560px){
+    h1{font-size:26px}
+    .scene-title{font-size:19px}
+    .legend{display:none}
+    .pair{grid-template-columns:1fr;gap:0}
+    .col{padding:14px 0 0}
+    .col.out::before{
+      content:"외주 쪽";
+      display:block;font-size:11px;letter-spacing:.16em;
+      font-weight:700;color:var(--faint);margin-bottom:2px;
+    }
+    .col.own::before{
+      content:"주권 쪽";
+      display:block;font-size:11px;letter-spacing:.16em;
+      font-weight:700;color:var(--rule);margin-bottom:2px;
+    }
+    .verdict{margin:0 -20px}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none!important;animation:none!important}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">부모용 판별 카드</p>
+    <h1>같은 20분,<br>두 갈래로 갈립니다.</h1>
+    <p class="lede">절차는 똑같습니다. 종이에 먼저 쓰고, AI와 부딪히고, 창을 닫고 다시 풉니다. 그런데 겉모습이 같아도 안에서 벌어지는 일은 정반대일 수 있습니다. 옆에서 볼 때 무엇이 다른지만 적었습니다.</p>
+  </header>
+
+  <div class="rule"></div>
+
+  <div class="legend">
+    <div class="out">사고를 넘긴 쪽</div>
+    <div class="own">사고를 쥔 쪽</div>
+  </div>
+
+  <section class="scene">
+    <div class="scene-head">
+      <span class="scene-no">01</span>
+      <h3 class="scene-title">종이에 먼저 쓸 때</h3>
+    </div>
+    <div class="pair">
+      <div class="col out">
+        <ul>
+          <li>문제를 읽자마자 화면 쪽으로 눈이 간다</li>
+          <li>3초 만에 "몰라"로 끝낸다</li>
+          <li>백지를 내밀며 빨리 넘어가자고 한다</li>
+          <li>틀릴까 봐 아무것도 안 쓴다</li>
+        </ul>
+      </div>
+      <div class="col own">
+        <ul>
+          <li>틀릴 걸 알면서도 답을 하나 적는다</li>
+          <li>막힌 지점을 손가락으로 짚는다</li>
+          <li>"여기까지는 알겠는데"라고 말한다</li>
+          <li>썼다가 지우고 다시 쓴다</li>
+        </ul>
+      </div>
+    </div>
+    <div class="tell">
+      <span>여기서 갈립니다</span>
+      아이가 무엇을 모르는지 <strong>말로 할 수 있는가</strong>. 못 하면 AI를 열어도 자기 빈자리에 남의 답이 들어올 뿐입니다.
+    </div>
+  </section>
+
+  <section class="scene">
+    <div class="scene-head">
+      <span class="scene-no">02</span>
+      <h3 class="scene-title">AI 앞에서</h3>
+    </div>
+    <div class="pair">
+      <div class="col out">
+        <ul>
+          <li>"그래서 답이 뭔데"를 반복한다</li>
+          <li>AI 문장을 눈으로만 훑고 넘긴다</li>
+          <li>화면을 부모 쪽으로 안 돌린다</li>
+          <li>AI가 칭찬하면 끝났다고 여긴다</li>
+          <li>손이 종이로 돌아오지 않는다</li>
+        </ul>
+      </div>
+      <div class="col own">
+        <ul>
+          <li>AI의 질문에 자기 말로 대답한다</li>
+          <li>AI가 틀린 곳을 잡아낸다</li>
+          <li>"아, 그러면"이 나온다</li>
+          <li>답을 안 준다고 짜증을 낸다</li>
+          <li>대화 중에 종이에 뭔가를 적는다</li>
+        </ul>
+      </div>
+    </div>
+    <div class="tell">
+      <span>여기서 갈립니다</span>
+      짜증은 나쁜 신호가 아닙니다. <strong>답이 안 나와서 짜증이 난다는 건 스스로 밀고 있다는 뜻</strong>입니다. 조용하고 매끄럽게 끝난 날이 오히려 의심스럽습니다.
+    </div>
+  </section>
+
+  <section class="scene">
+    <div class="scene-head">
+      <span class="scene-no">03</span>
+      <h3 class="scene-title">창을 닫은 뒤</h3>
+    </div>
+    <div class="pair">
+      <div class="col out">
+        <ul>
+          <li>답은 맞는데 왜 그런지 못 말한다</li>
+          <li>아까 AI가 쓴 표현을 그대로 반복한다</li>
+          <li>설명이 매끄러운데 되물으면 멈춘다</li>
+          <li>숫자만 바꾼 문제에서 다시 막힌다</li>
+        </ul>
+      </div>
+      <div class="col own">
+        <ul>
+          <li>어설픈 자기 말로 설명한다</li>
+          <li>처음 막혔던 곳을 다르게 지나간다</li>
+          <li>"아까는 이렇게 생각했었어"라고 말한다</li>
+          <li>숫자를 바꿔도 같은 방법으로 푼다</li>
+        </ul>
+      </div>
+    </div>
+    <div class="tell">
+      <span>여기서 갈립니다</span>
+      아이가 <strong>과거형으로 말하는 순간</strong>이 결정적입니다. "아까는 ~라고 생각했었어"는 자기 예전 생각을 밖에서 볼 수 있게 됐다는 뜻이고, 그게 이해입니다.
+    </div>
+  </section>
+
+  <h2>하루에 하나만 본다면</h2>
+
+  <div class="verdict">
+    <p>세 장면을 다 관찰할 필요는 없습니다. 끝나고 <strong>숫자만 바꾼 문제를 하나 더</strong> 주세요.</p>
+    <p>혼자 풀면 그날은 통과입니다. 다시 막히면 앞의 20분은 AI의 답을 알아본 시간이었던 겁니다. 혼내지 말고, 그 사실만 기록에 적으세요.</p>
+    <p>맞았는가가 아니라 <strong>혼자 다시 되는가</strong>. 이 하나가 오늘의 채점표 전부입니다.</p>
+  </div>
+
+  <div class="warn">
+    <span>주의</span>
+    이 표는 아이를 분류하는 도구가 아닙니다. 같은 아이가 어제는 오른쪽, 오늘은 왼쪽입니다. 컨디션과 문제 난이도에 따라 매번 달라집니다. "너는 외주 쪽이야" 같은 말은 절대 하지 마세요. 오늘 이 문제에서 어땠는지만 보는 겁니다.
+  </div>
+
+  <footer>
+    왼쪽 항목이 많은 날도 기록으로 남기세요. 실패한 날의 기록이 성공한 날의 기록보다 값집니다.<br>
+    다섯 번쯤 쌓이면 그때 다시 읽어 보세요. 어느 장면에서 자주 넘어가는지 보입니다.
+  </footer>
+
+</div>
+</body>
+</html>

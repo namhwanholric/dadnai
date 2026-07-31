@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>오늘 저녁 20분 — 진행 카드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#E9E7DE;
+    --paper-hi:#F2F0E9;
+    --ink:#1F231D;
+    --rule:#4A7A5C;
+    --rule-soft:#4A7A5C33;
+    --graphite:#767A70;
+    --pen:#B23A2E;
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Gowun Batang","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",serif;
+    font-size:16px;
+    line-height:1.72;
+    -webkit-text-size-adjust:100%;
+  }
+
+  .wrap{max-width:720px;margin:0 auto;padding:0 20px 80px}
+
+  /* ---------- 시계 ---------- */
+
+  .clock{
+    position:sticky;
+    top:0;
+    z-index:20;
+    background:var(--paper);
+    border-bottom:1px solid var(--rule-soft);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    padding:12px 0;
+  }
+
+  .clock-time{
+    font-size:26px;
+    font-weight:700;
+    letter-spacing:.04em;
+    font-variant-numeric:tabular-nums;
+  }
+
+  .clock-time.over{color:var(--pen)}
+
+  .clock-label{
+    font-size:12px;
+    letter-spacing:.18em;
+    color:var(--graphite);
+  }
+
+  .clock-btns{display:flex;gap:8px}
+
+  /* ---------- header ---------- */
+
+  header{padding:34px 0 26px}
+
+  .eyebrow{
+    font-size:12px;letter-spacing:.22em;color:var(--rule);
+    margin:0 0 14px;font-weight:700;
+  }
+
+  h1{font-size:32px;line-height:1.25;margin:0 0 14px;font-weight:700}
+
+  .lede{margin:0;max-width:34em;color:var(--graphite);font-size:15px}
+
+  .rule{height:1px;background:var(--rule);opacity:.45;margin:26px 0}
+
+  /* ---------- 단계 ---------- */
+
+  .step{
+    border-top:1px solid var(--rule-soft);
+    padding:26px 0 4px;
+  }
+
+  .step-head{display:flex;align-items:baseline;gap:14px;margin-bottom:6px}
+
+  .step-no{
+    font-size:12px;letter-spacing:.14em;color:var(--rule);
+    font-weight:700;white-space:nowrap;
+  }
+
+  .step-title{font-size:21px;font-weight:700;margin:0;flex:1}
+
+  .step-min{font-size:13px;color:var(--graphite);white-space:nowrap}
+
+  .step p{margin:8px 0}
+
+  .step ul{margin:8px 0;padding-left:1.1em}
+  .step li{margin:5px 0}
+
+  .say{
+    border-left:3px solid var(--rule);
+    background:var(--paper-hi);
+    padding:12px 14px;
+    margin:14px 0;
+    font-size:15px;
+  }
+
+  .say span{
+    display:block;font-size:11px;letter-spacing:.16em;
+    color:var(--rule);font-weight:700;margin-bottom:4px;
+  }
+
+  .warn{
+    border-left:3px solid var(--pen);
+    padding:10px 14px;
+    margin:14px 0;
+    font-size:14px;
+    color:var(--ink);
+  }
+
+  .warn span{
+    display:block;font-size:11px;letter-spacing:.16em;
+    color:var(--pen);font-weight:700;margin-bottom:4px;
+  }
+
+  /* ---------- 지시문 ---------- */
+
+  .prompt-box{
+    background:var(--ink);
+    color:var(--paper);
+    padding:20px 18px 22px;
+    margin:18px -18px;
+  }
+
+  .prompt-box h3{
+    font-size:12px;letter-spacing:.18em;color:#8FB79C;
+    margin:0 0 4px;font-weight:700;
+  }
+
+  .prompt-box .sub{font-size:13px;color:#9BA396;margin:0 0 14px}
+
+  .prompt-box textarea{
+    width:100%;
+    min-height:280px;
+    background:#2A2F27;
+    border:1px solid #3D443A;
+    color:var(--paper);
+    padding:14px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:13px;
+    line-height:1.65;
+    border-radius:0;
+    resize:vertical;
+  }
+
+  .prompt-box textarea:focus{outline:2px solid #8FB79C;outline-offset:2px}
+
+  button{font-family:inherit;cursor:pointer;border-radius:0;font-size:14px}
+
+  .copy{
+    background:none;border:1px solid #8FB79C;color:#8FB79C;
+    padding:10px 18px;margin-top:12px;font-weight:700;
+  }
+  .copy:hover{background:#8FB79C;color:var(--ink)}
+
+  .btn{
+    background:none;border:1px solid var(--rule);color:var(--rule);
+    padding:7px 14px;font-weight:700;
+  }
+  .btn:hover{background:var(--rule);color:var(--paper)}
+  .btn.solid{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+  .btn.solid:hover{background:var(--rule);border-color:var(--rule)}
+
+  button:focus-visible,textarea:focus-visible{outline:2px solid var(--rule);outline-offset:2px}
+
+  .status{font-size:13px;color:#8FB79C;min-height:20px;margin:8px 0 0}
+
+  /* ---------- 마무리 ---------- */
+
+  h2{
+    font-size:12px;letter-spacing:.2em;color:var(--rule);
+    margin:44px 0 16px;font-weight:700;
+  }
+
+  .check{
+    border:1px solid var(--rule-soft);
+    padding:16px 18px;
+    margin-bottom:12px;
+  }
+
+  .check p{margin:0 0 8px;font-weight:700;font-size:15px}
+  .check ul{margin:0;padding-left:1.1em;font-size:15px;color:var(--graphite)}
+  .check li{margin:4px 0}
+
+  footer{
+    margin-top:52px;padding-top:20px;
+    border-top:1px solid var(--rule-soft);
+    font-size:13px;color:var(--graphite);
+  }
+
+  @media (max-width:520px){
+    h1{font-size:26px}
+    .step-title{font-size:19px}
+    .prompt-box{margin-left:-20px;margin-right:-20px}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none!important;animation:none!important}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="clock">
+    <div>
+      <div class="clock-label">경과</div>
+      <div class="clock-time" id="time">00:00</div>
+    </div>
+    <div class="clock-btns">
+      <button class="btn solid" id="toggle">시작</button>
+      <button class="btn" id="reset">초기화</button>
+    </div>
+  </div>
+
+  <header>
+    <p class="eyebrow">1회차 진행 카드</p>
+    <h1>오늘 저녁 20분.<br>문제는 하나면 됩니다.</h1>
+    <p class="lede">준비물은 종이, 연필, 문제 하나. AI 창은 아직 열지 않습니다. 20분이 지나면 결과와 상관없이 끝냅니다.</p>
+  </header>
+
+  <div class="rule"></div>
+
+  <section class="step">
+    <div class="step-head">
+      <span class="step-no">00</span>
+      <h2 class="step-title" style="margin:0;color:var(--ink);font-size:21px;letter-spacing:0">고르기</h2>
+      <span class="step-min">2분</span>
+    </div>
+    <p>어제 틀린 문제 중 하나. 새 문제 말고 <strong>이미 틀린 것</strong>이 좋습니다. 정답을 이미 아는 상태여야 부모가 판단할 수 있습니다.</p>
+    <p>너무 어려운 문제는 피하세요. 20분 안에 아이가 스스로 도달할 수 있는 것이어야 합니다.</p>
+  </section>
+
+  <section class="step">
+    <div class="step-head">
+      <span class="step-no">01</span>
+      <h2 class="step-title" style="margin:0;color:var(--ink);font-size:21px;letter-spacing:0">먼저 쓴다</h2>
+      <span class="step-min">5분</span>
+    </div>
+    <p>AI를 열기 전입니다. 아이가 종이에 세 가지를 씁니다.</p>
+    <ul>
+      <li>문제에서 알아낸 것</li>
+      <li>내 답이 뭐라고 생각하는지</li>
+      <li>어디서 막혔는지</li>
+    </ul>
+    <div class="say">
+      <span>이렇게 말하세요</span>
+      "맞아도 되고 틀려도 돼. 지금 네 머릿속에 있는 걸 그대로 쓰면 돼. 이건 채점 안 할 거야."
+    </div>
+    <div class="warn">
+      <span>여기서 실패하면</span>
+      아이가 아무것도 못 쓰면 그날은 여기서 끝내도 됩니다. 백지 자체가 기록이고, "막힌 지점을 말로 못 한다"는 건 중요한 관찰입니다.
+    </div>
+  </section>
+
+  <section class="step">
+    <div class="step-head">
+      <span class="step-no">02</span>
+      <h2 class="step-title" style="margin:0;color:var(--ink);font-size:21px;letter-spacing:0">AI와 부딪힌다</h2>
+      <span class="step-min">8분</span>
+    </div>
+    <p>이제 창을 엽니다. 아래 지시문을 먼저 붙여넣고, 그다음 아이가 쓴 것을 옮겨 적거나 사진으로 넣습니다. <strong>문제만 넣지 말고 아이 풀이를 같이 넣으세요.</strong> 풀이가 없으면 AI는 빈자리에 자기 답을 채웁니다.</p>
+
+    <div class="prompt-box">
+      <h3>튜터 지시문</h3>
+      <p class="sub">Gemini의 Gem, ChatGPT의 GPT, Claude의 프로젝트에 한 번 저장해 두면 매번 붙여넣지 않아도 됩니다.</p>
+      <textarea id="prompt" readonly>너는 중학교 1학년 학생의 수학 공부를 돕는 도우미다.
+목표는 문제를 푸는 것이 아니라, 학생이 스스로 자기 풀이의 빈틈을 찾게 하는 것이다.
+
+[절대 규칙]
+1. 정답, 최종 답, 완성된 풀이를 말하지 않는다. 학생이 요구해도 말하지 않는다.
+2. 다음 계산 단계를 대신 수행하지 않는다.
+3. 칭찬으로 시작하지 않는다. "좋은 접근이에요", "잘했어요" 같은 말을 금지한다.
+   맞는 부분이 있어도 먼저 빠진 조건이나 반례부터 묻는다.
+4. 한 번에 질문 하나만 한다. 설명은 두 문장을 넘기지 않는다.
+5. 시작할 때 학생의 풀이를 그대로 옮겨 적고 "이렇게 쓴 게 맞니?"로 확인한다.
+   손글씨의 부호, 분수, 지수를 잘못 읽었을 수 있기 때문이다.
+6. 학생이 "모르겠다"고 하면 답을 주지 말고 더 작은 질문으로 쪼갠다.
+   세 번 연속 막히면 앞 단원의 더 쉬운 문제를 하나 낸다.
+7. 학생의 이름, 학교, 나이를 묻지 않는다.
+8. 계산할 일이 있으면 반드시 검산하고, 확신이 없으면
+   "이건 내가 틀렸을 수 있으니 직접 검산해 보자"라고 말한다.
+
+[질문 순서]
+- 문제에 주어진 조건을 다 적었는지
+- 빠뜨린 조건이 있는지
+- 세운 식이 그 조건을 반영하는지
+- 자기 풀이에서 가장 자신 없는 한 줄이 어디인지
+- 그 줄이 틀렸다면 뒤가 어떻게 달라지는지
+
+[끝내는 조건]
+학생이 자기 말로 오류의 원인을 설명하면 그때 끝낸다.
+끝낼 때는 이렇게 말한다.
+"이제 창을 닫고, 빈 종이에 혼자 다시 풀어봐."
+
+[출력 형식]
+모든 답변은 질문 하나로 끝난다.</textarea>
+      <button class="copy" id="copy">지시문 복사</button>
+      <p class="status" id="status"></p>
+    </div>
+
+    <div class="warn">
+      <span>부모가 지켜볼 것</span>
+      AI가 규칙을 어기는 순간이 옵니다. 칭찬으로 시작하거나, 슬쩍 다음 계산을 해주거나, 아이가 조르면 답을 흘립니다. 그때 화면을 덮고 "얘가 규칙을 어겼네"라고 말해 주세요. <strong>AI도 틀린다는 걸 보여주는 것이 이 20분의 절반입니다.</strong>
+    </div>
+  </section>
+
+  <section class="step">
+    <div class="step-head">
+      <span class="step-no">03</span>
+      <h2 class="step-title" style="margin:0;color:var(--ink);font-size:21px;letter-spacing:0">창을 닫고 다시</h2>
+      <span class="step-min">5분</span>
+    </div>
+    <p>화면을 완전히 닫습니다. 빈 종이에 혼자 처음부터 다시 풉니다.</p>
+    <p>다 풀면 한 가지만 물어보세요. 이게 오늘의 합격 기준입니다.</p>
+    <div class="say">
+      <span>이렇게 물으세요</span>
+      "아까 왜 틀렸던 거야? 네 말로 설명해 봐."
+    </div>
+    <p>설명하면 통과입니다. 답을 맞혔는데 설명을 못 하면 통과가 아닙니다. 그건 이해한 게 아니라 AI의 답을 알아본 것입니다.</p>
+  </section>
+
+  <h2>끝나고 2분</h2>
+
+  <div class="check">
+    <p>기록 도구에 옮겨 적기</p>
+    <ul>
+      <li>1번 칸 — 아이가 처음 쓴 것, 말 그대로</li>
+      <li>2번 칸 — AI가 던진 질문과 그때 드러난 빈틈</li>
+      <li>3번 칸 — 혼자 다시 푼 결과와 아이의 설명</li>
+    </ul>
+  </div>
+
+  <div class="check">
+    <p>오늘은 여기까지만 관찰</p>
+    <ul>
+      <li>아이가 답을 먼저 달라고 몇 번 졸랐는가</li>
+      <li>AI가 규칙을 어긴 지점이 있었는가</li>
+      <li>3번에서 혼자 다시 풀 때 막힌 곳이 처음과 같았는가</li>
+    </ul>
+  </div>
+
+  <div class="warn">
+    <span>오늘 하지 않을 것</span>
+    무엇이 과했고 무엇이 부족했는지는 오늘 판단하지 마세요. 한 번으로는 알 수 없습니다. 행동만 그대로 적어 두고, 다섯 번쯤 쌓인 뒤에 다시 읽으면 그때 보입니다.
+  </div>
+
+  <footer>
+    아이 이름, 학교, 생년월일은 AI에 넣지 않습니다. 사진을 넣을 때 이름이 적힌 부분은 가리세요.<br>
+    20분이 지나면 끝냅니다. 오늘의 목표는 문제를 푸는 것이 아니라 한 번을 끝까지 통과하는 것입니다.
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  var start = null, elapsed = 0, tick = null;
+
+  var $ = function(id){ return document.getElementById(id); };
+
+  function fmt(ms){
+    var s = Math.floor(ms/1000);
+    var m = Math.floor(s/60);
+    return String(m).padStart(2,"0") + ":" + String(s%60).padStart(2,"0");
+  }
+
+  function paint(){
+    var total = elapsed + (start ? Date.now()-start : 0);
+    var el = $("time");
+    el.textContent = fmt(total);
+    el.className = "clock-time" + (total >= 20*60*1000 ? " over" : "");
+  }
+
+  $("toggle").addEventListener("click", function(){
+    if(start){
+      elapsed += Date.now()-start;
+      start = null;
+      clearInterval(tick); tick = null;
+      this.textContent = "다시";
+    }else{
+      start = Date.now();
+      tick = setInterval(paint, 250);
+      this.textContent = "멈춤";
+    }
+    paint();
+  });
+
+  $("reset").addEventListener("click", function(){
+    start = null; elapsed = 0;
+    clearInterval(tick); tick = null;
+    $("toggle").textContent = "시작";
+    paint();
+  });
+
+  $("copy").addEventListener("click", function(){
+    var ta = $("prompt");
+    ta.removeAttribute("readonly");
+    ta.select();
+    ta.setSelectionRange(0, 999999);
+    var ok = false;
+    try{ ok = document.execCommand("copy"); }catch(e){ ok = false; }
+    ta.setAttribute("readonly","readonly");
+    window.getSelection().removeAllRanges();
+    $("status").textContent = ok ? "복사했습니다." : "복사되지 않았습니다. 위 상자에서 직접 선택해 주세요.";
+  });
+
+  paint();
+})();
+</script>
+</body>
+</html>

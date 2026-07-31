@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>먼저 쓴다 — 사유 주권 학습 기록</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Nanum+Pen+Script&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#E9E7DE;
+    --paper-hi:#F2F0E9;
+    --ink:#1F231D;
+    --rule:#4A7A5C;
+    --rule-soft:#4A7A5C33;
+    --graphite:#767A70;
+    --pen:#B23A2E;
+  }
+
+  *{box-sizing:border-box}
+
+  html,body{margin:0;padding:0}
+
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Gowun Batang","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",serif;
+    font-size:16px;
+    line-height:1.7;
+    -webkit-text-size-adjust:100%;
+  }
+
+  .wrap{
+    max-width:720px;
+    margin:0 auto;
+    padding:0 20px 80px;
+  }
+
+  /* ---------- header ---------- */
+
+  header{padding:44px 0 28px}
+
+  .eyebrow{
+    font-size:12px;
+    letter-spacing:.22em;
+    color:var(--rule);
+    margin:0 0 14px;
+    font-weight:700;
+  }
+
+  h1{
+    font-size:34px;
+    line-height:1.25;
+    margin:0 0 14px;
+    font-weight:700;
+    letter-spacing:-.01em;
+  }
+
+  .lede{
+    margin:0;
+    max-width:34em;
+    color:var(--graphite);
+    font-size:15px;
+  }
+
+  .rule{
+    height:1px;
+    background:var(--rule);
+    opacity:.45;
+    margin:30px 0;
+  }
+
+  /* ---------- 원고지 진행 칸 (signature) ---------- */
+
+  .progress{margin:0 0 8px}
+
+  .progress-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:12px;
+  }
+
+  .progress-label{
+    font-size:12px;
+    letter-spacing:.18em;
+    color:var(--graphite);
+  }
+
+  .progress-count{
+    font-size:15px;
+    color:var(--rule);
+    font-weight:700;
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(10,1fr);
+    gap:4px;
+  }
+
+  .cell{
+    aspect-ratio:1/1;
+    border:1px solid var(--rule-soft);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:11px;
+    color:transparent;
+    background:transparent;
+  }
+
+  .cell.filled{
+    background:var(--rule);
+    border-color:var(--rule);
+    color:var(--paper);
+  }
+
+  /* ---------- form ---------- */
+
+  section{margin-top:44px}
+
+  h2{
+    font-size:12px;
+    letter-spacing:.2em;
+    color:var(--rule);
+    margin:0 0 18px;
+    font-weight:700;
+  }
+
+  .field{margin-bottom:22px}
+
+  label{
+    display:block;
+    font-size:14px;
+    font-weight:700;
+    margin-bottom:4px;
+  }
+
+  .hint{
+    display:block;
+    font-size:13px;
+    color:var(--graphite);
+    margin-bottom:8px;
+  }
+
+  input[type="text"],input[type="date"],textarea{
+    width:100%;
+    background:var(--paper-hi);
+    border:1px solid var(--rule-soft);
+    border-radius:0;
+    padding:11px 12px;
+    font-family:inherit;
+    font-size:16px;
+    color:var(--ink);
+    line-height:1.6;
+  }
+
+  textarea{resize:vertical;min-height:96px}
+
+  input:focus,textarea:focus,button:focus-visible{
+    outline:2px solid var(--rule);
+    outline-offset:2px;
+  }
+
+  /* 손글씨 — 아이가 직접 쓴 구간 */
+  .hand{
+    font-family:"Nanum Pen Script","Gowun Batang",cursive;
+    font-size:21px;
+    line-height:1.5;
+  }
+
+  /* AI가 관여한 유일한 구간 — 반전 */
+  .field-ai{
+    background:var(--ink);
+    padding:18px 16px 20px;
+    margin-left:-16px;
+    margin-right:-16px;
+  }
+
+  .field-ai label{color:var(--paper)}
+  .field-ai .hint{color:#9BA396}
+
+  .field-ai textarea{
+    background:#2A2F27;
+    border-color:#3D443A;
+    color:var(--paper);
+  }
+
+  .row{display:flex;gap:12px}
+  .row .field{flex:1;margin-bottom:22px}
+
+  button{
+    font-family:inherit;
+    font-size:15px;
+    cursor:pointer;
+    border-radius:0;
+  }
+
+  .save{
+    width:100%;
+    background:var(--ink);
+    color:var(--paper);
+    border:1px solid var(--ink);
+    padding:14px;
+    font-weight:700;
+    letter-spacing:.04em;
+  }
+
+  .save:hover{background:var(--rule);border-color:var(--rule)}
+  .save[disabled]{opacity:.45;cursor:default}
+
+  .note{
+    font-size:13px;
+    color:var(--graphite);
+    margin:10px 0 0;
+    text-align:center;
+  }
+
+  /* ---------- 기록 목록 ---------- */
+
+  .empty{
+    border:1px dashed var(--rule-soft);
+    padding:28px 20px;
+    text-align:center;
+    color:var(--graphite);
+    font-size:14px;
+  }
+
+  .rec{
+    border-top:1px solid var(--rule-soft);
+    padding:20px 0;
+  }
+
+  .rec-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    gap:12px;
+    margin-bottom:10px;
+  }
+
+  .rec-no{
+    font-size:12px;
+    letter-spacing:.14em;
+    color:var(--rule);
+    font-weight:700;
+    white-space:nowrap;
+  }
+
+  .rec-topic{
+    font-weight:700;
+    font-size:16px;
+    flex:1;
+  }
+
+  .rec-date{
+    font-size:13px;
+    color:var(--graphite);
+    white-space:nowrap;
+  }
+
+  .rec dl{margin:0}
+
+  .rec dt{
+    font-size:12px;
+    letter-spacing:.12em;
+    color:var(--graphite);
+    margin-top:10px;
+  }
+
+  .rec dd{
+    margin:2px 0 0;
+    white-space:pre-wrap;
+    font-size:15px;
+  }
+
+  .rec dd.hand-out{
+    font-family:"Nanum Pen Script","Gowun Batang",cursive;
+    font-size:20px;
+    line-height:1.45;
+  }
+
+  .del{
+    background:none;
+    border:none;
+    color:var(--pen);
+    font-size:13px;
+    padding:6px 0 0;
+    text-decoration:underline;
+  }
+
+  /* ---------- 원고 ---------- */
+
+  .export{margin-top:14px}
+
+  .export textarea{
+    min-height:150px;
+    font-size:13px;
+    line-height:1.6;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+
+  .ghost{
+    background:none;
+    border:1px solid var(--rule);
+    color:var(--rule);
+    padding:9px 16px;
+    margin-top:10px;
+    font-weight:700;
+  }
+
+  .ghost:hover{background:var(--rule);color:var(--paper)}
+
+  .danger{
+    background:none;border:none;color:var(--pen);
+    font-size:13px;text-decoration:underline;
+    padding:14px 0 0;
+  }
+
+  .status{
+    font-size:13px;
+    color:var(--rule);
+    min-height:20px;
+    margin-top:8px;
+  }
+
+  .status.err{color:var(--pen)}
+
+  footer{
+    margin-top:56px;
+    padding-top:20px;
+    border-top:1px solid var(--rule-soft);
+    font-size:13px;
+    color:var(--graphite);
+  }
+
+  @media (max-width:520px){
+    h1{font-size:27px}
+    .grid{grid-template-columns:repeat(5,1fr)}
+    .row{flex-direction:column;gap:0}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none!important;animation:none!important}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">사유 주권 학습 기록</p>
+    <h1>먼저 쓴다.<br>그다음에 AI를 연다.</h1>
+    <p class="lede">한 문제, 20분. 아이가 종이에 먼저 쓰고, AI에게 답 대신 질문을 받고, 창을 닫고 혼자 다시 푼다. 그 한 번을 여기에 남깁니다.</p>
+  </header>
+
+  <div class="rule"></div>
+
+  <div class="progress">
+    <div class="progress-head">
+      <span class="progress-label">쌓인 기록</span>
+      <span class="progress-count" id="count">0 / 20</span>
+    </div>
+    <div class="grid" id="grid"></div>
+  </div>
+
+  <section>
+    <h2>오늘 기록</h2>
+
+    <div class="row">
+      <div class="field">
+        <label for="date">날짜</label>
+        <input type="date" id="date">
+      </div>
+      <div class="field">
+        <label for="topic">단원 · 문제</label>
+        <input type="text" id="topic" placeholder="정수와 유리수 / 괄호 앞 마이너스">
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="s1">1. 먼저 쓴 생각</label>
+      <span class="hint">AI를 열기 전, 아이가 종이에 쓴 것. 아는 것, 예상한 답, 막힌 지점.</span>
+      <textarea id="s1" class="hand" placeholder="아이 말 그대로 옮겨 적으세요"></textarea>
+    </div>
+
+    <div class="field field-ai">
+      <label for="s2">2. AI가 찌른 곳</label>
+      <span class="hint">답은 주지 않는다. 빠진 조건, 반례, 가장 약한 연결만 묻게 한다.</span>
+      <textarea id="s2" placeholder="AI가 던진 질문과 그때 드러난 빈틈"></textarea>
+    </div>
+
+    <div class="field">
+      <label for="s3">3. 창을 닫고 다시</label>
+      <span class="hint">빈 종이에 혼자. 자기 말로 설명할 수 있으면 통과.</span>
+      <textarea id="s3" class="hand" placeholder="혼자 다시 푼 결과"></textarea>
+    </div>
+
+    <div class="field">
+      <label for="over">과했던 것 · 부족했던 것</label>
+      <span class="hint">선택. 행동을 먼저 적고, 어떤 힘이 넘쳤고 무엇이 모자랐는지는 나중에 붙이세요.</span>
+      <input type="text" id="over" placeholder="50분을 같은 계산에 씀 / 방향 검토가 없었음">
+    </div>
+
+    <div class="field">
+      <label for="act">개입한 한마디와 결과</label>
+      <span class="hint">선택.</span>
+      <input type="text" id="act" placeholder="&quot;확인된 것과 막힌 곳을 한 줄씩 적어보자&quot; → 10분 뒤 해결">
+    </div>
+
+    <button class="save" id="save">기록 저장</button>
+    <p class="status" id="status"></p>
+  </section>
+
+  <section>
+    <h2>쌓인 기록</h2>
+    <div id="list"></div>
+  </section>
+
+  <section class="export">
+    <h2>원고로 내보내기</h2>
+    <textarea id="out" readonly placeholder="기록이 쌓이면 여기에 원고 형태로 모입니다."></textarea>
+    <div>
+      <button class="ghost" id="copy">전체 복사</button>
+    </div>
+    <button class="danger" id="reset">전체 기록 삭제</button>
+  </section>
+
+  <footer>
+    아이 이름, 학교, 생년월일은 AI에 넣지 않습니다. 기록은 이 브라우저에만 저장됩니다.
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  var KEY = "sujugwon:records:v1";
+  var TARGET = 20;
+  var records = [];
+
+  var $ = function(id){ return document.getElementById(id); };
+
+  function setStatus(msg, isErr){
+    var el = $("status");
+    el.textContent = msg || "";
+    el.className = "status" + (isErr ? " err" : "");
+  }
+
+  function todayStr(){
+    var d = new Date();
+    var m = String(d.getMonth()+1).padStart(2,"0");
+    var day = String(d.getDate()).padStart(2,"0");
+    return d.getFullYear() + "-" + m + "-" + day;
+  }
+
+  function fmtDate(s){
+    if(!s) return "";
+    var p = s.split("-");
+    return p.length === 3 ? (p[1]+"월 "+p[2]+"일") : s;
+  }
+
+  /* ---------- storage ---------- */
+
+  async function load(){
+    try{
+      var res = await window.storage.get(KEY, false);
+      records = res && res.value ? JSON.parse(res.value) : [];
+    }catch(e){
+      records = [];
+    }
+    if(!Array.isArray(records)) records = [];
+    render();
+  }
+
+  async function persist(){
+    try{
+      var res = await window.storage.set(KEY, JSON.stringify(records), false);
+      if(!res) throw new Error("no result");
+      return true;
+    }catch(e){
+      setStatus("저장하지 못했습니다. 잠시 후 다시 눌러 주세요.", true);
+      return false;
+    }
+  }
+
+  /* ---------- render ---------- */
+
+  function renderGrid(){
+    var grid = $("grid");
+    grid.innerHTML = "";
+    var total = Math.max(TARGET, records.length);
+    for(var i=0;i<total;i++){
+      var c = document.createElement("div");
+      c.className = "cell" + (i < records.length ? " filled" : "");
+      c.textContent = i + 1;
+      grid.appendChild(c);
+    }
+    $("count").textContent = records.length + " / " + TARGET;
+  }
+
+  function renderList(){
+    var list = $("list");
+    list.innerHTML = "";
+
+    if(records.length === 0){
+      var e = document.createElement("div");
+      e.className = "empty";
+      e.textContent = "아직 기록이 없습니다. 오늘 한 문제부터 시작하세요.";
+      list.appendChild(e);
+      return;
+    }
+
+    records.forEach(function(r, idx){
+      var el = document.createElement("article");
+      el.className = "rec";
+
+      var head = document.createElement("div");
+      head.className = "rec-head";
+
+      var no = document.createElement("span");
+      no.className = "rec-no";
+      no.textContent = String(idx+1).padStart(2,"0");
+
+      var tp = document.createElement("span");
+      tp.className = "rec-topic";
+      tp.textContent = r.topic || "제목 없음";
+
+      var dt = document.createElement("span");
+      dt.className = "rec-date";
+      dt.textContent = fmtDate(r.date);
+
+      head.appendChild(no); head.appendChild(tp); head.appendChild(dt);
+      el.appendChild(head);
+
+      var dl = document.createElement("dl");
+      [["먼저 쓴 생각", r.s1, true],
+       ["AI가 찌른 곳", r.s2, false],
+       ["창을 닫고 다시", r.s3, true],
+       ["과했던 것 · 부족했던 것", r.over, false],
+       ["개입과 결과", r.act, false]].forEach(function(p){
+        if(!p[1]) return;
+        var dt2 = document.createElement("dt");
+        dt2.textContent = p[0];
+        var dd = document.createElement("dd");
+        if(p[2]) dd.className = "hand-out";
+        dd.textContent = p[1];
+        dl.appendChild(dt2); dl.appendChild(dd);
+      });
+      el.appendChild(dl);
+
+      var del = document.createElement("button");
+      del.className = "del";
+      del.textContent = "이 기록 삭제";
+      del.addEventListener("click", async function(){
+        records.splice(idx,1);
+        await persist();
+        render();
+        setStatus("기록을 삭제했습니다.");
+      });
+      el.appendChild(del);
+
+      list.appendChild(el);
+    });
+  }
+
+  function renderExport(){
+    var lines = records.map(function(r, i){
+      var out = "── " + String(i+1).padStart(2,"0") + ". " + (r.topic||"제목 없음") + "  (" + (r.date||"") + ")\n";
+      if(r.s1)   out += "[먼저 쓴 생각] " + r.s1 + "\n";
+      if(r.s2)   out += "[AI가 찌른 곳] " + r.s2 + "\n";
+      if(r.s3)   out += "[창을 닫고 다시] " + r.s3 + "\n";
+      if(r.over) out += "[과함·부족] " + r.over + "\n";
+      if(r.act)  out += "[개입과 결과] " + r.act + "\n";
+      return out;
+    });
+    $("out").value = lines.join("\n");
+  }
+
+  function render(){
+    renderGrid();
+    renderList();
+    renderExport();
+  }
+
+  /* ---------- actions ---------- */
+
+  $("save").addEventListener("click", async function(){
+    var rec = {
+      date:  $("date").value || todayStr(),
+      topic: $("topic").value.trim(),
+      s1:    $("s1").value.trim(),
+      s2:    $("s2").value.trim(),
+      s3:    $("s3").value.trim(),
+      over:  $("over").value.trim(),
+      act:   $("act").value.trim()
+    };
+
+    if(!rec.s1 && !rec.s3){
+      setStatus("1번이나 3번 중 하나는 채워야 기록이 됩니다.", true);
+      return;
+    }
+
+    var btn = this;
+    btn.disabled = true;
+    btn.textContent = "저장하는 중";
+
+    records.push(rec);
+    var ok = await persist();
+
+    btn.disabled = false;
+    btn.textContent = "기록 저장";
+
+    if(!ok){ records.pop(); return; }
+
+    ["topic","s1","s2","s3","over","act"].forEach(function(id){ $(id).value = ""; });
+    $("date").value = todayStr();
+    render();
+    setStatus(records.length + "번째 기록을 저장했습니다.");
+    window.scrollTo({top:0, behavior:"smooth"});
+  });
+
+  $("copy").addEventListener("click", function(){
+    var ta = $("out");
+    if(!ta.value){ setStatus("복사할 기록이 없습니다.", true); return; }
+    ta.removeAttribute("readonly");
+    ta.select();
+    ta.setSelectionRange(0, 999999);
+    var done = false;
+    try{ done = document.execCommand("copy"); }catch(e){ done = false; }
+    ta.setAttribute("readonly","readonly");
+    setStatus(done ? "복사했습니다." : "복사되지 않았습니다. 위 상자에서 직접 선택해 주세요.", !done);
+  });
+
+  $("reset").addEventListener("click", async function(){
+    if(!window.confirm("기록을 전부 지웁니다. 되돌릴 수 없습니다.")) return;
+    records = [];
+    try{ await window.storage.delete(KEY, false); }catch(e){}
+    render();
+    setStatus("전체 기록을 삭제했습니다.");
+  });
+
+  $("date").value = todayStr();
+  load();
+})();
+</script>
+</body>
+</html>

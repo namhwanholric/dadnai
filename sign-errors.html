@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>부호 오류 8유형 — 오류 찾기 문항</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#E9E7DE;
+    --paper-hi:#F2F0E9;
+    --ink:#1F231D;
+    --rule:#4A7A5C;
+    --rule-soft:#4A7A5C33;
+    --graphite:#767A70;
+    --pen:#B23A2E;
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Gowun Batang","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",serif;
+    font-size:16px;line-height:1.7;
+    -webkit-text-size-adjust:100%;
+  }
+
+  .wrap{max-width:720px;margin:0 auto;padding:0 20px 80px}
+
+  /* ---------- 모드 전환 ---------- */
+
+  .bar{
+    position:sticky;top:0;z-index:20;
+    background:var(--paper);
+    border-bottom:1px solid var(--rule-soft);
+    display:flex;align-items:center;justify-content:space-between;
+    gap:14px;padding:12px 0;
+  }
+
+  .bar-label{font-size:12px;letter-spacing:.18em;color:var(--graphite)}
+  .bar-mode{font-size:17px;font-weight:700}
+
+  button{font-family:inherit;cursor:pointer;border-radius:0;font-size:14px}
+
+  .btn{
+    background:var(--ink);border:1px solid var(--ink);color:var(--paper);
+    padding:9px 16px;font-weight:700;
+  }
+  .btn:hover{background:var(--rule);border-color:var(--rule)}
+  .btn:focus-visible{outline:2px solid var(--rule);outline-offset:2px}
+
+  /* ---------- header ---------- */
+
+  header{padding:36px 0 24px}
+
+  .eyebrow{font-size:12px;letter-spacing:.22em;color:var(--rule);margin:0 0 14px;font-weight:700}
+  h1{font-size:32px;line-height:1.25;margin:0 0 14px;font-weight:700}
+  .lede{margin:0;max-width:35em;color:var(--graphite);font-size:15px}
+
+  .rule{height:1px;background:var(--rule);opacity:.45;margin:26px 0}
+
+  /* ---------- 문항 ---------- */
+
+  .item{border-top:1px solid var(--rule-soft);padding:26px 0 4px}
+
+  .item-head{display:flex;align-items:baseline;gap:14px;margin-bottom:12px}
+
+  .item-no{font-size:12px;letter-spacing:.14em;color:var(--rule);font-weight:700;white-space:nowrap}
+  .item-title{font-size:20px;font-weight:700;margin:0;flex:1}
+
+  .q{
+    font-size:22px;
+    letter-spacing:.02em;
+    margin:0 0 14px;
+    font-weight:700;
+  }
+
+  .wrong{
+    border-left:3px solid var(--pen);
+    background:var(--paper-hi);
+    padding:14px 16px;
+    margin:0 0 6px;
+  }
+
+  .wrong span{
+    display:block;font-size:11px;letter-spacing:.16em;
+    color:var(--pen);font-weight:700;margin-bottom:6px;
+  }
+
+  .wrong .line{font-size:18px;margin:3px 0;letter-spacing:.02em}
+
+  .answer{
+    background:var(--ink);
+    color:var(--paper);
+    padding:16px;
+    margin:12px -16px 0;
+  }
+
+  .answer h4{
+    font-size:11px;letter-spacing:.16em;color:#8FB79C;
+    margin:0 0 6px;font-weight:700;
+  }
+
+  .answer .line{font-size:18px;margin:3px 0;letter-spacing:.02em}
+
+  .answer .ask{
+    margin:14px 0 0;padding-top:12px;
+    border-top:1px solid #3D443A;
+    font-size:15px;color:#D8D6CD;
+  }
+
+  .answer .ask b{color:var(--paper);display:block;font-size:11px;letter-spacing:.16em;margin-bottom:4px;font-weight:700}
+
+  .hidden{display:none}
+
+  .link{
+    font-size:14px;color:var(--rule);
+    margin:12px 0 0;font-style:italic;
+  }
+
+  /* ---------- 안내 ---------- */
+
+  h2{font-size:12px;letter-spacing:.2em;color:var(--rule);margin:46px 0 16px;font-weight:700}
+
+  .how{border:1px solid var(--rule-soft);padding:18px 20px;margin-bottom:12px}
+  .how p{margin:0 0 8px;font-weight:700;font-size:15px}
+  .how ul{margin:0;padding-left:1.1em;font-size:15px;color:var(--graphite)}
+  .how li{margin:5px 0}
+
+  .warn{border-left:3px solid var(--pen);padding:10px 14px;margin-top:24px;font-size:14px}
+  .warn span{display:block;font-size:11px;letter-spacing:.16em;color:var(--pen);font-weight:700;margin-bottom:4px}
+
+  footer{
+    margin-top:50px;padding-top:20px;
+    border-top:1px solid var(--rule-soft);
+    font-size:13px;color:var(--graphite);
+  }
+
+  @media (max-width:520px){
+    h1{font-size:26px}
+    .item-title{font-size:18px}
+    .q{font-size:20px}
+    .answer{margin-left:-20px;margin-right:-20px}
+  }
+
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="bar">
+    <div>
+      <div class="bar-label">지금 화면</div>
+      <div class="bar-mode" id="mode">아이용 · 답 가림</div>
+    </div>
+    <button class="btn" id="toggle">답 보기</button>
+  </div>
+
+  <header>
+    <p class="eyebrow">중1 정수와 유리수 · 부호</p>
+    <h1>틀린 풀이 여덟 개.<br>어디서 틀렸는지 찾으세요.</h1>
+    <p class="lede">문제를 푸는 게 아니라, 이미 틀려 있는 풀이에서 틀린 줄 하나를 찾는 문항입니다. 답을 아는 상태에서 시작하니 아이가 "왜"에 집중할 수 있습니다. 하루 한 개, 여드레치입니다.</p>
+  </header>
+
+  <div class="rule"></div>
+
+  <!-- 01 -->
+  <section class="item">
+    <div class="item-head"><span class="item-no">01</span><h3 class="item-title">괄호 앞의 마이너스</h3></div>
+    <p class="q">5 − (3 − 7)</p>
+    <div class="wrong">
+      <span>어떤 아이의 풀이</span>
+      <div class="line">= 5 − 3 − 7</div>
+      <div class="line">= 2 − 7</div>
+      <div class="line">= −5</div>
+    </div>
+    <div class="answer hidden">
+      <h4>바른 풀이</h4>
+      <div class="line">= 5 − (−4)</div>
+      <div class="line">= 5 + 4 = <b>9</b></div>
+      <p class="ask"><b>답 대신 던질 질문</b>괄호를 풀 때 7 앞의 부호는 어떻게 됐지? 괄호 안을 먼저 계산하면 얼마야?</p>
+    </div>
+  </section>
+
+  <!-- 02 -->
+  <section class="item">
+    <div class="item-head"><span class="item-no">02</span><h3 class="item-title">빼기에서 빼기</h3></div>
+    <p class="q">(−4) − (−9)</p>
+    <div class="wrong">
+      <span>어떤 아이의 풀이</span>
+      <div class="line">= −4 − 9</div>
+      <div class="line">= −13</div>
+    </div>
+    <div class="answer hidden">
+      <h4>바른 풀이</h4>
+      <div class="line">= −4 + 9 = <b>5</b></div>
+      <p class="ask"><b>답 대신 던질 질문</b>수직선에서 −4에 서 있어. −9를 뺀다는 건 어느 쪽으로 가는 거야?</p>
+    </div>
+  </section>
+
+  <!-- 03 -->
+  <section class="item">
+    <div class="item-head"><span class="item-no">03</span><h3 class="item-title">제곱 안의 마이너스</h3></div>
+    <p class="q">−2² + (−2)²</p>
+    <div class="wrong">
+      <span>어떤 아이의 풀이</span>
+      <div class="line">= 4 + 4</div>
+      <div class="line">= 8</div>
+    </div>
+    <div class="answer hidden">
+      <h4>바른 풀이</h4>
+      <div class="line">= −4 + 4 = <b>0</b></div>
+      <p class="ask"><b>답 대신 던질 질문</b>−2²에서 제곱이 붙은 건 2야, −2야? 둘을 다르게 읽어서 소리 내 봐.</p>
+    </div>
+  </section>
+
+  <!-- 04 -->
+  <section class="item">
+    <div class="item-head"><span class="item-no">04</span><h3 class="item-title">음수의 개수</h3></div>
+    <p class="q">(−2) × (−3) × (−1)</p>
+    <div class="wrong">
+      <span>어떤 아이의 풀이</span>
+      <div class="line">= 6 × (−1)</div>
+      <div class="line">= 6</div>
+    </div>
+    <div class="answer hidden">
+      <h4>바른 풀이</h4>
+      <div class="line">= 6 × (−1) = <b>−6</b></div>
+      <p class="ask"><b>답 대신 던질 질문</b>앞의 두 줄은 맞아. 마지막 줄만 다시 봐. 6에 −1을 곱하면?</p>
+    </div>
+  </section>
+
+  <!-- 05 -->
+  <section class="item">
+    <div class="item-head"><span class="item-no">05</span><h3 class="item-title">분수로 옷을 갈아입은 1번</h3></div>
+    <p class="q">1/2 − (2/3 − 5/6)</p>
+    <div class="wrong">
+      <span>어떤 아이의 풀이</span>
+      <div class="line">= 1/2 − 2/3 − 5/6</div>
+      <div class="line">= 3/6 − 4/6 − 5/6</div>
+      <div class="line">= −6/6 = −1</div>
+    </div>
+    <div class="answer hidden">
+      <h4>바른 풀이</h4>
+      <div class="line">괄호 안 = 4/6 − 5/6 = −1/6</div>
+      <div class="line">= 1/2 + 1/6 = 3/6 + 1/6 = <b>2/3</b></div>
+      <p class="ask"><b>답 대신 던질 질문</b>이거 아까 1번이랑 같은 실수 아닐까? 숫자만 분수로 바뀐 건데.</p>
+    </div>
+    <p class="link">↑ 1번과 같은 오류입니다. 1번을 맞힌 아이가 이걸 틀리면, 이해한 게 아니라 그 문제를 외운 것입니다.</p>
+  </section>
+
+  <!-- 06 -->
+  <section class="item">
+    <div class="item-head"><span class="item-no">06</span><h3 class="item-title">계산 순서와 부호</h3></div>
+    <p class="q">−3² + (−2)³ ÷ 4</p>
+    <div class="wrong">
+      <span>어떤 아이의 풀이</span>
+      <div class="line">= 9 + (−8) ÷ 4</div>
+      <div class="line">= 9 − 2</div>
+      <div class="line">= 7</div>
+    </div>
+    <div class="answer hidden">
+      <h4>바른 풀이</h4>
+      <div class="line">= −9 + (−8) ÷ 4</div>
+      <div class="line">= −9 + (−2) = <b>−11</b></div>
+      <p class="ask"><b>답 대신 던질 질문</b>세 줄 중에 딱 한 군데만 틀렸어. 어느 줄부터 어긋났는지 짚어 봐.</p>
+    </div>
+    <p class="link">↑ 3번과 같은 오류입니다.</p>
+  </section>
+
+  <!-- 07 -->
+  <section class="item">
+    <div class="item-head"><span class="item-no">07</span><h3 class="item-title">절댓값 기호 안쪽</h3></div>
+    <p class="q">|−5| − |3 − 8|</p>
+    <div class="wrong">
+      <span>어떤 아이의 풀이</span>
+      <div class="line">= 5 − (3 − 8)</div>
+      <div class="line">= 5 − (−5)</div>
+      <div class="line">= 10</div>
+    </div>
+    <div class="answer hidden">
+      <h4>바른 풀이</h4>
+      <div class="line">|3 − 8| = |−5| = 5</div>
+      <div class="line">= 5 − 5 = <b>0</b></div>
+      <p class="ask"><b>답 대신 던질 질문</b>두 번째 절댓값 기호는 어디로 갔어? 왼쪽 |−5|는 왜 5로 바꿨는데 오른쪽은 안 바꿨을까?</p>
+    </div>
+  </section>
+
+  <!-- 08 -->
+  <section class="item">
+    <div class="item-head"><span class="item-no">08</span><h3 class="item-title">나눗셈을 곱셈으로</h3></div>
+    <p class="q">(−6) ÷ (−2/3)</p>
+    <div class="wrong">
+      <span>어떤 아이의 풀이</span>
+      <div class="line">= (−6) × (−2/3)</div>
+      <div class="line">= 4</div>
+    </div>
+    <div class="answer hidden">
+      <h4>바른 풀이</h4>
+      <div class="line">= (−6) × (−3/2)</div>
+      <div class="line">= <b>9</b></div>
+      <p class="ask"><b>답 대신 던질 질문</b>나눗셈을 곱셈으로 바꿀 때 뭘 뒤집어야 하지? 부호는 맞게 했는데 하나를 안 했어.</p>
+    </div>
+  </section>
+
+  <h2>쓰는 법</h2>
+
+  <div class="how">
+    <p>하루 한 개, 5분</p>
+    <ul>
+      <li>답 가린 화면을 아이에게 보여주고 틀린 줄을 짚게 합니다</li>
+      <li>짚었으면 "왜 틀렸어?"를 반드시 물어봅니다. 짚기만 하고 설명 못 하면 통과가 아닙니다</li>
+      <li>못 찾으면 답을 알려주지 말고 "몇 번째 줄까지는 맞아"만 알려주세요</li>
+    </ul>
+  </div>
+
+  <div class="how">
+    <p>짝을 이룬 문항이 있습니다</p>
+    <ul>
+      <li>01 ↔ 05 (괄호 앞 마이너스, 정수와 분수)</li>
+      <li>03 ↔ 06 (제곱 안의 마이너스, 단독과 혼합)</li>
+      <li>앞을 맞히고 뒤를 틀리면 외운 것입니다. 며칠 간격을 두고 내세요</li>
+    </ul>
+  </div>
+
+  <div class="warn">
+    <span>확인하고 쓰세요</span>
+    여덟 문항의 계산은 전부 검산했지만, 인쇄해서 아이에게 주기 전에 회장님이 직접 한 번 풀어 보세요. 이 문항의 존재 이유가 "AI도 틀린다"인데 문항 자체가 틀려 있으면 안 됩니다.
+  </div>
+
+  <footer>
+    이 여덟 개는 부호에만 집중한 것입니다. 아이가 자주 틀리는 유형이 따로 있으면 그걸로 바꾸세요.<br>
+    틀린 줄을 찾는 데 걸린 시간과 설명할 수 있었는지를 기록에 남기면, 며칠 뒤 같은 유형에서 어떻게 달라졌는지 보입니다.
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  var shown = false;
+  var btn = document.getElementById("toggle");
+  var mode = document.getElementById("mode");
+
+  btn.addEventListener("click", function(){
+    shown = !shown;
+    var list = document.querySelectorAll(".answer");
+    for(var i=0;i<list.length;i++){
+      list[i].className = shown ? "answer" : "answer hidden";
+    }
+    btn.textContent = shown ? "답 가리기" : "답 보기";
+    mode.textContent = shown ? "부모용 · 답 보임" : "아이용 · 답 가림";
+  });
+})();
+</script>
+</body>
+</html>

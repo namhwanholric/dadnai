@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>문 하나 — 유니티 첫 세션 카드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#E9E7DE;--paper-hi:#F2F0E9;--ink:#1F231D;
+    --rule:#4A7A5C;--rule-soft:#4A7A5C33;--graphite:#767A70;
+    --faint:#A8AAA0;--pen:#B23A2E;
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+
+  body{
+    background:var(--paper);color:var(--ink);
+    font-family:"Gowun Batang","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",serif;
+    font-size:16px;line-height:1.72;-webkit-text-size-adjust:100%;
+  }
+
+  .wrap{max-width:730px;margin:0 auto;padding:0 20px 80px}
+
+  header{padding:44px 0 24px}
+  .eyebrow{font-size:12px;letter-spacing:.22em;color:var(--rule);margin:0 0 14px;font-weight:700}
+  h1{font-size:32px;line-height:1.25;margin:0 0 14px;font-weight:700}
+  .lede{margin:0;max-width:36em;color:var(--graphite);font-size:15px}
+  .rule{height:1px;background:var(--rule);opacity:.45;margin:28px 0}
+
+  .step{border-top:1px solid var(--rule-soft);padding:28px 0 6px}
+  .step:first-of-type{border-top:none}
+
+  .step-head{display:flex;align-items:baseline;gap:14px;margin-bottom:6px}
+  .step-no{font-size:12px;letter-spacing:.14em;color:var(--rule);font-weight:700;white-space:nowrap}
+  .step-title{font-size:21px;font-weight:700;margin:0;flex:1}
+  .step-when{font-size:13px;color:var(--graphite);white-space:nowrap}
+
+  .step p{margin:10px 0}
+  .step ul{margin:10px 0;padding-left:1.1em}
+  .step li{margin:6px 0}
+
+  .say{
+    border-left:3px solid var(--rule);background:var(--paper-hi);
+    padding:14px 16px;margin:14px 0;font-size:15px;
+  }
+  .say span{display:block;font-size:11px;letter-spacing:.16em;color:var(--rule);font-weight:700;margin-bottom:6px}
+  .say ol{margin:0;padding-left:1.2em}
+  .say li{margin:6px 0}
+
+  .box{background:var(--ink);color:var(--paper);padding:18px 18px 20px;margin:16px -18px}
+  .box h4{font-size:11px;letter-spacing:.16em;color:#8FB79C;margin:0 0 8px;font-weight:700}
+  .box p{margin:0 0 10px;font-size:16px}
+  .box p:last-child{margin-bottom:0}
+  .box ul{margin:8px 0 0;padding-left:1.1em}
+  .box li{margin:5px 0;font-size:15px;color:#D8D6CD}
+  .box b{color:#8FB79C}
+
+  .warn{border-left:3px solid var(--pen);padding:12px 14px;margin:16px 0;font-size:15px}
+  .warn span{display:block;font-size:11px;letter-spacing:.16em;color:var(--pen);font-weight:700;margin-bottom:4px}
+
+  h2{font-size:12px;letter-spacing:.2em;color:var(--rule);margin:46px 0 16px;font-weight:700}
+
+  .trap{border-top:1px solid var(--rule-soft);padding:20px 0 4px}
+  .trap h3{font-size:17px;font-weight:700;margin:0 0 6px}
+  .trap p{margin:6px 0;font-size:15px}
+  .trap .fix{color:var(--rule);font-weight:700}
+
+  footer{
+    margin-top:50px;padding-top:20px;
+    border-top:1px solid var(--rule-soft);
+    font-size:13px;color:var(--graphite);
+  }
+
+  @media (max-width:520px){
+    h1{font-size:26px}
+    .step-title{font-size:19px}
+    .box{margin-left:-20px;margin-right:-20px}
+  }
+
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">유니티 · 첫 세션</p>
+    <h1>게임 말고 문 하나.<br>그것도 안 열려도 됩니다.</h1>
+    <p class="lede">아이는 이미 스스로 도구를 골랐습니다. 그러니 오늘 가르칠 것은 없습니다. 만든 걸 보여달라 하고, 문 하나를 목표로 잡고, 첫 플레이어가 되어주는 것이 전부입니다.</p>
+  </header>
+
+  <div class="rule"></div>
+
+  <section class="step">
+    <div class="step-head">
+      <span class="step-no">00</span>
+      <h3 class="step-title">먼저 보여달라고 하기</h3>
+      <span class="step-when">유니티 켜기 전</span>
+    </div>
+    <p>새 프로젝트를 시작하기 전에, GPT로 만들었던 게임부터 보여달라고 하세요. 오늘의 절반은 여기서 끝납니다.</p>
+    <div class="say">
+      <span>이 네 가지만 물으세요</span>
+      <ol>
+        <li>이 게임에서 네가 정한 건 뭐고, GPT가 만들어준 건 뭐야?</li>
+        <li>제일 마음에 드는 부분은 어디야?</li>
+        <li>만들고 싶었는데 못 만든 건 뭐야?</li>
+        <li>그래서 유니티가 필요하다고 생각한 거야?</li>
+      </ol>
+    </div>
+    <p>1번 답에서 아이가 어디까지 자기 것으로 갖고 있는지가 다 드러납니다. 코드를 시험 보듯 묻는 게 아니라 자기 작품을 설명하는 거라 아이도 부담이 없습니다.</p>
+    <p>3번 답이 오늘 만들 것입니다. <strong>못 만든 그것</strong>이 유니티로 넘어온 이유니까요.</p>
+  </section>
+
+  <section class="step">
+    <div class="step-head">
+      <span class="step-no">01</span>
+      <h3 class="step-title">오늘의 목표</h3>
+      <span class="step-when">하루</span>
+    </div>
+    <div class="box">
+      <h4>여기까지만</h4>
+      <p>방 하나. 걸어다닌다. 문 앞에서 E를 누른다. 문이 열린다.</p>
+      <p>끝입니다. 괴물도, 조명도, 수학 문제도 오늘은 없습니다.</p>
+    </div>
+    <p>도어즈는 팀이 몇 년 만든 겁니다. 첫날 게임을 만들려고 하면 첫날 그만둡니다. 문 하나가 되면 방을 늘리는 건 복사예요.</p>
+    <p>에셋은 전부 무료로 받아 쓰세요. 블렌더는 나중입니다. 모델링에 빠지면 게임이 영영 안 나옵니다.</p>
+  </section>
+
+  <section class="step">
+    <div class="step-head">
+      <span class="step-no">02</span>
+      <h3 class="step-title">AI에게 물으면서 만들기</h3>
+      <span class="step-when">규칙 하나</span>
+    </div>
+    <div class="box">
+      <h4>단 하나의 규칙</h4>
+      <p><b>붙여넣기 전에, 이 코드가 뭘 하는지 한 문장으로 말한다.</b></p>
+      <p>못 하면 붙여넣지 말고 "이거 뭐 하는 건지 설명해줘"부터 물어봅니다.</p>
+    </div>
+    <p>완벽한 설명을 요구하면 그때부터 다시 수업이 됩니다. 이 네 가지면 충분합니다.</p>
+    <ul>
+      <li>이 스크립트는 어느 물체에 붙이는가</li>
+      <li>언제 실행되는가</li>
+      <li>무엇을 움직이거나 바꾸는가</li>
+      <li>숫자를 바꾸면 뭐가 달라지는가</li>
+    </ul>
+    <p>마지막 항목이 제일 좋습니다. 숫자 하나 바꿔서 직접 확인하는 게 설명 열 줄보다 확실해요.</p>
+  </section>
+
+  <section class="step">
+    <div class="step-head">
+      <span class="step-no">03</span>
+      <h3 class="step-title">두 번째 문</h3>
+      <span class="step-when">판정</span>
+    </div>
+    <p>첫 번째 문은 AI와 같이 만듭니다. <strong>두 번째 문은 아이 혼자 복제해서 만듭니다.</strong></p>
+    <p>혼자 되면 이해한 겁니다. 안 되면 그 부분만 다시 내려가면 되고요. 수학에서 "숫자만 바꾼 문제"를 하나 더 주는 것과 똑같은 검사입니다.</p>
+    <p>게임은 판정이 쉽습니다. 물어볼 필요가 없어요. 코드가 즉시 알려줍니다.</p>
+  </section>
+
+  <h2>미리 아는 함정 셋</h2>
+
+  <div class="trap">
+    <h3>AI는 유니티 화면을 못 봅니다</h3>
+    <p>초보가 막히는 문제의 절반은 코드가 아니라 설정입니다. 컴포넌트를 안 붙였거나, 콜라이더가 없거나, 프리팹 적용을 안 했거나. 그런데 AI에 물으면 <strong>코드를 고치는 답을 자신 있게 줍니다.</strong> 코드는 멀쩡한데요.</p>
+    <p class="fix">→ "이거 코드 문제야, 설정 문제야?"를 먼저 구분하는 습관. 스크린샷을 찍어 보여주면 꽤 잡힙니다.</p>
+  </div>
+
+  <div class="trap">
+    <h3>AI가 옛날 유니티 코드를 줍니다</h3>
+    <p>지금은 안 쓰는 방식인데 그럴듯해 보입니다. 특히 입력 처리 쪽이 그렇습니다.</p>
+    <p class="fix">→ 질문할 때마다 유니티 버전과 쓰는 입력 방식을 먼저 밝히는 습관. 이거 하나로 헛수고가 크게 줄어듭니다.</p>
+  </div>
+
+  <div class="trap">
+    <h3>속도 절벽</h3>
+    <p>GPT는 5분 만에 굴러가는 걸 줬는데, 유니티 첫 문은 며칠 걸립니다. 아이 입장에선 <strong>더 좋은 도구로 옮겼는데 갑자기 느려진</strong> 겁니다. 여기서 대부분 그만둡니다.</p>
+    <p class="fix">→ 진도로 못 넘깁니다. 못생긴 네모 문이 처음 열렸을 때 회장님이 크게 반응해 주는 것으로 넘깁니다.</p>
+  </div>
+
+  <div class="warn">
+    <span>역할을 지키세요</span>
+    아이가 제작자, AI가 기술 조수, 회장님은 <b>첫 플레이어</b>입니다. 개발 감독이 되는 순간 아이 게임이 아니라 아빠 게임이 됩니다. 원래 이 아이의 동력은 아빠가 죽는 걸 보는 재미였잖아요. 그 자리를 지키시면 됩니다.
+  </div>
+
+  <footer>
+    C# 문법은 문이 열린 뒤에 정리하세요. "방금 쓴 다섯 개가 기본 부품이다" 정도로 충분합니다.<br>
+    첫날 문이 안 열려도 됩니다. 유니티를 켜고 방 하나를 만든 것만으로 오늘은 됩니다.
+  </footer>
+
+</div>
+</body>
+</html>

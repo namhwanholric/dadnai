@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>네 부품 — 우리 집 튜터에 대입하면</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#E9E7DE;
+    --paper-hi:#F2F0E9;
+    --ink:#1F231D;
+    --rule:#4A7A5C;
+    --rule-soft:#4A7A5C33;
+    --graphite:#767A70;
+    --faint:#A8AAA0;
+    --pen:#B23A2E;
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+
+  body{
+    background:var(--paper);color:var(--ink);
+    font-family:"Gowun Batang","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",serif;
+    font-size:16px;line-height:1.7;-webkit-text-size-adjust:100%;
+  }
+
+  .wrap{max-width:740px;margin:0 auto;padding:0 20px 80px}
+
+  header{padding:44px 0 24px}
+  .eyebrow{font-size:12px;letter-spacing:.22em;color:var(--rule);margin:0 0 14px;font-weight:700}
+  h1{font-size:32px;line-height:1.25;margin:0 0 14px;font-weight:700}
+  .lede{margin:0;max-width:36em;color:var(--graphite);font-size:15px}
+  .rule{height:1px;background:var(--rule);opacity:.45;margin:28px 0}
+
+  /* ---------- 부품 ---------- */
+
+  .part{border-top:1px solid var(--rule-soft);padding:28px 0 8px}
+  .part:first-of-type{border-top:none}
+
+  .part-head{display:flex;align-items:baseline;gap:14px;margin-bottom:4px}
+  .part-no{font-size:12px;letter-spacing:.14em;color:var(--rule);font-weight:700;white-space:nowrap}
+  .part-title{font-size:21px;font-weight:700;margin:0;flex:1}
+
+  .verdict{
+    display:inline-block;
+    font-size:11px;letter-spacing:.14em;font-weight:700;
+    padding:3px 9px;white-space:nowrap;
+  }
+  .v-need{background:var(--rule);color:var(--paper)}
+  .v-skip{background:none;color:var(--faint);border:1px solid var(--faint)}
+
+  .part p{margin:10px 0}
+
+  .now{
+    font-size:14px;color:var(--graphite);
+    border-left:2px solid var(--rule-soft);
+    padding-left:12px;margin:12px 0;
+  }
+  .now b{color:var(--ink)}
+
+  .do{
+    background:var(--ink);color:var(--paper);
+    padding:18px 18px 20px;margin:16px -18px;
+  }
+  .do h4{font-size:11px;letter-spacing:.16em;color:#8FB79C;margin:0 0 8px;font-weight:700}
+  .do ol{margin:0;padding-left:1.2em}
+  .do li{margin:6px 0;font-size:15px}
+  .do p{margin:12px 0 0;font-size:14px;color:#B9BCB2}
+
+  .skip-note{
+    border-left:3px solid var(--faint);
+    padding:10px 14px;margin:14px 0;
+    font-size:14px;color:var(--graphite);
+  }
+  .skip-note b{color:var(--ink)}
+
+  .warn{border-left:3px solid var(--pen);padding:10px 14px;margin:16px 0;font-size:14px}
+  .warn span{display:block;font-size:11px;letter-spacing:.16em;color:var(--pen);font-weight:700;margin-bottom:4px}
+
+  h2{font-size:12px;letter-spacing:.2em;color:var(--rule);margin:46px 0 16px;font-weight:700}
+
+  .close{
+    background:var(--paper-hi);
+    border:1px solid var(--rule-soft);
+    padding:22px 20px;
+  }
+  .close p{margin:0 0 12px}
+  .close p:last-child{margin-bottom:0}
+  .close strong{color:var(--rule)}
+
+  footer{
+    margin-top:50px;padding-top:20px;
+    border-top:1px solid var(--rule-soft);
+    font-size:13px;color:var(--graphite);
+  }
+
+  @media (max-width:520px){
+    h1{font-size:26px}
+    .part-title{font-size:19px}
+    .part-head{flex-wrap:wrap;gap:8px 12px}
+    .do{margin-left:-20px;margin-right:-20px}
+  }
+
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">1장 초안 · 부품 점검</p>
+    <h1>부품은 넷.<br>우리에게 필요한 건 둘.</h1>
+    <p class="lede">계획, 기억, 도구, 실행. 에이전트를 이루는 네 부품을 우리 집 수학 튜터에 하나씩 대 봤습니다. 두 개는 오늘 코딩 없이 붙일 수 있고, 두 개는 일부러 붙이지 않는 게 맞습니다.</p>
+  </header>
+
+  <div class="rule"></div>
+
+  <!-- 1 -->
+  <section class="part">
+    <div class="part-head">
+      <span class="part-no">01</span>
+      <h3 class="part-title">계획</h3>
+      <span class="verdict v-skip">붙이지 않음</span>
+    </div>
+    <p class="now"><b>지금 상태</b> — 없습니다. 질문 순서를 지시문에 고정해 두었으니, 이건 에이전트가 아니라 워크플로입니다.</p>
+    <p>그리고 그게 맞습니다. 아이 학습에서 AI가 스스로 계획을 바꾸면, 오늘 뭘 배웠는지 부모가 통제할 수 없게 됩니다. 진도와 난이도는 부모가 정하는 영역입니다.</p>
+    <div class="skip-note">
+      <b>다만 정직하게 쓸 것</b> — 이걸 두고 "에이전트"라고 부르면 안 됩니다. 정해진 순서를 따라가는 워크플로입니다. 책에서는 이 구분을 먼저 하고 시작해야 신뢰를 얻습니다.
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="part">
+    <div class="part-head">
+      <span class="part-no">02</span>
+      <h3 class="part-title">기억</h3>
+      <span class="verdict v-need">오늘 붙임</span>
+    </div>
+    <p class="now"><b>지금 상태</b> — 없습니다. 대화창을 닫으면 어제 아이가 뭘 틀렸는지 전부 사라집니다.</p>
+    <p>이게 지금 시스템의 진짜 병목입니다. 매번 처음부터 설명해야 하고, 같은 오류가 세 번째 반복되고 있다는 걸 AI가 모릅니다. 벡터 DB도 RAG도 필요 없습니다. <strong>파일 하나면 됩니다.</strong></p>
+    <div class="do">
+      <h4>오늘 할 것</h4>
+      <ol>
+        <li>기록 도구에서 <b>전체 복사</b>를 누릅니다</li>
+        <li>메모장에 붙여 <code>오답기록.txt</code>로 저장합니다</li>
+        <li>튜터 Gem(또는 프로젝트)에 그 파일을 올립니다</li>
+        <li>지시문 맨 위에 한 줄 추가합니다 — "시작 전 오답기록 파일을 읽고, 같은 유형이 반복되고 있으면 그것부터 다룬다"</li>
+      </ol>
+      <p>기록이 쌓일 때마다 파일을 새로 올리면 됩니다. 이게 코딩 없는 장기 기억입니다.</p>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="part">
+    <div class="part-head">
+      <span class="part-no">03</span>
+      <h3 class="part-title">도구</h3>
+      <span class="verdict v-need">오늘 붙임</span>
+    </div>
+    <p class="now"><b>지금 상태</b> — 없습니다. AI가 머릿속으로 계산하고 있고, 그래서 틀립니다.</p>
+    <p>이게 회장님이 처음부터 걱정하신 그 문제의 해답입니다. LLM은 계산을 문장 만들 듯이 하기 때문에 부호와 분수에서 틀립니다. 그런데 <strong>계산을 직접 하지 말고 코드로 돌리게 하면</strong> 그 오류가 사라집니다.</p>
+    <p>오늘 아침에 부호 오류 8문항을 만들 때 제가 한 게 정확히 이것입니다. 답을 머리로 쓰지 않고 파이썬으로 여덟 개를 전부 돌려 확인했습니다. 그게 도구 활용입니다.</p>
+    <div class="do">
+      <h4>오늘 할 것</h4>
+      <ol>
+        <li>쓰는 AI에서 <b>코드 실행</b> 기능을 켭니다</li>
+        <li>지시문에 한 줄 추가 — "수치 계산과 검산은 반드시 코드로 실행하고, 암산으로 답하지 않는다"</li>
+        <li>문항을 만들 때는 반드시 계산 결과를 보여 달라고 합니다</li>
+      </ol>
+      <p>완벽하진 않습니다. 코드를 잘못 짜면 여전히 틀립니다. 그래도 암산보다 훨씬 낫고, 무엇보다 아이에게 검산 과정을 보여줄 수 있습니다.</p>
+    </div>
+    <div class="warn">
+      <span>아이 앞에서는 다르게</span>
+      튜터 대화 중에는 계산 도구를 쓰지 마세요. AI가 정확히 계산해 버리면 아이가 검산할 이유가 사라집니다. 도구는 <b>부모가 문항을 만들 때</b> 쓰고, 아이와의 대화에서는 끄는 게 맞습니다.
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section class="part">
+    <div class="part-head">
+      <span class="part-no">04</span>
+      <h3 class="part-title">실행</h3>
+      <span class="verdict v-skip">붙이지 않음</span>
+    </div>
+    <p class="now"><b>지금 상태</b> — 없습니다. AI는 질문만 하고 아무것도 실행하지 않습니다.</p>
+    <p>여기가 다른 분야와 정반대인 지점입니다. 보통 에이전트는 실행하고 결과를 보고 고치는 루프가 핵심입니다. 그런데 <strong>학습에서 AI가 실행해 버리면 그게 사고외주입니다.</strong> 문제를 대신 푸는 것이 곧 실행이니까요.</p>
+    <div class="skip-note">
+      <b>실행은 아이 몫</b> — 이 시스템에서 관찰과 재시도 루프를 도는 주체는 AI가 아니라 아이입니다. 종이에 쓰고, 틀리고, 다시 푸는 것. 그 루프를 AI에게 넘기지 않는 것이 이 학습법 전체의 목적입니다.
+    </div>
+  </section>
+
+  <h2>정리</h2>
+
+  <div class="close">
+    <p>에이전트를 만들지 않기로 한 판단은 옳았습니다. 다만 이유를 정확히 알고 안 만드는 것과, 몰라서 못 만드는 것은 책에서 완전히 다르게 읽힙니다.</p>
+    <p>우리가 필요한 건 <strong>기억과 도구</strong>뿐입니다. 둘 다 오늘 파일 하나와 설정 하나로 됩니다. <strong>계획과 실행은 사람 몫으로 남깁니다</strong> — 진도는 부모가, 푸는 건 아이가.</p>
+    <p>이걸 한 문장으로 줄이면 1장의 마지막 문장이 됩니다.<br>
+    <strong>"우리는 에이전트를 만들지 않는다. 기억하는 도구를 만들고, 판단은 사람이 한다."</strong></p>
+  </div>
+
+  <footer>
+    붙이는 순서는 기억 → 도구입니다. 기억부터 붙이면 다음 회차부터 바로 체감됩니다.<br>
+    붙인 뒤 뭐가 달라졌는지도 기록에 남기세요. 그게 1장의 근거가 됩니다.
+  </footer>
+
+</div>
+</body>
+</html>

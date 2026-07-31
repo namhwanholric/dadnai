@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>공부방 — 입구</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#E9E7DE;--paper-hi:#F2F0E9;--ink:#1F231D;
+    --rule:#4A7A5C;--rule-soft:#4A7A5C33;--graphite:#767A70;
+    --faint:#A8AAA0;--pen:#B23A2E;
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+
+  body{
+    background:var(--paper);color:var(--ink);
+    font-family:"Gowun Batang","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",serif;
+    font-size:16px;line-height:1.72;-webkit-text-size-adjust:100%;
+  }
+
+  .wrap{max-width:660px;margin:0 auto;padding:0 20px 80px}
+
+  header{padding:48px 0 24px}
+  .eyebrow{font-size:12px;letter-spacing:.22em;color:var(--rule);margin:0 0 14px;font-weight:700}
+  h1{font-size:33px;line-height:1.25;margin:0 0 14px;font-weight:700}
+  .lede{margin:0;max-width:34em;color:var(--graphite);font-size:15px}
+  .rule{height:1px;background:var(--rule);opacity:.45;margin:28px 0}
+
+  h2{font-size:12px;letter-spacing:.2em;color:var(--rule);margin:40px 0 4px;font-weight:700}
+  .h2sub{font-size:14px;color:var(--graphite);margin:0 0 18px}
+
+  a.card{
+    display:block;
+    border-top:1px solid var(--rule-soft);
+    padding:20px 0;
+    text-decoration:none;
+    color:inherit;
+  }
+  a.card:hover{background:var(--paper-hi)}
+  a.card:focus-visible{outline:2px solid var(--rule);outline-offset:2px}
+
+  .card-head{display:flex;align-items:baseline;gap:12px;margin-bottom:3px}
+  .card-no{font-size:12px;letter-spacing:.14em;color:var(--rule);font-weight:700;white-space:nowrap}
+  .card-name{font-size:19px;font-weight:700;flex:1}
+  .card-when{font-size:12px;color:var(--faint);white-space:nowrap}
+  .card p{margin:0;font-size:15px;color:var(--graphite)}
+
+  .aside{
+    border:1px solid var(--rule-soft);
+    padding:18px 20px;margin-top:34px;
+  }
+  .aside p{margin:0 0 8px;font-weight:700;font-size:15px}
+  .aside ul{margin:0;padding-left:1.1em;font-size:15px;color:var(--graphite)}
+  .aside li{margin:5px 0}
+
+  .warn{border-left:3px solid var(--pen);padding:10px 14px;margin-top:26px;font-size:14px}
+  .warn span{display:block;font-size:11px;letter-spacing:.16em;color:var(--pen);font-weight:700;margin-bottom:4px}
+
+  footer{
+    margin-top:48px;padding-top:20px;
+    border-top:1px solid var(--rule-soft);
+    font-size:13px;color:var(--graphite);
+  }
+
+  @media (max-width:520px){
+    h1{font-size:27px}
+    .card-name{font-size:18px}
+    .card-head{flex-wrap:wrap;gap:6px 12px}
+  }
+
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">비공개 · 우리 집 전용</p>
+    <h1>공부방</h1>
+    <p class="lede">오늘 저녁에 쓸 순서대로 놓았습니다. 위에서부터 내려가면 됩니다. 20분이면 끝나고, 안 끝나도 20분에 멈춥니다.</p>
+  </header>
+
+  <div class="rule"></div>
+
+  <h2>수학 · 저녁 20분</h2>
+  <p class="h2sub">진행 카드로 하고, 판별 카드로 보고, 기록에 남깁니다.</p>
+
+  <a class="card" href="./session-card.html">
+    <div class="card-head">
+      <span class="card-no">01</span>
+      <span class="card-name">진행 카드</span>
+      <span class="card-when">세션 중</span>
+    </div>
+    <p>20분 타이머와 튜터 지시문. 이거 하나 열어놓고 따라가면 됩니다.</p>
+  </a>
+
+  <a class="card" href="./tutor-prompt-v2.html">
+    <div class="card-head">
+      <span class="card-no">02</span>
+      <span class="card-name">튜터 지시문 v2</span>
+      <span class="card-when">처음 한 번</span>
+    </div>
+    <p>기억 파일을 붙인 판. Gem이나 프로젝트에 한 번만 저장해 두면 됩니다.</p>
+  </a>
+
+  <a class="card" href="./sign-errors.html">
+    <div class="card-head">
+      <span class="card-no">03</span>
+      <span class="card-name">부호 오류 8문항</span>
+      <span class="card-when">문제 고를 때</span>
+    </div>
+    <p>틀린 풀이에서 틀린 줄 찾기. 여드레치. 답 가리기 버튼 있습니다.</p>
+  </a>
+
+  <a class="card" href="./two-paths.html">
+    <div class="card-head">
+      <span class="card-no">04</span>
+      <span class="card-name">판별 카드</span>
+      <span class="card-when">보면서</span>
+    </div>
+    <p>같은 20분이 어느 쪽으로 갔는지. 옆에서 보이는 행동만 적었습니다.</p>
+  </a>
+
+  <a class="card" href="./study-log.html">
+    <div class="card-head">
+      <span class="card-no">05</span>
+      <span class="card-name">기록</span>
+      <span class="card-when">끝나고 2분</span>
+    </div>
+    <p>원고지 20칸. 오늘 것을 적고, 원고로 복사해 기억 파일을 갱신합니다.</p>
+  </a>
+
+  <h2>게임 · 주말</h2>
+  <p class="h2sub">수학과 같은 구조입니다. 첫 번째는 같이, 두 번째는 혼자.</p>
+
+  <a class="card" href="./unity-first-door.html">
+    <div class="card-head">
+      <span class="card-no">06</span>
+      <span class="card-name">문 하나</span>
+      <span class="card-when">첫 세션</span>
+    </div>
+    <p>먼저 물어볼 네 가지, 오늘의 목표, 미리 아는 함정 셋.</p>
+  </a>
+
+  <h2>책 · 나중에</h2>
+  <p class="h2sub">기록이 쌓인 뒤에 씁니다.</p>
+
+  <a class="card" href="./four-parts.html">
+    <div class="card-head">
+      <span class="card-no">07</span>
+      <span class="card-name">네 부품</span>
+      <span class="card-when">1장 초안</span>
+    </div>
+    <p>계획·기억·도구·실행 중 무엇을 붙이고 무엇을 일부러 안 붙였는지.</p>
+  </a>
+
+  <div class="aside">
+    <p>사이트에 붙이는 법</p>
+    <ul>
+      <li>이 파일들을 한 폴더에 통째로 넣습니다 (예: <code>/study/</code>)</li>
+      <li>링크가 같은 폴더 기준이라 그대로 작동합니다</li>
+      <li>공개 메뉴에는 걸지 마세요. 주소를 아는 사람만 들어오게 두면 됩니다</li>
+    </ul>
+  </div>
+
+  <div class="warn">
+    <span>공개하지 않는 이유</span>
+    기록에 아이 이야기가 들어갑니다. 나중에 책이나 공개 페이지에 쓸 때는 아이에게 먼저 물어보세요. 자기 실패담이 어딘가에 올라가 있는 걸 나중에 발견하면 상처가 됩니다.
+  </div>
+
+  <footer>
+    오늘 저녁 목표는 문제를 푸는 것이 아니라 한 번을 끝까지 통과하는 것입니다.<br>
+    20칸 중 한 칸이 채워지면 오늘은 성공입니다.
+  </footer>
+
+</div>
+</body>
+</html>
