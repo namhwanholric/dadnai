@@ -31,6 +31,7 @@
 | `study-log.html` | 작업 | 기록 도구. localStorage 저장 |
 | `unity-first-door.html` | 작업 | 유니티 첫 세션 카드 |
 | `four-parts.html` | 작업 | 에이전트 네 부품 (책 1장 초안) |
+| `book2-plan.html` | 작업 | 2권 《아빠표 AI 업무활용》 편집 기획서 (원고지 톤, 자체 페이지 목차 포함) |
 | `tools.html` | 작업 | 전체 목록 |
 | `nav.js` | — | 전체 사이트 내비게이션. 아래 3-3 참고 |
 | `.nojekyll` | — | 절대 삭제하지 말 것 |

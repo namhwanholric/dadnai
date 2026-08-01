@@ -18,7 +18,8 @@
     "study-log":         "기록 도구",
     "tools":              "공부방 입구",
     "four-parts":         "1장 초안",
-    "unity-first-door":   "유니티 · 첫 세션"
+    "unity-first-door":   "유니티 · 첫 세션",
+    "book2-plan":         "2권 기획서"
   };
 
   var SIDEBAR_WIDTH = 240;
