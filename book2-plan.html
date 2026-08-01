@@ -104,6 +104,30 @@
   h2{font-size:12px;letter-spacing:.2em;color:var(--rule);margin:34px 0 14px;font-weight:700}
   h2:first-child{margin-top:0}
 
+  /* ---------- 파일 내려받기 ---------- */
+
+  .dl{border:1px solid var(--rule-soft);padding:18px 20px 6px;margin:0 0 10px}
+  .dl-title{font-size:11px;letter-spacing:.16em;color:var(--rule);font-weight:700;margin:0 0 4px}
+  .dl-note{margin:0 0 8px;font-size:14px;color:var(--graphite)}
+
+  a.dl-item{
+    display:flex;align-items:baseline;gap:14px;
+    border-top:1px solid var(--rule-soft);
+    padding:13px 0;text-decoration:none;color:inherit;
+  }
+  a.dl-item:hover{background:var(--paper-hi)}
+  a.dl-item:focus-visible{outline:2px solid var(--rule);outline-offset:2px}
+
+  .dl-name{flex:1;min-width:0;font-size:15.5px;font-weight:700}
+  .dl-desc{display:block;font-size:13.5px;font-weight:400;color:var(--graphite);margin-top:2px}
+  .dl-go{font-size:12px;letter-spacing:.1em;color:var(--rule);font-weight:700;white-space:nowrap;flex:none}
+  a.dl-item:hover .dl-go{color:var(--pen)}
+
+  .dl-live{
+    display:inline-block;font-size:10.5px;letter-spacing:.1em;font-weight:700;
+    background:var(--rule);color:var(--paper);padding:2px 7px;margin-left:8px;vertical-align:middle;
+  }
+
   /* ---------- 메타 섹션 ---------- */
 
   .meta{border-top:1px solid var(--rule-soft);padding:30px 0 10px}
@@ -251,6 +275,9 @@
 <nav class="local-toc" id="local-toc" aria-label="이 페이지 목차">
   <p class="local-toc-title">이 페이지 목차</p>
 
+  <p class="ltoc-group">파일</p>
+  <a href="#sec-download" data-t="sec-download">파일 내려받기</a>
+
   <p class="ltoc-group">기획 배경</p>
   <a href="#sec-1" data-t="sec-1">01 · 독자의 핵심 문제</a>
   <a href="#sec-2" data-t="sec-2">02 · 기존 활용서와 차별점</a>
@@ -296,6 +323,33 @@
   </header>
 
   <div class="rule"></div>
+
+  <!-- 파일 내려받기 -->
+  <section class="dl" id="sec-download">
+    <p class="dl-title">파일 내려받기</p>
+    <p class="dl-note">눌러서 저장한 뒤 코덱스 같은 다른 도구에 넘기면 됩니다.</p>
+
+    <a class="dl-item" href="./book2-plan.html" download>
+      <span class="dl-name">book2-plan.html<span class="dl-live">배포본</span>
+        <span class="dl-desc">지금 이 페이지의 소스. 디자인을 고칠 때는 이 파일이어야 합니다.</span>
+      </span>
+      <span class="dl-go">내려받기 ↓</span>
+    </a>
+
+    <a class="dl-item" href="./book2-plan.md" download>
+      <span class="dl-name">book2-plan.md
+        <span class="dl-desc">기획서 내용만 담은 마크다운. 문장과 목차 구조를 고칠 때 씁니다.</span>
+      </span>
+      <span class="dl-go">내려받기 ↓</span>
+    </a>
+
+    <a class="dl-item" href="./book2-plan-alt-design.html" download>
+      <span class="dl-name">book2-plan-alt-design.html
+        <span class="dl-desc">내용은 같고 디자인만 다른 안(양피지 톤, 라이트·다크 전환). 비교용입니다.</span>
+      </span>
+      <span class="dl-go">내려받기 ↓</span>
+    </a>
+  </section>
 
   <!-- 1 -->
   <section class="meta" id="sec-1">

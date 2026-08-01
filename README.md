@@ -25,6 +25,8 @@
 | `unity-first-door.html` | 반공개 | 유니티 첫 세션 카드 |
 | `four-parts.html` | 작업용 | 에이전트 네 부품 정리 (책 1장 초안) |
 | `book2-plan.html` | 작업용 | 2권 《아빠표 AI 업무활용》 편집 기획서 |
+| `book2-plan.md` | 작업용 | 2권 기획서 내용 원본 (마크다운) |
+| `book2-plan-alt-design.html` | 작업용 | 2권 기획서의 다른 디자인 안 (비교용) |
 | `tools.html` | 작업용 | 전체 도구 목록 |
 
 `study-log.html`은 브라우저에만 저장되므로 서버로 데이터가 가지는 않습니다. 다만 메인 메뉴에 링크를 걸지는 마세요.
