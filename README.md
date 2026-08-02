@@ -10,9 +10,13 @@
 > `ai-study/`는 빌드 도구 없는 순수 HTML 사이트입니다. 규칙이 다르니 그 폴더를 고칠 때는
 > [`ai-study/CLAUDE.md`](ai-study/CLAUDE.md)를 먼저 보세요.
 >
-> 그리고 개인용 시작 페이지가 하나 더 있습니다 — [`public/desk/index.html`](public/desk/index.html)
-> (주소: `/dadnai/desk/`). 검색·할 일·자주 쓰는 링크를 한 화면에 모은 단일 HTML 파일이고,
-> 빌드가 `public/`을 그대로 복사하므로 따로 설정할 것이 없습니다.
+> 그리고 개인용 단일 HTML 도구가 두 개 더 있습니다. 빌드가 `public/`을 그대로 복사하므로
+> 따로 설정할 것이 없습니다.
+>
+> | 파일 | 주소 | 내용 |
+> | --- | --- | --- |
+> | [`public/desk/index.html`](public/desk/index.html) | `/dadnai/desk/` | 시작 페이지 — 검색 · 할 일 · 자주 쓰는 링크 |
+> | [`public/plan/index.html`](public/plan/index.html) | `/dadnai/plan/` | 성장 계획표 — 최소–목표 이중 계획 · 주간 회고 |
 
 한 명의 작가가 자기 작품만 연재하는 **개인 웹소설 사이트**입니다.
 서버도 데이터베이스도 없이, 마크다운 원고를 정적 HTML로 빌드해서 GitHub Pages 같은 정적 호스팅에 올립니다.
