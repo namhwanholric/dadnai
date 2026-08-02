@@ -84,6 +84,7 @@ function readEpisodeFile(seriesSlug: string, fileName: string): Episode | null {
     publishedAt: toDateString(data.publishedAt),
     summary: typeof data.summary === 'string' ? data.summary : undefined,
     authorNote: typeof data.authorNote === 'string' ? data.authorNote.trim() : undefined,
+    hidden: data.hidden === true || data.hidden === 'true',
     videos: parseVideos(data.videos),
     html,
     charCount: stripHtml(html).length,
@@ -108,6 +109,9 @@ export function getEpisodes(seriesSlug: string): Episode[] {
     .filter((file) => file.toLowerCase().endsWith('.md'))
     .map((file) => readEpisodeFile(seriesSlug, file))
     .filter((episode): episode is Episode => episode !== null)
+    // hidden: true 인 회차는 여기서 통째로 빠진다.
+    // 목록·홈·이어읽기는 물론 generateStaticParams 도 이 함수를 쓰므로 페이지 자체가 안 만들어진다.
+    .filter((episode) => !episode.hidden)
     .sort((a, b) => a.number - b.number);
 
   episodeCache.set(seriesSlug, episodes);

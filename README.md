@@ -153,6 +153,32 @@ GitHub 계정 만들기를 어려워하는 사람은 카페에 원고를 올리�
 [`.github/workflows/episode-from-issue.yml`](.github/workflows/episode-from-issue.yml) (자동화),
 [`scripts/episode-from-issue.mjs`](scripts/episode-from-issue.mjs) (변환)
 
+### 올라간 글을 내리는 법 (서고지기 전용)
+
+**저장소 → Actions → "회차 내리기" → Run workflow.** 컴퓨터 없이 휴대폰에서도 됩니다.
+작품 slug, 회차 slug, 처리 방식을 넣고 실행하면 1~2분 뒤 사이트에 반영됩니다.
+
+| 처리 | 하는 일 |
+| --- | --- |
+| `hide` (기본) | front matter 에 `hidden: true`. 사이트에서 사라지지만 **파일은 남습니다.** 언제든 되돌릴 수 있습니다 |
+| `show` | 다시 공개합니다 |
+| `delete` | 파일을 지웁니다. git 기록에는 남습니다 |
+
+이 버튼은 **저장소 쓰기 권한이 있는 사람에게만 보입니다.** 투고만 하는 작가에게는 안 보입니다.
+
+내려간 회차는 목록·홈·이어읽기·검색 어디에도 안 나오고 **페이지 자체가 만들어지지 않습니다.**
+주소를 직접 쳐도 404 입니다.
+
+로컬에서 할 수도 있습니다.
+
+```bash
+npm run takedown -- --list
+```
+
+```bash
+npm run takedown -- --series starlight-mart --episode blanket --mode hide
+```
+
 ### 작가 추가하는 법
 
 여러 명이 함께 쓰는 서고입니다. 작가 정보는 `content/authors.ts` 한 곳에만 둡니다.

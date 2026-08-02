@@ -41,6 +41,9 @@ npm run build
 - 좋아요·읽은 회차·읽기 설정은 **localStorage 전용**입니다. 서버로 보내는 코드를 넣지 마세요.
 - 영상은 클릭 전까지 iframe을 만들지 않습니다(파사드). 이 동작을 깨지 마세요.
 - 회차는 `npm run new` 로 만듭니다. 손으로 파일을 만들 때도 형식은 같아야 합니다.
+- front matter 의 `hidden: true` 는 **내려간 글**이라는 뜻입니다. `getEpisodes()` 에서 걸러지므로
+  페이지도 안 만들어집니다. 이 필터를 우회해서 회차를 읽는 코드를 만들지 마세요.
+  내리기·되살리기는 `npm run takedown` 또는 Actions 의 "회차 내리기" 로 합니다.
 - 외부에서 올라온 회차(이슈 폼)는 **승인목록 `.github/writers.yml` 에 있는 계정만** 통과합니다.
   이슈 본문은 믿을 수 없는 입력이므로 `scripts/episode-from-issue.mjs` 의 검사(경로 정규식, front matter 직접 생성)를 약화시키지 마세요.
 - 자세한 사용법은 [README.md](README.md), 작업 상태는 [HANDOFF.md](HANDOFF.md), 설계 근거는 [PROJECT_PLAN.md](PROJECT_PLAN.md)에 있습니다.

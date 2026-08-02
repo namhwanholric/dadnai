@@ -1,0 +1,98 @@
+name: 회차 내리기
+
+# 서고지기가 아무 데서나(폰 포함) 회차를 즉시 내릴 수 있게 하는 워크플로.
+#
+#   저장소 → Actions → "회차 내리기" → Run workflow → 작품/회차 입력 → 실행
+#
+# workflow_dispatch 는 **저장소 쓰기 권한이 있는 사람만** 실행할 수 있다.
+# 일반 방문자나 투고만 하는 작가는 이 버튼이 보이지 않는다.
+#
+# 기본은 '숨기기'다. 파일이 남아 있어 언제든 되돌릴 수 있다.
+# 실행하면 main 에 바로 커밋되고 배포 워크플로가 이어서 돈다. (1~2분 뒤 사이트 반영)
+on:
+  workflow_dispatch:
+    inputs:
+      series:
+        description: '작품 slug (예: gray-bell-tower)'
+        required: true
+        type: string
+      episode:
+        description: '회차 slug (예: silent-bell) — 주소 마지막 칸'
+        required: true
+        type: string
+      mode:
+        description: '처리 방식'
+        required: true
+        default: hide
+        type: choice
+        options:
+          - hide
+          - show
+          - delete
+      reason:
+        description: '사유 (커밋 메시지에 남습니다. 선택)'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  takedown:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 처리
+        id: run
+        run: |
+          node scripts/takedown.mjs \
+            --series "${{ inputs.series }}" \
+            --episode "${{ inputs.episode }}" \
+            --mode "${{ inputs.mode }}"
+
+      - name: 빌드가 되는지 확인
+        run: |
+          npm ci
+          npm run build
+
+      - name: 커밋 · 푸시
+        env:
+          MODE: ${{ inputs.mode }}
+          REASON: ${{ inputs.reason }}
+        run: |
+          case "$MODE" in
+            hide)   ACTION="내림" ;;
+            show)   ACTION="다시 공개" ;;
+            delete) ACTION="삭제" ;;
+          esac
+
+          MESSAGE="${{ inputs.series }} ${{ inputs.episode }} 회차 $ACTION"
+          if [ -n "$REASON" ]; then
+            MESSAGE="$MESSAGE
+
+          사유: $REASON"
+          fi
+
+          git config user.name "달빛서고 봇"
+          git config user.email "noreply@github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "바뀐 내용이 없습니다. (이미 그 상태입니다)"
+            exit 0
+          fi
+          git commit -m "$MESSAGE"
+          git push origin HEAD:main
+
+      - name: 결과
+        run: |
+          echo "### ${{ inputs.series }} / ${{ inputs.episode }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- 제목: ${{ steps.run.outputs.title }}" >> $GITHUB_STEP_SUMMARY
+          echo "- 처리: \`${{ inputs.mode }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "배포가 끝나면 1~2분 안에 사이트에 반영됩니다." >> $GITHUB_STEP_SUMMARY

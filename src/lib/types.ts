@@ -67,6 +67,12 @@ export interface Episode {
   publishedAt: string;
   summary?: string;
   authorNote?: string;
+  /**
+   * front matter 에 `hidden: true` 를 넣으면 사이트에서 사라진다.
+   * 페이지도 만들어지지 않고 목록·홈·이어읽기 어디에도 안 나온다.
+   * 파일은 남으므로 다시 `false` 로 바꾸면 그대로 돌아온다. (서고지기가 글을 내릴 때 쓴다)
+   */
+  hidden?: boolean;
   videos: EpisodeVideo[];
   /** marked 로 변환된 본문 HTML (빌드 타임 생성) */
   html: string;

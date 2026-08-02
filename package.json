@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "new": "node scripts/new-episode.mjs",
+    "takedown": "node scripts/takedown.mjs",
     "build": "next build && node scripts/copy-ai-study.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "next lint",
