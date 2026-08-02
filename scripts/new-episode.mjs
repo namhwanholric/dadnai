@@ -23,13 +23,46 @@ const VIDEO_KINDS = ['ost', 'trailer', 'worldbuilding', 'animation'];
 
 const rl = readline.createInterface({ input: stdin, output: stdout });
 
+/**
+ * 입력 줄 대기열.
+ *
+ * `rl.question()` 만 쓰면 **파이프로 들어온 입력을 잃는다.** 여러 줄이 한 번에 도착하면
+ * readline 이 'line' 이벤트를 연달아 쏘는데, 그때 기다리고 있던 question 하나만 값을 받고
+ * 나머지 줄은 버려진다. (사람이 한 줄씩 칠 때는 안 드러나고, 파이프로 답을 넣을 때만 터진다)
+ *
+ * 그래서 들어온 줄을 전부 큐에 쌓아 두고 하나씩 꺼내 쓴다.
+ * 덕분에 `npm run new < answers.txt` 처럼 답을 미리 적어 두고 돌릴 수도 있다.
+ */
+const lines = [];
+const waiting = [];
+let closed = false;
+
+rl.on('line', (line) => {
+  const next = waiting.shift();
+  if (next) next(line);
+  else lines.push(line);
+});
+rl.on('close', () => {
+  closed = true;
+  while (waiting.length) waiting.shift()(null);
+});
+
+function nextLine() {
+  if (lines.length) return Promise.resolve(lines.shift());
+  if (closed) return Promise.resolve(null);
+  return new Promise((resolve) => waiting.push(resolve));
+}
+
 /** 파이프로 넘어온 입력 앞에 BOM 이 붙는 경우가 있어 떼어낸다. (한글 입력이 깨지는 원인) */
-const clean = (value) => value.replace(/^﻿/, '').trim();
+const clean = (value) => (value ?? '').replace(/^﻿/, '').trim();
 
 async function ask(question, { required = false, defaultValue = '' } = {}) {
   for (;;) {
     const hint = defaultValue ? ` (${defaultValue})` : '';
-    const answer = clean(await rl.question(`${question}${hint}: `));
+    stdout.write(`${question}${hint}: `);
+    const raw = await nextLine();
+    if (raw === null) throw new Error('입력이 끝났습니다. 답을 다 채우지 못했습니다.');
+    const answer = clean(raw);
     if (answer) return answer;
     if (defaultValue) return defaultValue;
     if (!required) return '';
@@ -41,7 +74,10 @@ async function askChoice(question, choices) {
   console.log(`\n${question}`);
   choices.forEach((choice, index) => console.log(`  ${index + 1}) ${choice.label}`));
   for (;;) {
-    const answer = clean(await rl.question('번호: '));
+    stdout.write('번호: ');
+    const raw = await nextLine();
+    if (raw === null) throw new Error('입력이 끝났습니다. 답을 다 채우지 못했습니다.');
+    const answer = clean(raw);
     const index = Number.parseInt(answer, 10) - 1;
     if (choices[index]) return choices[index].value;
     const byName = choices.find((choice) => choice.value === answer);
@@ -123,7 +159,7 @@ async function main() {
     front.push(`    title: ${quote(videoTitle)}`);
     front.push(`    kind: ${videoKind}`);
   }
-  front.push('---', '');
+  front.push('---', '', '');
 
   const skeleton = [
     '여기서부터 본문을 씁니다.',

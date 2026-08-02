@@ -160,7 +160,7 @@ if (videoUrl.trim()) {
   front.push(`    kind: ${VIDEO_KINDS.has(videoKind) ? videoKind : 'ost'}`);
 }
 
-front.push('---', '');
+front.push('---', '', ''); // 닫는 --- 다음에 빈 줄 하나 (손으로 쓴 파일과 형식을 맞춘다)
 
 const fileName = `${String(nextNumber).padStart(2, '0')}-${slug}.md`;
 const filePath = path.join(dir, fileName);
