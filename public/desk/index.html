@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>작업실</title>
+<meta name="description" content="검색 · 오늘 할 일 · 자주 쓰는 곳을 한 화면에서.">
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23111827'/%3E%3Ccircle cx='16' cy='16' r='6' fill='none' stroke='%23e9bb77' stroke-width='2.5'/%3E%3C/svg%3E">
+<style>
+/* ── 색 ─────────────────────────────────────────
+   밝은/어두운은 기기 설정을 따른다. 토글을 두지 않는 이유는
+   시작 페이지를 여는 시간대가 대체로 정해져 있기 때문이다. */
+:root {
+  --bg:#f7f6f3; --panel:#ffffff; --line:#e3e0d9;
+  --ink:#1b1a17; --muted:#6b6862; --faint:#9a968e;
+  --accent:#9a6b1f; --accent-soft:#f0e6d2;
+  --done:#a8a49c;
+  --radius:14px;
+  --shadow:0 1px 2px rgba(0,0,0,.04), 0 8px 24px -18px rgba(0,0,0,.3);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:#0f1115; --panel:#171a20; --line:#262a32;
+    --ink:#e8e6e1; --muted:#98958e; --faint:#6d6a64;
+    --accent:#e9bb77; --accent-soft:#2a2318;
+    --done:#5d5a54;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px -20px rgba(0,0,0,.8);
+  }
+}
+
+*,*::before,*::after { box-sizing:border-box; }
+html,body { margin:0; padding:0; }
+html { -webkit-text-size-adjust:100%; }
+body {
+  background:var(--bg); color:var(--ink);
+  font:16px/1.6 -apple-system, BlinkMacSystemFont, "Pretendard", "Apple SD Gothic Neo",
+       "Malgun Gothic", "Segoe UI", system-ui, sans-serif;
+  /* 가로로 새지 않게. 지금 쓰던 시작 페이지가 폰에서 8px 밀렸다. */
+  overflow-x:hidden;
+  padding:
+    max(18px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
+    max(28px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+}
+.wrap { max-width:900px; margin:0 auto; }
+
+/* ── 머리말 ───────────────────────────────────── */
+.top { display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:14px; }
+.hello { font-size:19px; font-weight:700; letter-spacing:-.01em; }
+.today { font-size:12.5px; color:var(--faint); white-space:nowrap; }
+
+/* ── 검색 ─────────────────────────────────────── */
+.search { background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+          box-shadow:var(--shadow); padding:10px; margin-bottom:14px; }
+.engines { display:flex; gap:4px; margin-bottom:8px; overflow-x:auto; scrollbar-width:none; }
+.engines::-webkit-scrollbar { display:none; }
+.engine {
+  flex:0 0 auto; border:1px solid transparent; background:transparent; color:var(--muted);
+  font:inherit; font-size:13px; padding:5px 11px; border-radius:999px; cursor:pointer;
+  white-space:nowrap; transition:background .12s, color .12s;
+}
+.engine:hover { color:var(--ink); background:var(--bg); }
+.engine[aria-selected="true"] { background:var(--accent-soft); color:var(--accent); font-weight:700; }
+.engine:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+
+.field { display:flex; gap:8px; align-items:center; }
+#q {
+  flex:1 1 auto; min-width:0; /* min-width:0 이 없으면 flex 안에서 입력창이 넘친다 */
+  border:1px solid var(--line); background:var(--bg); color:var(--ink);
+  font:inherit; font-size:16px; /* 16px 미만이면 iOS 가 확대한다 */
+  padding:11px 13px; border-radius:10px;
+}
+#q:focus { outline:none; border-color:var(--accent); background:var(--panel); }
+#q::placeholder { color:var(--faint); }
+.go { flex:0 0 auto; border:none; background:var(--accent); color:var(--bg);
+      font:inherit; font-weight:700; font-size:14px; padding:11px 16px; border-radius:10px; cursor:pointer; }
+.go:active { transform:translateY(1px); }
+.hint { margin:7px 2px 0; font-size:11.5px; color:var(--faint); }
+.hint b { color:var(--muted); font-weight:600; }
+
+/* ── 본문 2단 ─────────────────────────────────── */
+.cols { display:grid; gap:14px; grid-template-columns:minmax(0,1fr); }
+@media (min-width:760px) { .cols { grid-template-columns:minmax(0,1.05fr) minmax(0,1fr); align-items:start; } }
+
+.card { background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+        box-shadow:var(--shadow); padding:14px 14px 12px; }
+.card + .card { margin-top:14px; }
+.card-top { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; }
+.card-title { font-size:13px; font-weight:700; letter-spacing:.02em; color:var(--muted); }
+.count { font-size:12px; color:var(--faint); font-variant-numeric:tabular-nums; }
+
+/* ── 할 일 ────────────────────────────────────── */
+#add { width:100%; border:1px dashed var(--line); background:transparent; color:var(--ink);
+       font:inherit; font-size:14.5px; padding:10px 12px; border-radius:10px; }
+#add:focus { outline:none; border-style:solid; border-color:var(--accent); }
+#add::placeholder { color:var(--faint); }
+
+ul.todo { list-style:none; margin:8px 0 0; padding:0; }
+ul.todo li {
+  display:flex; align-items:flex-start; gap:10px; padding:9px 4px;
+  border-top:1px solid var(--line);
+}
+ul.todo li:first-child { border-top:none; }
+.check {
+  flex:0 0 auto; margin-top:1px; width:19px; height:19px; border-radius:6px; cursor:pointer;
+  border:1.5px solid var(--line); background:transparent; padding:0; display:grid; place-items:center;
+}
+.check:hover { border-color:var(--accent); }
+.check:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.check svg { width:11px; height:11px; opacity:0; }
+li.done .check { background:var(--accent); border-color:var(--accent); }
+li.done .check svg { opacity:1; }
+.text { flex:1 1 auto; min-width:0; font-size:14.5px; line-height:1.5;
+        overflow-wrap:anywhere; cursor:pointer; }
+li.done .text { color:var(--done); text-decoration:line-through; text-decoration-thickness:1px; }
+.del { flex:0 0 auto; border:none; background:transparent; color:var(--faint);
+       font:inherit; font-size:16px; line-height:1; padding:2px 4px; cursor:pointer; border-radius:6px; }
+.del:hover { color:var(--ink); }
+.empty { margin:14px 4px 6px; font-size:13.5px; color:var(--faint); }
+.clear { margin-top:10px; }
+.clear button { border:none; background:transparent; color:var(--faint); font:inherit;
+                font-size:12.5px; padding:4px 2px; cursor:pointer; text-decoration:underline;
+                text-underline-offset:3px; }
+.clear button:hover { color:var(--ink); }
+
+/* ── 링크 ─────────────────────────────────────── */
+.links { list-style:none; margin:0; padding:0; display:grid; gap:2px; }
+.links a {
+  display:flex; align-items:baseline; gap:9px; padding:9px 8px; margin:0 -8px;
+  border-radius:9px; text-decoration:none; color:inherit;
+}
+.links a:hover { background:var(--bg); }
+.links a:focus-visible { outline:2px solid var(--accent); outline-offset:-2px; }
+.name { font-size:14.5px; font-weight:600; white-space:nowrap; }
+.desc { flex:1 1 auto; min-width:0; font-size:12.5px; color:var(--faint);
+        overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.arrow { flex:0 0 auto; font-size:11px; color:var(--faint); }
+
+footer { margin-top:18px; padding:0 4px; font-size:11.5px; color:var(--faint); line-height:1.7; }
+
+@media (prefers-reduced-motion: reduce) { * { transition:none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top">
+    <div class="hello" id="hello">작업실</div>
+    <div class="today" id="today"></div>
+  </div>
+
+  <!-- ── 검색 ───────────────────────────────── -->
+  <section class="search" aria-label="검색">
+    <div class="engines" role="tablist" aria-label="검색할 곳">
+      <button class="engine" role="tab" data-k="naver"   aria-selected="true">네이버</button>
+      <button class="engine" role="tab" data-k="google"  aria-selected="false">구글</button>
+      <button class="engine" role="tab" data-k="chatgpt" aria-selected="false">ChatGPT</button>
+      <button class="engine" role="tab" data-k="claude"  aria-selected="false">Claude</button>
+      <button class="engine" role="tab" data-k="youtube" aria-selected="false">유튜브</button>
+    </div>
+    <form class="field" id="form" autocomplete="off">
+      <input id="q" type="search" name="q" placeholder="검색하거나 물어보기" aria-label="검색어"
+             enterkeyhint="search" autocapitalize="off" autocorrect="off" spellcheck="false">
+      <button class="go" type="submit">이동</button>
+    </form>
+    <p class="hint"><b>/</b> 눌러 바로 입력 · <b>Tab</b> 으로 검색할 곳 이동</p>
+  </section>
+
+  <div class="cols">
+
+    <!-- ── 할 일 ────────────────────────────── -->
+    <section class="card" aria-labelledby="todo-h">
+      <div class="card-top">
+        <h2 class="card-title" id="todo-h">오늘 할 일</h2>
+        <span class="count" id="count"></span>
+      </div>
+      <input id="add" type="text" placeholder="할 일을 적고 Enter" aria-label="할 일 추가"
+             enterkeyhint="done" autocomplete="off">
+      <ul class="todo" id="list"></ul>
+      <p class="empty" id="empty" hidden>아직 없습니다. 위에 적으면 여기 쌓입니다.</p>
+      <div class="clear" id="clearWrap" hidden><button type="button" id="clear"></button></div>
+    </section>
+
+    <div>
+      <!-- ── AI ─────────────────────────────── -->
+      <section class="card" aria-labelledby="ai-h">
+        <div class="card-top"><h2 class="card-title" id="ai-h">AI</h2></div>
+        <ul class="links">
+          <li><a href="https://chatgpt.com/" target="_blank" rel="noopener"><span class="name">ChatGPT</span><span class="desc">기획 · 글쓰기 · 분석</span><span class="arrow">↗</span></a></li>
+          <li><a href="https://claude.ai/" target="_blank" rel="noopener"><span class="name">Claude</span><span class="desc">긴 문서 · 코드 · 교정</span><span class="arrow">↗</span></a></li>
+          <li><a href="https://gemini.google.com/" target="_blank" rel="noopener"><span class="name">Gemini</span><span class="desc">검색 · 자료 조사</span><span class="arrow">↗</span></a></li>
+          <li><a href="https://notebooklm.google.com/" target="_blank" rel="noopener"><span class="name">NotebookLM</span><span class="desc">내 자료 기반 연구 노트</span><span class="arrow">↗</span></a></li>
+        </ul>
+      </section>
+
+      <!-- ── 내 자리 ────────────────────────── -->
+      <section class="card" aria-labelledby="mine-h">
+        <div class="card-top"><h2 class="card-title" id="mine-h">내 자리</h2></div>
+        <ul class="links">
+          <li><a href="https://cafe.naver.com/dadnai" target="_blank" rel="noopener"><span class="name">네이버 카페</span><span class="desc">글쓰기 · 커뮤니티</span><span class="arrow">↗</span></a></li>
+          <li><a href="https://blog.naver.com/chance_lsc" target="_blank" rel="noopener"><span class="name">네이버 블로그</span><span class="desc">콘텐츠 발행</span><span class="arrow">↗</span></a></li>
+          <li><a href="https://dadnai-study.namhwanholric.chatgpt.site/son-study" target="_blank" rel="noopener"><span class="name">아들 공부계획</span><span class="desc">과목 · 교재 진도</span><span class="arrow">↗</span></a></li>
+          <li><a href="https://dadnai-study.namhwanholric.chatgpt.site/research" target="_blank" rel="noopener"><span class="name">AI 학습 연구소</span><span class="desc">연구소 메인</span><span class="arrow">↗</span></a></li>
+          <li><a href="https://dadnai-study.namhwanholric.chatgpt.site/start" target="_blank" rel="noopener"><span class="name">마케팅 시작</span><span class="desc">검색 유입용</span><span class="arrow">↗</span></a></li>
+          <li><a href="../ai-study/" target="_blank" rel="noopener"><span class="name">책 원고</span><span class="desc">아빠표 AI 학습법</span><span class="arrow">↗</span></a></li>
+          <li><a href="../" target="_blank" rel="noopener"><span class="name">달빛서고</span><span class="desc">웹소설 연재</span><span class="arrow">↗</span></a></li>
+          <li><a href="https://moonlit-archive.namhwanholric.chatgpt.site/" target="_blank" rel="noopener"><span class="name">Moonlit Archive</span><span class="desc">자료 보관소</span><span class="arrow">↗</span></a></li>
+        </ul>
+      </section>
+    </div>
+
+  </div>
+
+  <footer>
+    할 일은 이 브라우저에만 저장됩니다. 다른 기기에서는 보이지 않고 어디에도 전송되지 않습니다.
+  </footer>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ── 저장소: 실패해도 페이지는 계속 동작해야 한다 ───────── */
+  var KEY = 'desk:v1';
+  function load() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (!raw) return { todos: [], engine: 'naver' };
+      var v = JSON.parse(raw);
+      return {
+        todos: Array.isArray(v.todos) ? v.todos.filter(function (t) { return t && typeof t.text === 'string'; }) : [],
+        engine: typeof v.engine === 'string' ? v.engine : 'naver'
+      };
+    } catch (e) { return { todos: [], engine: 'naver' }; }
+  }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+  var state = load();
+
+  /* ── 인사 · 날짜 ──────────────────────────────────── */
+  var now = new Date(), h = now.getHours();
+  var greet = h < 5 ? '아직 새벽입니다' : h < 11 ? '좋은 아침입니다'
+            : h < 17 ? '오후입니다' : h < 22 ? '저녁입니다' : '늦었습니다';
+  document.getElementById('hello').textContent = greet;
+  document.getElementById('today').textContent =
+    now.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' });
+
+  /* ── 검색 ─────────────────────────────────────────
+     한 칸에 적고 어디로 보낼지만 고른다. 고른 곳은 다음에도 기억한다. */
+  var ENGINES = {
+    naver:   function (q) { return 'https://search.naver.com/search.naver?query=' + q; },
+    google:  function (q) { return 'https://www.google.com/search?q=' + q; },
+    chatgpt: function (q) { return 'https://chatgpt.com/?q=' + q; },
+    claude:  function (q) { return 'https://claude.ai/new?q=' + q; },
+    youtube: function (q) { return 'https://www.youtube.com/results?search_query=' + q; }
+  };
+  var tabs = [].slice.call(document.querySelectorAll('.engine'));
+  var q = document.getElementById('q');
+
+  function selectEngine(k) {
+    if (!ENGINES[k]) k = 'naver';
+    state.engine = k; save();
+    tabs.forEach(function (t) { t.setAttribute('aria-selected', String(t.dataset.k === k)); });
+    q.placeholder = (k === 'chatgpt' || k === 'claude') ? '무엇이든 물어보기' : '검색어';
+  }
+  tabs.forEach(function (t) {
+    t.addEventListener('click', function () { selectEngine(t.dataset.k); q.focus(); });
+  });
+  selectEngine(state.engine);
+
+  document.getElementById('form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var v = q.value.trim();
+    if (!v) { q.focus(); return; }
+    // 주소를 붙여넣었으면 검색하지 않고 그대로 연다.
+    if (/^https?:\/\//i.test(v)) { window.open(v, '_blank', 'noopener'); q.value = ''; return; }
+    window.location.href = ENGINES[state.engine](encodeURIComponent(v));
+  });
+
+  /* ── 할 일 ───────────────────────────────────────── */
+  var list = document.getElementById('list');
+  var addBox = document.getElementById('add');
+  var countEl = document.getElementById('count');
+  var emptyEl = document.getElementById('empty');
+  var clearWrap = document.getElementById('clearWrap');
+  var clearBtn = document.getElementById('clear');
+
+  var CHECK = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M1.5 6.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  function render() {
+    // 안 끝난 것이 위, 끝낸 것은 아래로 내려간다.
+    var order = state.todos.map(function (t, i) { return { t: t, i: i }; })
+      .sort(function (a, b) { return (a.t.done ? 1 : 0) - (b.t.done ? 1 : 0); });
+
+    list.textContent = '';
+    order.forEach(function (row) {
+      var li = document.createElement('li');
+      if (row.t.done) li.className = 'done';
+
+      var btn = document.createElement('button');
+      btn.type = 'button'; btn.className = 'check';
+      btn.setAttribute('aria-pressed', String(!!row.t.done));
+      btn.setAttribute('aria-label', row.t.done ? '완료 취소' : '완료로 표시');
+      btn.innerHTML = CHECK;
+
+      var span = document.createElement('span');
+      span.className = 'text';
+      span.textContent = row.t.text;
+
+      var del = document.createElement('button');
+      del.type = 'button'; del.className = 'del';
+      del.setAttribute('aria-label', '지우기');
+      del.textContent = '×';
+
+      function toggle() { row.t.done = !row.t.done; save(); render(); }
+      btn.addEventListener('click', toggle);
+      span.addEventListener('click', toggle);
+      del.addEventListener('click', function () {
+        state.todos.splice(row.i, 1); save(); render();
+      });
+
+      li.appendChild(btn); li.appendChild(span); li.appendChild(del);
+      list.appendChild(li);
+    });
+
+    var left = state.todos.filter(function (t) { return !t.done; }).length;
+    var done = state.todos.length - left;
+    countEl.textContent = state.todos.length ? (left ? left + '개 남음' : '다 끝냈습니다') : '';
+    emptyEl.hidden = state.todos.length > 0;
+    clearWrap.hidden = done === 0;
+    clearBtn.textContent = '끝낸 일 ' + done + '개 치우기';
+  }
+
+  addBox.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter') return;
+    var v = addBox.value.trim();
+    if (!v) return;
+    state.todos.push({ text: v.slice(0, 200), done: false });
+    addBox.value = ''; save(); render();
+  });
+
+  clearBtn.addEventListener('click', function () {
+    state.todos = state.todos.filter(function (t) { return !t.done; });
+    save(); render();
+  });
+
+  render();
+
+  /* ── 키보드 ──────────────────────────────────────── */
+  document.addEventListener('keydown', function (e) {
+    var tag = (e.target && e.target.tagName) || '';
+    var typing = /^(INPUT|TEXTAREA|SELECT)$/.test(tag);
+    if (e.key === '/' && !typing) { e.preventDefault(); q.focus(); q.select(); }
+    if (e.key === 'Escape' && typing) { e.target.blur(); }
+  });
+
+  // 데스크톱에서만 자동 포커스한다. 폰에서 하면 키보드가 올라와 화면을 반쯤 덮는다.
+  if (window.matchMedia('(min-width:760px)').matches) q.focus();
+})();
+</script>
+</body>
+</html>
