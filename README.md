@@ -126,8 +126,23 @@ videos:
 ### 작품 추가하는 법
 
 1. `content/series.ts`에 항목을 하나 추가 (`slug`은 영문 소문자와 하이픈만)
-2. `public/covers/<slug>.svg` 표지 추가 (세로 2:3)
-3. `content/episodes/<slug>/01-....md` 부터 회차 작성
+2. `author`에 작가 slug을 적습니다 (`content/authors.ts`에 있는 값이어야 합니다)
+3. `public/covers/<slug>.svg` 표지 추가 (세로 2:3)
+4. `content/episodes/<slug>/01-....md` 부터 회차 작성
+
+### 작가 추가하는 법
+
+여러 명이 함께 쓰는 서고입니다. 작가 정보는 `content/authors.ts` 한 곳에만 둡니다.
+
+1. `content/authors.ts`에 항목을 추가합니다 (`slug`은 영문 소문자와 하이픈만).
+2. `public/authors/<slug>.svg` 프로필 도형을 넣습니다 (정사각형).
+   **사람 사진을 쓰지 않습니다.** 표지와 같은 결의 추상 도형으로 맞춥니다.
+3. 그 작가의 작품 `author` 필드에 slug을 적습니다.
+
+작가를 추가하면 `/authors/<slug>/` 페이지, `/about/` 목록, 홈의 "연재 작가" 칸,
+작품 카드·상세·읽기 화면의 작가 표시가 전부 자동으로 붙습니다.
+
+`author` slug이 `content/authors.ts`에 없으면 **빌드가 실패합니다.** (조용히 넘어가지 않게 해 둔 것입니다)
 
 ### 영상 주소
 

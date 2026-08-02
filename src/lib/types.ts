@@ -4,9 +4,30 @@ export type SeriesStatus = 'ongoing' | 'completed' | 'hiatus';
 /** 회차에 붙는 영상 종류. UI 배지 라벨과 1:1로 대응한다. */
 export type VideoKind = 'ost' | 'trailer' | 'worldbuilding' | 'animation';
 
+/** content/authors.ts 의 작가 한 명. slug 는 /authors/<slug>/ URL 이 된다. */
+export interface Author {
+  slug: string;
+  name: string;
+  nameEn: string;
+  /** 한 줄 소개 */
+  tagline: string;
+  /** 소개 본문. 빈 줄로 문단을 나눈다. */
+  bio: string;
+  /** public/ 기준 절대 경로. 정사각형 SVG 도형(사람 사진을 쓰지 않는다). */
+  avatar: string;
+  avatarAlt: string;
+  /** 프로필·작품 헤더에 쓰는 강조색 */
+  accent: string;
+  /** 이 서고에서 첫 연재를 시작한 날 */
+  joinedAt: string;
+  links: { label: string; href: string }[];
+}
+
 export interface Series {
   /** URL 경로에 쓰이는 식별자. content/episodes/<slug>/ 폴더명과 반드시 일치해야 한다. */
   slug: string;
+  /** 이 작품을 쓴 작가. content/authors.ts 의 slug 와 일치해야 한다. */
+  author: string;
   title: string;
   /** 한 줄 소개 */
   tagline: string;
@@ -58,4 +79,11 @@ export type EpisodeSummary = Omit<Episode, 'html'>;
 
 export interface SeriesWithEpisodes extends Series {
   episodes: EpisodeSummary[];
+}
+
+/** 작가 + 그 작가가 쓴 작품 목록 */
+export interface AuthorWithSeries extends Author {
+  series: SeriesWithEpisodes[];
+  /** 이 작가의 전체 공개 회차 수 */
+  episodeCount: number;
 }

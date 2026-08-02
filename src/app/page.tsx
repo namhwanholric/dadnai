@@ -1,12 +1,12 @@
 import Image from 'next/image';
 import Link from 'next/link';
 
-import { SITE } from '@content/site';
 import { Icon } from '@/components/Icon';
 import { SeriesCard } from '@/components/SeriesCard';
 import { SeriesActions } from '@/components/series/SeriesActions';
 import { Section, StatusBadge, Tag } from '@/components/ui';
 import {
+  getAllAuthorsWithSeries,
   getAllSeriesWithEpisodes,
   getFeaturedSeries,
   getGenreIndex,
@@ -17,6 +17,7 @@ import { assetPath, routes } from '@/lib/routes';
 
 export default function HomePage() {
   const featured = getFeaturedSeries();
+  const authors = getAllAuthorsWithSeries();
   const all = getAllSeriesWithEpisodes();
   const ongoing = all.filter((s) => s.status !== 'completed');
   const completed = all.filter((s) => s.status === 'completed');
@@ -194,22 +195,44 @@ export default function HomePage() {
         </div>
       </Section>
 
-      {/* ── 작가 소개 ─────────────────────────────── */}
-      <Section title="작가 소개" action={{ href: routes.about, label: '자세히' }} className="mt-12">
-        <div className="rounded-xl border border-line bg-surface/40 p-5 sm:p-6">
-          <div className="flex items-center gap-3">
-            <span className="grid size-11 shrink-0 place-items-center rounded-full bg-accent/15 text-accent">
-              <Icon name="author" size={22} />
-            </span>
-            <div>
-              <p className="text-[15px] font-bold text-ink">{SITE.author.name}</p>
-              <p className="text-[12px] text-ink-subtle">{SITE.author.tagline}</p>
-            </div>
-          </div>
-          <p className="mt-4 text-[13.5px] leading-relaxed text-ink-muted sm:text-sm">
-            {SITE.author.bio.split('\n\n')[0]}
-          </p>
-        </div>
+      {/* ── 연재 작가 ─────────────────────────────── */}
+      <Section
+        title="연재 작가"
+        description="세 명이 각자의 이야기를 올립니다"
+        action={{ href: routes.about, label: '전체 보기' }}
+        className="mt-12"
+      >
+        <ul className="grid gap-3 sm:grid-cols-3">
+          {authors.map((author) => (
+            <li key={author.slug}>
+              <Link
+                href={routes.author(author.slug)}
+                className="group flex h-full flex-col rounded-xl border border-line bg-surface/40 p-4 transition-colors hover:border-accent/40 sm:p-5"
+              >
+                <div className="flex items-center gap-3">
+                  <Image
+                    src={assetPath(author.avatar)}
+                    alt={author.avatarAlt}
+                    width={200}
+                    height={200}
+                    className="size-11 shrink-0 rounded-full border border-line object-cover"
+                  />
+                  <div className="min-w-0">
+                    <p className="truncate text-[15px] font-bold text-ink transition-colors group-hover:text-accent">
+                      {author.name}
+                    </p>
+                    <p className="truncate text-[12px] text-ink-subtle">
+                      {author.series.length}편 · {author.episodeCount}화
+                    </p>
+                  </div>
+                </div>
+                <p className="mt-3 line-clamp-2 text-[13px] leading-relaxed text-ink-muted">
+                  {author.tagline}
+                </p>
+              </Link>
+            </li>
+          ))}
+        </ul>
       </Section>
     </div>
   );

@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 
+import { AUTHORS } from '@content/authors';
 import { SITE } from '@content/site';
 import { SiteHeader } from '@/components/SiteHeader';
 import { SiteFooter } from '@/components/SiteFooter';
@@ -11,12 +12,12 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: {
-    default: `${SITE.name} — ${SITE.author.name} 웹소설`,
+    default: `${SITE.name} — ${SITE.tagline}`,
     template: `%s · ${SITE.name}`,
   },
   description: SITE.description,
   applicationName: SITE.name,
-  authors: [{ name: SITE.author.name }],
+  authors: AUTHORS.map((author) => ({ name: author.name })),
   // metadata 의 아이콘 경로에는 Next 가 basePath 를 붙여 주지 않는다.
   icons: { icon: assetPath('/favicon.svg') },
 };

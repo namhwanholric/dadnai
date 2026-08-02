@@ -13,6 +13,7 @@ import { VideoSection } from '@/components/video/VideoSection';
 import { useReadingSettings } from '@/lib/hooks/useReadingSettings';
 import { formatDate, readingMinutes } from '@/lib/format';
 import { loadProgress, saveEpisodeProgress } from '@/lib/storage';
+import { getAuthorOfSeries } from '@/lib/authors';
 import { routes } from '@/lib/routes';
 import type { Episode, EpisodeSummary, Series } from '@/lib/types';
 
@@ -30,6 +31,7 @@ interface Props {
 const SAVE_INTERVAL = 700;
 
 export function ReaderShell({ series, episode, episodes, prev, next, children }: Props) {
+  const author = getAuthorOfSeries(series);
   const router = useRouter();
   const { settings } = useReadingSettings();
 
@@ -204,6 +206,13 @@ export function ReaderShell({ series, episode, episodes, prev, next, children }:
             {episode.title}
           </h1>
           <p className="mt-2.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-ink-subtle">
+            <Link
+              href={routes.author(author.slug)}
+              className="text-ink-muted transition-colors hover:text-accent"
+            >
+              {author.name}
+            </Link>
+            <span aria-hidden="true">·</span>
             <span>{episode.number}화</span>
             <span aria-hidden="true">·</span>
             <span>{formatDate(episode.publishedAt)} 공개</span>
@@ -225,7 +234,7 @@ export function ReaderShell({ series, episode, episodes, prev, next, children }:
           >
             <p className="mb-2 flex items-center gap-1.5 text-[12px] font-semibold text-accent">
               <Icon name="author" size={14} />
-              작가 후기
+              {author.name} 작가 후기
             </p>
             <div className="prose-basic text-[13.5px] text-ink-muted">
               {episode.authorNote.split('\n\n').map((paragraph, index) => (

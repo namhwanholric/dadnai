@@ -7,7 +7,7 @@ import { Icon } from '@/components/Icon';
 import { EpisodeList } from '@/components/series/EpisodeList';
 import { SeriesActions } from '@/components/series/SeriesActions';
 import { StatusBadge, TagLink } from '@/components/ui';
-import { getAllSeries, getSeriesWithEpisodes } from '@/lib/content';
+import { getAllSeries, getAuthorOfSeries, getSeriesWithEpisodes } from '@/lib/content';
 import { STATUS_LABEL, formatDate } from '@/lib/format';
 import { assetPath, routes } from '@/lib/routes';
 
@@ -27,6 +27,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: series.title,
     description: series.tagline,
+    authors: [{ name: getAuthorOfSeries(series).name }],
   };
 }
 
@@ -36,6 +37,7 @@ export default async function SeriesPage({ params }: PageProps) {
   if (!series) notFound();
 
   const latest = series.episodes[series.episodes.length - 1];
+  const author = getAuthorOfSeries(series);
 
   return (
     <article className="pb-6">
@@ -78,6 +80,26 @@ export default async function SeriesPage({ params }: PageProps) {
               <h1 className="mt-2.5 text-[24px] font-bold leading-tight tracking-tight text-ink sm:text-[32px]">
                 {series.title}
               </h1>
+              <p className="mt-2 flex items-center justify-center gap-2 sm:justify-start">
+                <Link
+                  href={routes.author(author.slug)}
+                  className="group inline-flex items-center gap-2 text-[13px] text-ink-muted transition-colors hover:text-accent"
+                >
+                  <Image
+                    src={assetPath(author.avatar)}
+                    alt=""
+                    width={200}
+                    height={200}
+                    className="size-6 rounded-full border border-line object-cover"
+                  />
+                  {author.name}
+                  <Icon
+                    name="chevron-right"
+                    size={13}
+                    className="text-ink-subtle transition-transform group-hover:translate-x-0.5"
+                  />
+                </Link>
+              </p>
               <p className="mt-2 text-[14px] leading-relaxed text-ink-muted sm:text-[15px]">
                 {series.tagline}
               </p>

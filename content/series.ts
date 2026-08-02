@@ -13,6 +13,7 @@ import type { Series } from '@/lib/types';
 export const SERIES: Series[] = [
   {
     slug: 'gray-bell-tower',
+    author: 'yun-jaeha',
     title: '회색 탑의 종지기',
     tagline: '종이 울리지 않는 날, 도시는 하루씩 잊힌다.',
     synopsis: `백 년 전 하늘이 한 번 무너진 뒤로, 이 도시에는 매일 저녁 종이 울린다. 종이 울리는 동안에만 사람들은 어제를 기억할 수 있다.
@@ -35,6 +36,7 @@ export const SERIES: Series[] = [
   },
   {
     slug: 'starlight-mart',
+    author: 'do-yeonseo',
     title: '은하 저편의 24시 편의점',
     tagline: '우주 끝 정거장에도 삼각김밥은 새벽 두 시에 들어온다.',
     synopsis: `항로 바깥으로 밀려난 폐정거장 K-9. 사람이라고는 열일곱 명뿐인 이 정거장에서, 하나뿐인 편의점이 24시간 문을 연다.
@@ -56,6 +58,7 @@ export const SERIES: Series[] = [
   },
   {
     slug: 'night-editor',
+    author: 'han-mugyeol',
     title: '밤의 교정자',
     tagline: '그 출판사는 원고가 아니라 사람을 고쳐 쓴다.',
     synopsis: `무명 작가 서린은 아무 데서도 받아주지 않던 원고를 들고, 새벽에만 문을 여는 작은 출판사를 찾아간다.

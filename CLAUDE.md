@@ -34,7 +34,9 @@ npm run build
 ## 웹소설 사이트 (루트) 규칙
 
 - 원고는 `content/episodes/<작품slug>/NN-slug.md`. 파일 하나가 회차 하나입니다.
-- 작품 메타데이터는 `content/series.ts`, 사이트/작가 정보는 `content/site.ts`에서만 고칩니다.
+- 작품은 `content/series.ts`, **작가는 `content/authors.ts`**, 사이트 정보는 `content/site.ts`에서만 고칩니다.
+- 여러 작가가 함께 쓰는 서고입니다. 작품마다 `author` slug이 있어야 하고, 없는 slug이면 빌드가 실패합니다.
+- 작가 프로필 이미지는 **사람 사진을 쓰지 않습니다.** `public/authors/<slug>.svg` 추상 도형으로 통일합니다.
 - 회차를 추가하면 `content/series.ts`의 `updatedAt`도 같이 고칩니다.
 - 좋아요·읽은 회차·읽기 설정은 **localStorage 전용**입니다. 서버로 보내는 코드를 넣지 마세요.
 - 영상은 클릭 전까지 iframe을 만들지 않습니다(파사드). 이 동작을 깨지 마세요.

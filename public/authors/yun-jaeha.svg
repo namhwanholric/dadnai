@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" role="img" aria-label="윤재하 프로필 도형">
+  <title>윤재하</title>
+  <defs>
+    <linearGradient id="yj-bg" x1="0.1" y1="0" x2="0.9" y2="1">
+      <stop offset="0%" stop-color="#111a2e"/>
+      <stop offset="100%" stop-color="#080d18"/>
+    </linearGradient>
+    <radialGradient id="yj-glow" cx="50%" cy="42%" r="46%">
+      <stop offset="0%" stop-color="#e9bb77" stop-opacity="0.42"/>
+      <stop offset="70%" stop-color="#e9bb77" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#e9bb77" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="200" height="200" fill="url(#yj-bg)"/>
+  <rect width="200" height="200" fill="url(#yj-glow)"/>
+
+  <!-- 종을 단순화한 형태: 세로선 하나와 그 아래 원 -->
+  <line x1="100" y1="34" x2="100" y2="86" stroke="#e9bb77" stroke-width="2" opacity="0.5"/>
+  <circle cx="100" cy="100" r="30" fill="none" stroke="#e9bb77" stroke-width="2.5" opacity="0.9"/>
+  <circle cx="100" cy="100" r="46" fill="none" stroke="#e9bb77" stroke-width="1" opacity="0.32"/>
+  <circle cx="100" cy="100" r="62" fill="none" stroke="#e9bb77" stroke-width="1" opacity="0.14"/>
+  <circle cx="100" cy="100" r="6" fill="#e9bb77" opacity="0.85"/>
+</svg>

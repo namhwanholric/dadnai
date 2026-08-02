@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 import { StatusBadge } from '@/components/ui';
+import { getAuthorOfSeries } from '@/lib/authors';
 import { assetPath, routes } from '@/lib/routes';
 import type { SeriesWithEpisodes } from '@/lib/types';
 
@@ -12,10 +13,15 @@ import type { SeriesWithEpisodes } from '@/lib/types';
 export function SeriesCard({
   series,
   showTagline = true,
+  showAuthor = true,
 }: {
   series: SeriesWithEpisodes;
   showTagline?: boolean;
+  /** 작가 페이지처럼 이미 작가가 정해진 화면에서는 끈다. */
+  showAuthor?: boolean;
 }) {
+  const author = getAuthorOfSeries(series);
+
   return (
     <Link href={routes.series(series.slug)} className="group block">
       <div className="relative overflow-hidden rounded-xl border border-line bg-surface">
@@ -41,6 +47,7 @@ export function SeriesCard({
           </p>
         )}
         <p className="mt-1.5 text-[11px] text-ink-subtle">
+          {showAuthor && <>{author.name} · </>}
           {series.genre} · 총 {series.episodes.length}화
         </p>
       </div>

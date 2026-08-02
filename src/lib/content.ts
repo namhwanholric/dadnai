@@ -6,7 +6,14 @@ import matter from 'gray-matter';
 import { marked } from 'marked';
 
 import { SERIES } from '@content/series';
-import type { Episode, EpisodeSummary, EpisodeVideo, Series, SeriesWithEpisodes } from './types';
+import type {
+  AuthorWithSeries,
+  Episode,
+  EpisodeSummary,
+  EpisodeVideo,
+  Series,
+  SeriesWithEpisodes,
+} from './types';
 import { normalizeVideoKind } from './youtube';
 
 /**
@@ -146,6 +153,31 @@ export function getSeriesWithEpisodes(slug: string): SeriesWithEpisodes | undefi
 
 export function getAllSeriesWithEpisodes(): SeriesWithEpisodes[] {
   return SERIES.map((series) => ({ ...series, episodes: getEpisodeSummaries(series.slug) }));
+}
+
+/* ── 작가 ─────────────────────────────────────────────── */
+/* 순수 조회(getAuthor / getAuthorOfSeries)는 클라이언트에서도 써야 해서 lib/authors.ts 에 있다. */
+export { getAllAuthors, getAuthor, getAuthorOfSeries } from './authors';
+import { getAllAuthors, getAuthor } from './authors';
+
+export function getAuthorWithSeries(slug: string): AuthorWithSeries | undefined {
+  const author = getAuthor(slug);
+  if (!author) return undefined;
+  const series = getAllSeriesWithEpisodes().filter((item) => item.author === slug);
+  return {
+    ...author,
+    series,
+    episodeCount: series.reduce((sum, item) => sum + item.episodes.length, 0),
+  };
+}
+
+/** 작가 목록. 최근에 회차를 올린 작가가 앞으로 온다. */
+export function getAllAuthorsWithSeries(): AuthorWithSeries[] {
+  return getAllAuthors().map((author) => getAuthorWithSeries(author.slug)!).sort((a, b) => {
+    const lastOf = (x: AuthorWithSeries) =>
+      x.series.map((s) => s.updatedAt).sort().at(-1) ?? x.joinedAt;
+    return lastOf(b).localeCompare(lastOf(a));
+  });
 }
 
 export function getFeaturedSeries(): SeriesWithEpisodes {

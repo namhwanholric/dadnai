@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" role="img" aria-label="도연서 프로필 도형">
+  <title>도연서</title>
+  <defs>
+    <linearGradient id="dy-bg" x1="0.1" y1="0" x2="0.9" y2="1">
+      <stop offset="0%" stop-color="#08202a"/>
+      <stop offset="100%" stop-color="#04121a"/>
+    </linearGradient>
+    <radialGradient id="dy-glow" cx="62%" cy="38%" r="52%">
+      <stop offset="0%" stop-color="#7fd6c4" stop-opacity="0.34"/>
+      <stop offset="70%" stop-color="#7fd6c4" stop-opacity="0.05"/>
+      <stop offset="100%" stop-color="#7fd6c4" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="200" height="200" fill="url(#dy-bg)"/>
+  <rect width="200" height="200" fill="url(#dy-glow)"/>
+
+  <!-- 겹친 원 두 개: 같은 자리에 앉은 두 사람 -->
+  <circle cx="84" cy="100" r="34" fill="none" stroke="#7fd6c4" stroke-width="2.2" opacity="0.85"/>
+  <circle cx="116" cy="100" r="34" fill="none" stroke="#ffd79a" stroke-width="2.2" opacity="0.6"/>
+  <line x1="100" y1="26" x2="100" y2="174" stroke="#7fd6c4" stroke-width="0.8" opacity="0.18"/>
+  <circle cx="100" cy="100" r="3.5" fill="#ffd79a" opacity="0.8"/>
+</svg>
