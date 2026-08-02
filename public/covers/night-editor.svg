@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600" role="img" aria-label="밤의 교정자 표지">
+  <title>밤의 교정자</title>
+  <defs>
+    <linearGradient id="ne-bg" x1="0.2" y1="0" x2="0.8" y2="1">
+      <stop offset="0%" stop-color="#0d0709"/>
+      <stop offset="45%" stop-color="#1a0e12"/>
+      <stop offset="80%" stop-color="#25121a"/>
+      <stop offset="100%" stop-color="#100809"/>
+    </linearGradient>
+    <radialGradient id="ne-lamp" cx="50%" cy="8%" r="60%">
+      <stop offset="0%" stop-color="#f4d9b0" stop-opacity="0.42"/>
+      <stop offset="45%" stop-color="#c98c6a" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#c98c6a" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="ne-paper" x1="0" y1="0" x2="0.4" y2="1">
+      <stop offset="0%" stop-color="#e6ddcd"/>
+      <stop offset="70%" stop-color="#d3c7b2"/>
+      <stop offset="100%" stop-color="#b9ab93"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="400" height="600" fill="url(#ne-bg)"/>
+  <rect width="400" height="600" fill="url(#ne-lamp)"/>
+
+  <!-- 뒤쪽 원고 두 장 -->
+  <g opacity=".38">
+    <rect x="78" y="112" width="220" height="284" rx="4" fill="#8c8069" transform="rotate(-6 188 254)"/>
+    <rect x="96" y="104" width="220" height="284" rx="4" fill="#a99b83" transform="rotate(3.5 206 246)"/>
+  </g>
+
+  <!-- 앞쪽 원고 -->
+  <g transform="rotate(-1.5 200 260)">
+    <rect x="86" y="118" width="228" height="292" rx="4" fill="url(#ne-paper)"/>
+
+    <!-- 원고지 칸 -->
+    <g stroke="#b6a88f" stroke-width="0.6" opacity=".55">
+      <path d="M104 150 H296"/><path d="M104 178 H296"/><path d="M104 206 H296"/>
+      <path d="M104 234 H296"/><path d="M104 262 H296"/><path d="M104 290 H296"/>
+      <path d="M104 318 H296"/><path d="M104 346 H296"/><path d="M104 374 H296"/>
+    </g>
+
+    <!-- 본문 줄 -->
+    <g fill="#4a4034" opacity=".72">
+      <rect x="104" y="140" width="164" height="5" rx="2.5"/>
+      <rect x="104" y="168" width="192" height="5" rx="2.5"/>
+      <rect x="104" y="196" width="140" height="5" rx="2.5"/>
+      <rect x="104" y="224" width="180" height="5" rx="2.5"/>
+      <rect x="104" y="252" width="118" height="5" rx="2.5"/>
+      <rect x="104" y="280" width="188" height="5" rx="2.5"/>
+      <rect x="104" y="308" width="152" height="5" rx="2.5"/>
+      <rect x="104" y="336" width="174" height="5" rx="2.5"/>
+      <rect x="104" y="364" width="96" height="5" rx="2.5"/>
+    </g>
+
+    <!-- 붉은 교정 -->
+    <g stroke="#d4463f" stroke-linecap="round" fill="none">
+      <path d="M100 170 L300 176" stroke-width="2.4" opacity=".95"/>
+      <path d="M100 226 L288 222" stroke-width="2.2" opacity=".85"/>
+      <path d="M248 246 q 12 -14 26 2 t 24 -4" stroke-width="2" opacity=".8"/>
+      <path d="M104 306 L260 312" stroke-width="2.2" opacity=".9"/>
+      <path d="M270 296 l 22 22 M292 296 l -22 22" stroke-width="2.4" opacity=".9"/>
+      <path d="M116 352 q 16 -18 30 0 t 30 0" stroke-width="1.8" opacity=".7"/>
+    </g>
+    <!-- 여백에 쓴 교정 부호 -->
+    <g stroke="#d4463f" stroke-width="2" fill="none" opacity=".8">
+      <path d="M300 196 l 12 0 l 0 -14"/>
+      <circle cx="308" cy="336" r="7"/>
+    </g>
+  </g>
+
+  <!-- 잉크 자국 -->
+  <g fill="#d4463f" opacity=".55">
+    <ellipse cx="292" cy="404" rx="17" ry="11" transform="rotate(-14 292 404)"/>
+    <circle cx="316" cy="418" r="4.5"/>
+    <circle cx="272" cy="420" r="2.6"/>
+    <circle cx="328" cy="404" r="2"/>
+  </g>
+
+  <!-- 제목 -->
+  <g font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" text-anchor="middle">
+    <text x="200" y="480" font-size="14" letter-spacing="6" fill="#e08a8a" opacity=".9">MYSTERY</text>
+    <text x="200" y="524" font-size="33" font-weight="700" fill="#f2e7e4" letter-spacing="-0.5">밤의 교정자</text>
+    <text x="200" y="552" font-size="12" letter-spacing="3" fill="#b98d8d">전 3화 완결</text>
+    <text x="200" y="578" font-size="13" fill="#9c8181">윤재하</text>
+  </g>
+</svg>

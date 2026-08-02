@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600" role="img" aria-label="회색 탑의 종지기 표지">
+  <title>회색 탑의 종지기</title>
+  <defs>
+    <linearGradient id="bt-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#070c1a"/>
+      <stop offset="45%" stop-color="#101a35"/>
+      <stop offset="78%" stop-color="#1d2a4c"/>
+      <stop offset="100%" stop-color="#2b3355"/>
+    </linearGradient>
+    <linearGradient id="bt-tower" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#39415e"/>
+      <stop offset="42%" stop-color="#5b6480"/>
+      <stop offset="100%" stop-color="#2a3049"/>
+    </linearGradient>
+    <radialGradient id="bt-glow" cx="50%" cy="34%" r="46%">
+      <stop offset="0%" stop-color="#e9bb77" stop-opacity="0.62"/>
+      <stop offset="55%" stop-color="#e9bb77" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#e9bb77" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="bt-ground" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#131a30"/>
+      <stop offset="100%" stop-color="#070b16"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="400" height="600" fill="url(#bt-sky)"/>
+
+  <!-- 별 -->
+  <g fill="#e8edfb">
+    <circle cx="48" cy="66" r="1.5" opacity=".75"/>
+    <circle cx="112" cy="42" r="1" opacity=".5"/>
+    <circle cx="168" cy="88" r="1.2" opacity=".6"/>
+    <circle cx="252" cy="54" r="1" opacity=".45"/>
+    <circle cx="318" cy="96" r="1.6" opacity=".8"/>
+    <circle cx="356" cy="40" r="1" opacity=".4"/>
+    <circle cx="76" cy="146" r="1" opacity=".35"/>
+    <circle cx="292" cy="168" r="1.2" opacity=".45"/>
+    <circle cx="30" cy="228" r="1" opacity=".3"/>
+    <circle cx="372" cy="214" r="1.1" opacity=".35"/>
+  </g>
+
+  <!-- 종소리 파문 -->
+  <g fill="none" stroke="#e9bb77" stroke-linecap="round">
+    <circle cx="200" cy="206" r="52" opacity=".55" stroke-width="1.6"/>
+    <circle cx="200" cy="206" r="88" opacity=".34" stroke-width="1.3"/>
+    <circle cx="200" cy="206" r="128" opacity=".2" stroke-width="1.1"/>
+    <circle cx="200" cy="206" r="172" opacity=".1" stroke-width="1"/>
+  </g>
+
+  <rect width="400" height="600" fill="url(#bt-glow)"/>
+
+  <!-- 탑 -->
+  <g>
+    <path d="M200 96 L232 150 L232 470 L168 470 L168 150 Z" fill="url(#bt-tower)"/>
+    <path d="M200 96 L232 150 L200 150 Z" fill="#6d7694" opacity=".55"/>
+    <!-- 종실 개구부 -->
+    <path d="M182 176 a18 22 0 0 1 36 0 v46 h-36 z" fill="#0a0f1e"/>
+    <!-- 종 -->
+    <path d="M200 188 c-9 0 -13 8 -13 16 v10 h26 v-10 c0 -8 -4 -16 -13 -16 z" fill="#e9bb77" opacity=".92"/>
+    <circle cx="200" cy="218" r="2.6" fill="#e9bb77"/>
+    <!-- 층 구분선 -->
+    <g stroke="#141a2c" stroke-width="2" opacity=".65">
+      <path d="M168 250 H232"/>
+      <path d="M168 306 H232"/>
+      <path d="M168 362 H232"/>
+      <path d="M168 418 H232"/>
+    </g>
+    <!-- 창 -->
+    <g fill="#e9bb77" opacity=".5">
+      <rect x="192" y="266" width="7" height="16" rx="3.5"/>
+      <rect x="192" y="322" width="7" height="16" rx="3.5"/>
+      <rect x="192" y="378" width="7" height="16" rx="3.5"/>
+    </g>
+  </g>
+
+  <!-- 지면 -->
+  <path d="M0 452 C 78 434 132 470 200 466 C 274 462 322 436 400 452 L400 600 L0 600 Z" fill="url(#bt-ground)"/>
+  <path d="M0 452 C 78 434 132 470 200 466 C 274 462 322 436 400 452" fill="none" stroke="#e9bb77" stroke-width="1" opacity=".22"/>
+
+  <!-- 제목 -->
+  <g font-family="'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif" text-anchor="middle">
+    <text x="200" y="518" font-size="14" letter-spacing="6" fill="#e9bb77" opacity=".85">FANTASY</text>
+    <text x="200" y="556" font-size="31" font-weight="700" fill="#eef1fa" letter-spacing="-0.5">회색 탑의 종지기</text>
+    <text x="200" y="580" font-size="13" fill="#98a2bd">윤재하</text>
+  </g>
+</svg>

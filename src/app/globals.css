@@ -1,0 +1,328 @@
+@import 'tailwindcss';
+
+/* ------------------------------------------------------------------ *
+ * 디자인 토큰
+ *
+ * 색은 전부 CSS 변수로만 정의하고, Tailwind 유틸리티는 `@theme inline` 으로
+ * 그 변수를 "참조"하게 한다. 그래야 <html data-theme> 하나만 바꿔도
+ * 사이트 전체(목록·읽기 화면 모두)의 색이 즉시 따라온다.
+ * ------------------------------------------------------------------ */
+
+@theme inline {
+  --color-canvas: var(--c-canvas);
+  --color-surface: var(--c-surface);
+  --color-raised: var(--c-raised);
+  --color-line: var(--c-line);
+  --color-ink: var(--c-ink);
+  --color-ink-muted: var(--c-ink-muted);
+  --color-ink-subtle: var(--c-ink-subtle);
+  --color-accent: var(--c-accent);
+  --color-accent-ink: var(--c-accent-ink);
+
+  --font-sans: var(--f-sans);
+  --font-serif: var(--f-serif);
+
+  --breakpoint-xs: 24rem;
+}
+
+:root {
+  --f-sans: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont,
+    'Apple SD Gothic Neo', 'Segoe UI', 'Malgun Gothic', system-ui, sans-serif;
+  --f-serif: 'Noto Serif KR', 'Nanum Myeongjo', 'Apple SD Gothic Neo', '바탕', Batang,
+    Georgia, serif;
+
+  /* 읽기 설정이 붙기 전의 기본값 — layout.tsx 의 부트스트랩 스크립트가 즉시 덮어쓴다. */
+  --reader-font-size: 18px;
+  --reader-line-height: 1.9;
+  --reader-measure: 40rem;
+
+  color-scheme: dark;
+}
+
+/* 어두운 남색 — 기본 테마 */
+:root,
+:root[data-theme='dark'] {
+  --c-canvas: #0b1020;
+  --c-surface: #121a2d;
+  --c-raised: #1a2440;
+  --c-line: #26314c;
+  --c-ink: #e3e8f4;
+  --c-ink-muted: #98a2bd;
+  --c-ink-subtle: #69738f;
+  --c-accent: #e9bb77;
+  --c-accent-ink: #1b1305;
+  color-scheme: dark;
+}
+
+/* 따뜻한 종이색 */
+:root[data-theme='sepia'] {
+  --c-canvas: #f4ead9;
+  --c-surface: #ece0cb;
+  --c-raised: #e4d6bd;
+  --c-line: #d9c9ad;
+  --c-ink: #392f22;
+  --c-ink-muted: #6d5c46;
+  --c-ink-subtle: #8b7a62;
+  --c-accent: #8a5622;
+  --c-accent-ink: #fdf6ea;
+  color-scheme: light;
+}
+
+/* 밝은 화면 */
+:root[data-theme='light'] {
+  --c-canvas: #ffffff;
+  --c-surface: #f5f7fb;
+  --c-raised: #edf1f7;
+  --c-line: #dfe4ee;
+  --c-ink: #141a29;
+  --c-ink-muted: #57607a;
+  --c-ink-subtle: #838da4;
+  --c-accent: #96601c;
+  --c-accent-ink: #ffffff;
+  color-scheme: light;
+}
+
+/* ------------------------------------------------------------------ *
+ * 기본 요소
+ * ------------------------------------------------------------------ */
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+body {
+  background-color: var(--c-canvas);
+  color: var(--c-ink);
+  font-family: var(--f-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-wrap: break-word;
+  word-break: keep-all; /* 한국어 단어가 중간에서 잘리지 않게 */
+}
+
+::selection {
+  background: color-mix(in oklab, var(--c-accent) 30%, transparent);
+  color: var(--c-ink);
+}
+
+/* 키보드 탐색이 항상 눈에 보이도록. 마우스 클릭에는 나타나지 않는다. */
+:focus-visible {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* 스크롤바도 테마를 따라간다 */
+* {
+  scrollbar-color: var(--c-line) transparent;
+  scrollbar-width: thin;
+}
+
+/* ------------------------------------------------------------------ *
+ * 유틸리티
+ * ------------------------------------------------------------------ */
+
+@utility hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* 화면에는 안 보이지만 스크린 리더는 읽는 텍스트 */
+@utility sr-only-focusable {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+  &:focus {
+    position: fixed;
+    top: 0.75rem;
+    left: 0.75rem;
+    width: auto;
+    height: auto;
+    margin: 0;
+    padding: 0.625rem 1rem;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+    z-index: 100;
+    background: var(--c-accent);
+    color: var(--c-accent-ink);
+    border-radius: 0.5rem;
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * 본문 타이포그래피
+ *
+ * 글자 크기 / 줄 간격 / 본문 폭은 전부 CSS 변수로만 제어한다.
+ * 설정 UI 는 이 세 변수만 바꾸고, 여기 규칙은 건드리지 않는다.
+ * ------------------------------------------------------------------ */
+
+.reader-body {
+  font-size: var(--reader-font-size);
+  line-height: var(--reader-line-height);
+  max-width: var(--reader-measure);
+  margin-inline: auto;
+  letter-spacing: -0.003em;
+  color: var(--c-ink);
+}
+
+.reader-body[data-font='serif'] {
+  font-family: var(--f-serif);
+}
+
+.reader-body p {
+  margin-block: 0.95em;
+}
+
+.reader-body p:first-child {
+  margin-block-start: 0;
+}
+
+/* 대사 줄(따옴표로 시작)은 살짝 들여써서 지문과 구분한다 — 한국 웹소설 관행 */
+.reader-body p:has(> em:only-child) {
+  color: var(--c-ink-muted);
+  font-style: italic;
+}
+
+.reader-body h2,
+.reader-body h3 {
+  margin-block: 2em 0.8em;
+  font-weight: 600;
+  line-height: 1.45;
+  letter-spacing: -0.01em;
+}
+
+.reader-body h2 {
+  font-size: 1.18em;
+}
+
+.reader-body h3 {
+  font-size: 1.06em;
+  color: var(--c-ink-muted);
+}
+
+.reader-body blockquote {
+  margin-block: 1.6em;
+  padding-inline-start: 1.1em;
+  border-inline-start: 2px solid color-mix(in oklab, var(--c-accent) 55%, transparent);
+  color: var(--c-ink-muted);
+}
+
+.reader-body strong {
+  font-weight: 600;
+  color: var(--c-ink);
+}
+
+.reader-body em {
+  font-style: italic;
+}
+
+.reader-body a {
+  color: var(--c-accent);
+  text-underline-offset: 3px;
+  text-decoration: underline;
+}
+
+/* 본문 속 인쇄물(영수증·쪽지·교정지 등)을 그대로 보여줄 때 쓰는 코드 블록.
+   글자 크기 설정과 무관하게 폭이 넘치지 않도록 가로 스크롤을 준다. */
+.reader-body pre {
+  margin-block: 1.8em;
+  padding: 1.1em 1.2em;
+  border: 1px solid var(--c-line);
+  border-radius: 10px;
+  background: var(--c-surface);
+  overflow-x: auto;
+  font-family: var(--f-mono, ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace);
+  font-size: 0.82em;
+  line-height: 1.65;
+  color: var(--c-ink-muted);
+  -webkit-overflow-scrolling: touch;
+}
+
+.reader-body pre code {
+  font: inherit;
+  white-space: pre;
+}
+
+/* 문단 안에 섞이는 짧은 인용(품명, 단축키 등) */
+.reader-body :not(pre) > code {
+  padding: 0.12em 0.4em;
+  border-radius: 5px;
+  background: var(--c-surface);
+  font-family: var(--f-mono, ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace);
+  font-size: 0.88em;
+}
+
+.reader-body ul,
+.reader-body ol {
+  margin-block: 1.2em;
+  padding-inline-start: 1.4em;
+}
+
+.reader-body li {
+  margin-block: 0.4em;
+}
+
+.reader-body ul {
+  list-style: disc;
+}
+
+.reader-body ol {
+  list-style: decimal;
+}
+
+/* 장면 전환 구분선 (--- 로 입력) */
+.reader-body hr {
+  margin-block: 2.6em;
+  border: 0;
+  height: 1.2em;
+  background: none;
+  position: relative;
+}
+
+.reader-body hr::after {
+  content: '· · ·';
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  letter-spacing: 0.5em;
+  font-size: 0.9em;
+  color: var(--c-ink-subtle);
+}
+
+/* 작가 소개 등 짧은 산문 영역 */
+.prose-basic p {
+  margin-block: 0.9em;
+  line-height: 1.85;
+}
+
+.prose-basic p:first-child {
+  margin-block-start: 0;
+}
+
+.prose-basic p:last-child {
+  margin-block-end: 0;
+}

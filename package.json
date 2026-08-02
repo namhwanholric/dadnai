@@ -1,0 +1,29 @@
+{
+  "name": "dalbit-seogo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "달빛서고 — 한 명의 작가가 자신의 작품만 연재하는 개인 웹소설 사이트 (정적 사이트)",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build && node scripts/copy-ai-study.mjs",
+    "typecheck": "tsc --noEmit",
+    "lint": "next lint",
+    "serve": "npx --yes serve out -l 4173"
+  },
+  "dependencies": {
+    "gray-matter": "^4.0.3",
+    "marked": "^15.0.0",
+    "next": "^15.5.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "server-only": "^0.0.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.0",
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "tailwindcss": "^4.1.0",
+    "typescript": "^5.7.0"
+  }
+}

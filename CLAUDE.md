@@ -1,177 +1,41 @@
-# CLAUDE.md — 아빠표 AI 학습법 사이트
+# CLAUDE.md — dadnai 저장소
 
-이 저장소에서 작업할 때 항상 이 문서를 먼저 읽는다.
+이 저장소 하나가 **사이트 두 개**를 담고 있습니다. 작업 전에 어느 쪽인지 먼저 확인하세요.
 
----
+| 사이트 | 폴더 | 주소 | 성격 |
+| --- | --- | --- | --- |
+| **달빛서고** (웹소설) | 저장소 루트 | `https://namhwanholric.github.io/dadnai/` | Next.js 정적 사이트. 빌드 필요 |
+| **아빠표 AI 학습법** | `ai-study/` | `https://namhwanholric.github.io/dadnai/ai-study/` | 순수 HTML. 빌드 도구 없음 |
 
-## 1. 무엇을 만드는가
+**두 사이트의 규칙은 완전히 다릅니다. 섞지 마세요.**
 
-중학생 자녀를 둔 학부모를 대상으로 하는 정적 웹사이트. GitHub Pages로 배포한다.
-
-핵심 주장은 하나다.
-
-> 교재가 뼈대를 잡고, 아이가 먼저 생각하고, AI는 질문과 힌트만 준다.
-
-사이트는 두 층으로 나뉜다.
-
-- **공개층** — 메인 페이지와 부록. 학부모가 오늘 저녁에 그대로 쓸 수 있는 자료.
-- **작업층** — 기록 도구와 초안. 메인 메뉴에 링크하지 않는다.
+- `ai-study/` 안에서 작업할 때는 **[ai-study/CLAUDE.md](ai-study/CLAUDE.md)를 먼저 읽으세요.** 디자인 시스템·콘텐츠 규칙이 거기 있고, 그 폴더에는 npm 의존성을 추가하지 않습니다.
+- 루트에서 작업할 때는 이 문서와 [README.md](README.md)를 따릅니다.
 
 ---
 
-## 2. 파일 구성
+## 배포
 
-| 파일 | 층 | 역할 |
-|---|---|---|
-| `index.html` | 공개 | 메인. 책 형식 (표제지·차례·서문·본문·부록·판권) |
-| `tutor-prompt-v2.html` | 공개 | 부록 A. AI 지시문 + 복사 버튼 |
-| `sign-errors.html` | 공개 | 부록 B. 부호 오류 8문항 + 답 가리기 토글 |
-| `two-paths.html` | 공개 | 부록 C. 판별 카드 (2열 대조) |
-| `session-card.html` | 공개 | 부록 D. 진행 카드 + 20분 타이머 |
-| `study-log.html` | 작업 | 기록 도구. localStorage 저장 |
-| `unity-first-door.html` | 작업 | 유니티 첫 세션 카드 |
-| `four-parts.html` | 작업 | 에이전트 네 부품 (책 1장 초안) |
-| `book2-plan.html` | 작업 | 2권 《아빠표 AI 업무활용》 편집 기획서 (원고지 톤, 자체 페이지 목차 + 파일 내려받기 블록) |
-| `book2-plan.md` | 작업 | 위 기획서의 내용 원본(마크다운). 내용 수정은 여기서 하고 HTML에 반영한다 |
-| `book2-plan-alt-design.html` | 작업 | 2권 기획서의 다른 디자인 안. **디자인 시스템 예외** — 비교용 보관본이므로 3장 규칙을 적용하지 않는다. 메뉴에 걸지 않는다 |
-| `tools.html` | 작업 | 전체 목록 |
-| `nav.js` | — | 전체 사이트 내비게이션. 아래 3-3 참고 |
-| `.nojekyll` | — | 절대 삭제하지 말 것 |
-
-링크는 모두 같은 폴더 기준(`./파일명.html`)으로 쓴다. 폴더째 옮겨도 작동해야 한다.
-
----
-
-## 3. 디자인 시스템
-
-두 가지 톤이 있다. **섞지 않는다.**
-
-### 3-1. 메인 (`index.html`) — 책
-
-```css
---paper:      #F3F1EA;  /* 지면 */
---paper-edge: #E7E3D8;  /* 지면 바깥 배경 */
---ink:        #15140F;
---ink-soft:   #4A4740;
---gray:       #8A8578;
---seal:       #7A2B32;  /* 강조. 팥색 */
---line:       #15140F1F;
-```
-
-- 서체: `"Nanum Myeongjo","Gowun Batang","Apple SD Gothic Neo",serif`
-- 본문 17px / line-height 1.95 / 지면 폭 640px / 좌우 여백 56px
-- **문단 첫 줄 들여쓰기 1em.** 문단 사이 여백 대신 들여쓰기로 구분한다.
-- 차례는 점선 리더(dotted border)와 쪽번호를 쓴다. 부록은 A·B·C·D.
-- 표제지, 판권지를 실제 책처럼 둔다.
-- 내비게이션은 이 파일 CSS가 아니라 `nav.js`가 전담한다. 아래 3-3 참고.
-
-### 3-2. 도구 페이지 — 원고지
-
-```css
---paper:    #E9E7DE;
---paper-hi: #F2F0E9;
---ink:      #1F231D;
---rule:     #4A7A5C;  /* 원고지 초록 */
---rule-soft:#4A7A5C33;
---graphite: #767A70;
---pen:      #B23A2E;  /* 빨간펜 */
-```
-
-- 서체: `"Gowun Batang","Apple SD Gothic Neo",serif`
-- 본문 16px / line-height 1.7 / 폭 720px
-- AI가 관여하는 구간은 배경을 `--ink`로 **반전**시킨다. 이건 장식이 아니라 의미다.
-- 경고는 `--pen` 좌측 보더, 정보는 `--rule` 좌측 보더.
-
-### 3-3. 내비게이션 (`nav.js`)
-
-목차 데이터는 `nav.js` 안의 `TOC` 배열 하나뿐이다. **새 부록을 추가할 때 이 배열 외에 고칠 파일이 있다면 설계가 틀린 것이다.** 각 페이지는 `<body data-page="...">`로 자기 위치를 밝히고 `<script src="./nav.js"></script>`를 붙이기만 한다.
-
-- `data-page="home"` — `index.html`. 사이드바/모바일 패널 + IntersectionObserver로 지금 읽는 장(`preface`/`why`/`roles`/`records`)을 자동 표시.
-- `data-page="appendix-a|b|c|d"` — 부록 4페이지. 사이드바/패널 + 판면주("아빠표 AI 학습법 ── 부록 B" 형태) 둘 다 붙는다.
-- `data-page="study-log|tools|four-parts|unity-first-door"` — 작업층 4페이지. 목차에는 없고, 판면주(메인으로 가는 링크 + 자기 이름)만 붙는다.
-- 1080px 이상이면서 페이지 폭이 사이드바(240px)를 가리지 않을 때만 고정 사이드바를 보여준다. 그렇지 않으면 좌측 상단 `차례` 버튼 → 슬라이드 패널. `nav.js`가 실제 여유 폭을 매 리사이즈마다 재본다.
-- 사이드바는 `CLAUDE.md`의 책 팔레트를 페이지 톤과 무관하게 그대로 쓴다(원고지 페이지 위에서도).
-- 페이지 자체에 이미 sticky 바가 있으면(`sign-errors.html`의 `.bar`, `session-card.html`의 `.clock`) `top:var(--dn-rh-h, 0px)`를 써서 판면주 아래로 내린다. `--dn-rh-h`는 `nav.js`가 판면주 실제 높이를 재서 넣어준다. 새로 sticky 바를 넣는 페이지는 반드시 이 패턴을 따른다.
-- 키보드(Tab/Esc)로 열고 닫고 이동 가능해야 하고, 인쇄 시 내비게이션은 전부 숨긴다. `prefers-reduced-motion`이면 패널 전환 애니메이션을 끈다.
-
-### 공통 규칙
-
-- `border-radius: 0`. 둥근 모서리를 쓰지 않는다.
-- 그라디언트, 그림자 남용, 이모지를 쓰지 않는다.
-- 애니메이션은 넣지 않는다. `prefers-reduced-motion`은 항상 처리한다.
-- 모든 페이지는 단일 HTML 파일. CSS와 JS를 파일 안에 둔다. 빌드 도구를 쓰지 않는다.
-- 반응형 기준점은 520px과 640px.
-- 폰트는 Google Fonts에서 불러오되, 차단돼도 무너지지 않게 시스템 폰트 폴백을 반드시 둔다.
-
----
-
-## 4. 코드 규칙
-
-- 순수 HTML/CSS/JS. 프레임워크, 번들러, npm 의존성을 추가하지 않는다.
-- `study-log.html`은 **localStorage**를 쓴다. 서버로 데이터를 보내지 않는다.
-- 모든 저장 동작은 try/catch로 감싸고, 실패하면 사용자에게 알린다.
-- 클립보드 복사는 `navigator.clipboard` 실패 시 `execCommand` 폴백을 둔다.
-- 키보드 포커스 표시(`:focus-visible`)를 지운 채로 두지 않는다.
-- 외부 링크는 `target="_blank" rel="noopener"`.
-
----
-
-## 5. 콘텐츠 규칙 — 이 사이트의 존재 이유
-
-이 사이트는 "AI에게 생각을 맡기지 말라"고 주장한다. 그러므로 사이트 자체가 그 규칙을 어기면 안 된다.
-
-1. **수학 문항을 만들거나 고칠 때는 반드시 코드로 검산한다.** 암산으로 답을 쓰지 않는다. 검산 스크립트를 실행하고 결과를 확인한 뒤 HTML에 넣는다.
-2. **존재하지 않는 도구·데이터베이스·기능을 문서에 적지 않는다.** 지시문에 가짜 도구 이름을 넣으면 AI가 쓴 척한다.
-3. **출처가 불확실한 수치, 인용, 인물 정보를 넣지 않는다.** 확인되지 않으면 뺀다.
-4. **아이의 실명, 학교, 생년월일을 어떤 파일에도 넣지 않는다.**
-5. 실패 사례를 지우지 않는다. 이 사이트의 차별점은 성공담이 아니라 실패 기록이다.
-6. 과장하지 않는다. "부담 제로", "완벽한", "누구나 쉽게" 같은 표현을 쓰지 않는다.
-
----
-
-## 6. 배포
-
-GitHub Pages, `main` 브랜치 루트.
+`main`에 푸시하면 `.github/workflows/deploy.yml`이 빌드해서 GitHub Pages에 올립니다.
+(저장소 Settings → Pages → Source = **GitHub Actions**)
 
 ```
-Settings → Pages → Deploy from a branch → main / (root)
+npm run build
+  ├ next build                    → out/          (웹소설)
+  └ node scripts/copy-ai-study.mjs → out/ai-study/ (AI 학습법 폴더 통째로 복사)
 ```
 
-- `.nojekyll`이 있어야 한다.
+- **`ai-study/`는 Next.js가 건드리지 않습니다.** 복사 스크립트가 그대로 옮깁니다. 로컬 빌드와 배포 결과가 같습니다.
+- `public/*.html` 중 몇 개는 **옛 주소 리다이렉트 스텁**입니다 (`/dadnai/tools.html` → `/dadnai/ai-study/tools.html`).
+  ai-study에 새 페이지를 추가할 때 옛 주소가 없으면 스텁도 필요 없습니다.
+- `public/.nojekyll`을 지우지 마세요. 없으면 GitHub Pages가 `_next` 폴더를 무시합니다.
 - 커밋 메시지는 한국어로 간결하게. 예: `부록 B에 문자와 식 8문항 추가`
-- 푸시 전 링크가 깨지지 않았는지 확인한다.
 
----
+## 웹소설 사이트 (루트) 규칙
 
-## 7. 다음에 할 일
-
-- [ ] 문자와 식 8문항 (`sign-errors.html`과 같은 구조, 검산 필수)
-- [ ] 1회차 실전 기록 페이지 (날짜 + 실패한 지점 포함)
-- [ ] `og.png` 1200×630
-- [ ] 커스텀 도메인 연결
-
----
-
-## 8. 처음 시작할 때 붙여넣을 명령
-
-```
-이 저장소의 CLAUDE.md를 먼저 읽어줘.
-
-지금 있는 HTML 파일들을 검토하고 다음을 해줘.
-
-1. 모든 페이지가 CLAUDE.md의 디자인 시스템을 지키는지 확인하고,
-   어긋난 곳을 목록으로 보여줘. 아직 고치지는 마.
-2. 페이지 간 링크가 전부 살아 있는지 확인해줘.
-3. 모바일 320px 폭에서 깨지는 곳이 있으면 알려줘.
-
-고칠 항목을 내가 고르면 그때 수정해줘.
-```
-
-두 번째 작업부터는 이렇게 지시한다.
-
-```
-sign-errors.html과 같은 구조로 "문자와 식" 8문항을 만들어줘.
-CLAUDE.md의 콘텐츠 규칙 1번을 지켜서, 문항을 쓰기 전에
-파이썬으로 전부 검산하고 결과를 보여준 다음 HTML을 만들어.
-같은 오류를 다른 옷으로 내는 짝 문항을 최소 두 쌍 넣어줘.
-```
+- 원고는 `content/episodes/<작품slug>/NN-slug.md`. 파일 하나가 회차 하나입니다.
+- 작품 메타데이터는 `content/series.ts`, 사이트/작가 정보는 `content/site.ts`에서만 고칩니다.
+- 회차를 추가하면 `content/series.ts`의 `updatedAt`도 같이 고칩니다.
+- 좋아요·읽은 회차·읽기 설정은 **localStorage 전용**입니다. 서버로 보내는 코드를 넣지 마세요.
+- 영상은 클릭 전까지 iframe을 만들지 않습니다(파사드). 이 동작을 깨지 마세요.
+- 자세한 사용법은 [README.md](README.md), 작업 상태는 [HANDOFF.md](HANDOFF.md), 설계 근거는 [PROJECT_PLAN.md](PROJECT_PLAN.md)에 있습니다.
