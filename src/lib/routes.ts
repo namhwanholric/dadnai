@@ -18,6 +18,7 @@ export const routes = {
   browse: '/browse/',
   library: '/library/',
   about: '/about/',
+  write: '/write/',
   author: (slug: string) => `/authors/${slug}/`,
   series: (slug: string) => `/series/${slug}/`,
   episode: (seriesSlug: string, episodeSlug: string) => `/series/${seriesSlug}/${episodeSlug}/`,

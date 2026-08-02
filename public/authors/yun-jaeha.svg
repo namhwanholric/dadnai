@@ -1,24 +1,42 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" role="img" aria-label="윤재하 프로필 도형">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" role="img" aria-label="윤재하 작가 실루엣 초상">
   <title>윤재하</title>
   <defs>
-    <linearGradient id="yj-bg" x1="0.1" y1="0" x2="0.9" y2="1">
-      <stop offset="0%" stop-color="#111a2e"/>
+    <linearGradient id="yj-sky" x1="0.2" y1="0" x2="0.8" y2="1">
+      <stop offset="0%" stop-color="#1a2440"/>
+      <stop offset="55%" stop-color="#111a2e"/>
       <stop offset="100%" stop-color="#080d18"/>
     </linearGradient>
-    <radialGradient id="yj-glow" cx="50%" cy="42%" r="46%">
-      <stop offset="0%" stop-color="#e9bb77" stop-opacity="0.42"/>
-      <stop offset="70%" stop-color="#e9bb77" stop-opacity="0.06"/>
+    <radialGradient id="yj-moon" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#e9bb77" stop-opacity="0.55"/>
+      <stop offset="55%" stop-color="#e9bb77" stop-opacity="0.14"/>
       <stop offset="100%" stop-color="#e9bb77" stop-opacity="0"/>
     </radialGradient>
+    <linearGradient id="yj-figure" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#05070d"/>
+      <stop offset="100%" stop-color="#0b111f"/>
+    </linearGradient>
+    <clipPath id="yj-clip"><circle cx="100" cy="100" r="100"/></clipPath>
   </defs>
 
-  <rect width="200" height="200" fill="url(#yj-bg)"/>
-  <rect width="200" height="200" fill="url(#yj-glow)"/>
+  <g clip-path="url(#yj-clip)">
+    <rect width="200" height="200" fill="url(#yj-sky)"/>
 
-  <!-- 종을 단순화한 형태: 세로선 하나와 그 아래 원 -->
-  <line x1="100" y1="34" x2="100" y2="86" stroke="#e9bb77" stroke-width="2" opacity="0.5"/>
-  <circle cx="100" cy="100" r="30" fill="none" stroke="#e9bb77" stroke-width="2.5" opacity="0.9"/>
-  <circle cx="100" cy="100" r="46" fill="none" stroke="#e9bb77" stroke-width="1" opacity="0.32"/>
-  <circle cx="100" cy="100" r="62" fill="none" stroke="#e9bb77" stroke-width="1" opacity="0.14"/>
-  <circle cx="100" cy="100" r="6" fill="#e9bb77" opacity="0.85"/>
+    <!-- 달 -->
+    <circle cx="138" cy="52" r="46" fill="url(#yj-moon)"/>
+    <circle cx="138" cy="52" r="17" fill="#e9bb77" opacity="0.5"/>
+
+    <!-- 종탑 -->
+    <path d="M28 200 L28 96 L44 78 L60 96 L60 200 Z" fill="#070b14" opacity="0.85"/>
+    <rect x="38" y="104" width="12" height="16" rx="6" fill="#e9bb77" opacity="0.35"/>
+
+    <!-- 인물: 어깨 -->
+    <path d="M32 200 C32 158 62 136 100 136 C138 136 168 158 168 200 Z" fill="url(#yj-figure)"/>
+    <!-- 인물: 머리 -->
+    <ellipse cx="100" cy="98" rx="30" ry="34" fill="url(#yj-figure)"/>
+    <!-- 짧은 머리카락 -->
+    <path d="M70 92 C70 66 84 58 100 58 C116 58 130 66 130 92 C124 76 114 70 100 70 C86 70 76 76 70 92 Z" fill="#05070d"/>
+    <!-- 왼쪽 가장자리 빛 -->
+    <path d="M124 74 C130 82 131 92 130 100 C128 90 126 82 122 78 Z" fill="#e9bb77" opacity="0.45"/>
+    <path d="M150 160 C160 170 166 184 168 200 L160 200 C157 184 152 172 145 165 Z" fill="#e9bb77" opacity="0.18"/>
+  </g>
 </svg>

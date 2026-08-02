@@ -38,6 +38,7 @@ npm run dev
 
 | 명령 | 하는 일 |
 | --- | --- |
+| `npm run new` | **새 회차 파일 만들기** (질문에 답하면 뼈대가 생깁니다) |
 | `npm run dev` | 개발 서버 (원고를 고치면 즉시 반영) |
 | `npm run typecheck` | 타입 검사만 |
 | `npm run build` | 정적 사이트를 `out/` 폴더로 빌드 (+ `ai-study/`를 `out/ai-study/`로 복사) |
@@ -129,6 +130,28 @@ videos:
 2. `author`에 작가 slug을 적습니다 (`content/authors.ts`에 있는 값이어야 합니다)
 3. `public/covers/<slug>.svg` 표지 추가 (세로 2:3)
 4. `content/episodes/<slug>/01-....md` 부터 회차 작성
+
+### 다른 사람이 글을 올리게 하는 법
+
+심사는 **네이버 카페**에서, 등록은 **GitHub**에서 합니다. 이 사이트가 따로 받아 두는 개인정보는 없습니다.
+
+1. 카페(`cafe.naver.com/dadnai`)에서 작가 등급을 신청받고, 승인할 사람을 정합니다.
+2. 그 사람의 GitHub 아이디를 [`.github/writers.yml`](.github/writers.yml)에 한 줄 추가합니다.
+3. `content/authors.ts`에 작가 항목을 만들고, 2번의 `author`에 그 slug을 적습니다.
+
+그러면 그 사람은 [회차 올리는 폼](https://github.com/namhwanholric/dadnai/issues/new?template=new-episode.yml)에
+제목과 본문을 붙여 넣어 제출할 수 있습니다. 그 뒤는 자동입니다.
+
+- 목록에 없는 사람이 제출하면 **거절 사유가 댓글로 달리고 아무 파일도 만들어지지 않습니다.**
+- 승인된 사람이면 원고 파일이 만들어지고, 빌드가 되는지 확인한 뒤 **PR이 열립니다.**
+- **PR을 병합해야 사이트에 올라갑니다.** 제출만으로 공개되지 않습니다.
+- 자격을 거두려면 `writers.yml`에서 그 줄을 지웁니다. 이미 올라간 글은 남습니다.
+
+GitHub 계정 만들기를 어려워하는 사람은 카페에 원고를 올리게 하고, 받아서 `npm run new`로 직접 등록하면 됩니다.
+
+관련 파일: [`.github/ISSUE_TEMPLATE/new-episode.yml`](.github/ISSUE_TEMPLATE/new-episode.yml) (폼),
+[`.github/workflows/episode-from-issue.yml`](.github/workflows/episode-from-issue.yml) (자동화),
+[`scripts/episode-from-issue.mjs`](scripts/episode-from-issue.mjs) (변환)
 
 ### 작가 추가하는 법
 

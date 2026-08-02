@@ -1,0 +1,119 @@
+name: 새 회차 올리기
+description: 원고를 붙여 넣으면 자동으로 사이트에 올릴 준비가 됩니다. 마크다운을 몰라도 됩니다.
+title: '[회차] '
+labels: ['새 회차']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### 쓰기 전에
+
+        네이버 카페에서 **작가 등급을 승인받은 분**만 올릴 수 있습니다.
+        아직이라면 [카페](https://cafe.naver.com/dadnai)에서 먼저 신청해 주세요.
+
+        아래 칸을 채워서 제출하면 서고지기에게 확인 요청이 갑니다.
+        확인되면 사이트에 올라갑니다.
+
+  - type: dropdown
+    id: series
+    attributes:
+      label: 어느 작품인가요
+      description: 새 작품을 시작하려면 맨 아래를 고르고, '서고지기에게 남길 말'에 작품 소개를 적어 주세요.
+      options:
+        - gray-bell-tower (회색 탑의 종지기)
+        - starlight-mart (은하 저편의 24시 편의점)
+        - night-editor (밤의 교정자)
+        - 새 작품을 시작하고 싶습니다
+    validations:
+      required: true
+
+  - type: input
+    id: title
+    attributes:
+      label: 회차 제목
+      description: 화수를 앞에 붙여 주세요.
+      placeholder: 6화 · 첫눈
+    validations:
+      required: true
+
+  - type: input
+    id: slug
+    attributes:
+      label: 주소에 쓸 영문 이름
+      description: 소문자·숫자·하이픈만. 제목의 뜻을 옮긴 짧은 영어면 됩니다. (예 first-snow)
+      placeholder: first-snow
+    validations:
+      required: true
+
+  - type: input
+    id: summary
+    attributes:
+      label: 한 줄 요약
+      description: 목록과 홈에 뜨는 문장입니다. 결말은 적지 마세요.
+      placeholder: 종이 울리지 않는 날, 도시는 하루씩 잊힌다.
+    validations:
+      required: true
+
+  - type: textarea
+    id: body
+    attributes:
+      label: 본문
+      description: |
+        그냥 쓰시면 됩니다. 문단은 **빈 줄**로 나눕니다.
+        장면이 바뀌는 자리에는 줄 하나에 --- 만 적으면 가운데 구분선이 들어갑니다.
+        인물의 속마음은 *별표* 로 감싸면 기울임이 됩니다.
+      placeholder: |
+        저녁 여섯 시. 이랑은 여느 날처럼 백서른두 개의 계단을 올랐다.
+
+        계단은 위로 갈수록 좁아졌다.
+
+        ---
+
+        아무 소리도 나지 않았다.
+    validations:
+      required: true
+
+  - type: textarea
+    id: authorNote
+    attributes:
+      label: 작가 후기 (선택)
+      description: 본문 아래에 따로 실립니다. 비워 두면 후기 칸이 아예 안 생깁니다.
+
+  - type: input
+    id: videoUrl
+    attributes:
+      label: 유튜브 주소 (선택)
+      description: 이 회차에 같이 걸 영상이 있으면 주소를 붙여 넣으세요.
+      placeholder: https://www.youtube.com/watch?v=...
+
+  - type: input
+    id: videoTitle
+    attributes:
+      label: 영상 제목 (선택)
+      placeholder: 메인 테마 「첫눈」
+
+  - type: dropdown
+    id: videoKind
+    attributes:
+      label: 영상 종류 (선택)
+      options:
+        - ost
+        - trailer
+        - worldbuilding
+        - animation
+
+  - type: textarea
+    id: note
+    attributes:
+      label: 서고지기에게 남길 말 (선택)
+      description: 공개 날짜 요청, 새 작품 소개, 고쳐 달라는 부분 등 아무거나.
+
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: 확인
+      options:
+        - label: 제가 직접 쓴 글이고, 달빛서고에 싣는 데 동의합니다.
+          required: true
+        - label: 실존 인물의 실명·연락처·사진을 넣지 않았습니다.
+          required: true

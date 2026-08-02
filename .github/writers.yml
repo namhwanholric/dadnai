@@ -1,0 +1,22 @@
+# 달빛서고 — 글을 올릴 수 있는 사람 목록
+#
+# 네이버 카페(cafe.naver.com/dadnai)에서 작가 등급을 승인받은 사람만 여기에 추가한다.
+# 여기 없는 GitHub 계정이 회차를 제출하면 자동으로 거절된다.
+#
+# 추가하는 법
+#   1) 카페에서 작가 등급 승인
+#   2) 그 사람의 GitHub 아이디를 아래에 한 줄 추가 (github: 아이디)
+#   3) content/authors.ts 에 작가 항목을 만들고 그 slug 을 author 에 적는다
+#   4) 커밋하면 끝. 배포를 기다릴 필요 없다 (이 파일은 사이트에 안 올라간다)
+#
+# 자격을 거두는 법: 해당 줄을 지운다. 이미 올라간 글은 그대로 남는다.
+
+writers:
+  - github: namhwanholric # 서고지기. 카페장
+    author: yun-jaeha
+    approvedAt: 2026-05-12
+
+  # 예시 — 실제로 승인한 사람만 남기고 이 두 줄은 지운다.
+  # - github: friend-id
+  #   author: do-yeonseo
+  #   approvedAt: 2026-08-05

@@ -24,7 +24,7 @@ export const AUTHORS: Author[] = [
 
 연재 주기는 작품마다 다르지만 대체로 주 1~2회입니다. 오래 걸리더라도 시작한 이야기는 끝냅니다.`,
     avatar: '/authors/yun-jaeha.svg',
-    avatarAlt: '어두운 남색 바탕에 금빛 원과 세로선을 겹쳐 놓은 추상 프로필 도형',
+    avatarAlt: '달과 종탑을 등지고 선 인물의 실루엣 초상',
     accent: '#e9bb77',
     joinedAt: '2026-05-12',
     links: [{ label: '이메일', href: 'mailto:jaeha@example.com' }],
@@ -42,7 +42,7 @@ export const AUTHORS: Author[] = [
 
 연재는 느립니다. 짧은 이야기를 묶음으로 올리고, 묶음 사이에는 좀 쉽니다.`,
     avatar: '/authors/do-yeonseo.svg',
-    avatarAlt: '깊은 청록빛 바탕에 옅은 원 두 개가 겹쳐 있는 추상 프로필 도형',
+    avatarAlt: '정거장 둥근 창의 불빛을 옆에 두고 앉은 인물의 실루엣 초상',
     accent: '#7fd6c4',
     joinedAt: '2026-06-02',
     links: [{ label: '이메일', href: 'mailto:yeonseo@example.com' }],
@@ -60,7 +60,7 @@ export const AUTHORS: Author[] = [
 
 읽고 나서 하루쯤 지나 문득 다시 생각나는 이야기가 되면 성공이라고 봅니다.`,
     avatar: '/authors/han-mugyeol.svg',
-    avatarAlt: '검붉은 바탕에 가로선 한 줄이 그어진 사각형 추상 프로필 도형',
+    avatarAlt: '붉은 교정선이 그어진 원고지를 뒤에 두고 선 인물의 실루엣 초상',
     accent: '#e08a8a',
     joinedAt: '2026-03-04',
     links: [{ label: '이메일', href: 'mailto:mugyeol@example.com' }],

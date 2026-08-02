@@ -27,7 +27,7 @@ export function SiteFooter() {
 
           <nav aria-label="바닥글 메뉴">
             <ul className="flex flex-wrap gap-x-5 gap-y-2">
-              {SITE.nav.map((item) => (
+              {[...SITE.nav, { href: '/write/', label: '함께 쓰기' }].map((item) => (
                 <li key={item.href}>
                   <Link
                     href={item.href}

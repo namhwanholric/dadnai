@@ -18,6 +18,15 @@ export const SITE = {
 회원가입이 없습니다. 좋아요와 읽던 자리는 지금 쓰는 브라우저에만 남고 어디에도 전송되지 않습니다.`,
   /** 서고 공통 문의처 */
   contact: { label: '이메일', href: 'mailto:moonlit@example.com' },
+  /**
+   * 함께 쓰기 창구.
+   * cafe  — 작가 등급을 신청하는 곳. 여기서 승인된 사람만 글을 올릴 수 있다.
+   * submit — 승인된 작가가 회차를 올리는 폼 (GitHub 이슈)
+   */
+  community: {
+    cafe: 'https://cafe.naver.com/dadnai',
+    submit: 'https://github.com/namhwanholric/dadnai/issues/new?template=new-episode.yml',
+  },
   /** 상단/하단 탐색 메뉴 */
   nav: [
     { href: '/', label: '홈', icon: 'home' },

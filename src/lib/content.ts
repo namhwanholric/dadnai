@@ -171,13 +171,24 @@ export function getAuthorWithSeries(slug: string): AuthorWithSeries | undefined 
   };
 }
 
+/**
+ * 작가별 마지막 공개일.
+ * 회차 파일에서 직접 뽑으므로 series.ts 의 updatedAt 을 손으로 고칠 필요가 없다.
+ * (회차만 올려도 순서가 맞는다. 회차가 없으면 series.updatedAt, 그것도 없으면 합류일)
+ */
+function lastPublishedAt(author: AuthorWithSeries): string {
+  const dates = author.series.flatMap((series) => [
+    ...series.episodes.map((episode) => episode.publishedAt),
+    series.updatedAt,
+  ]);
+  return dates.filter(Boolean).sort().at(-1) ?? author.joinedAt;
+}
+
 /** 작가 목록. 최근에 회차를 올린 작가가 앞으로 온다. */
 export function getAllAuthorsWithSeries(): AuthorWithSeries[] {
-  return getAllAuthors().map((author) => getAuthorWithSeries(author.slug)!).sort((a, b) => {
-    const lastOf = (x: AuthorWithSeries) =>
-      x.series.map((s) => s.updatedAt).sort().at(-1) ?? x.joinedAt;
-    return lastOf(b).localeCompare(lastOf(a));
-  });
+  return getAllAuthors()
+    .map((author) => getAuthorWithSeries(author.slug)!)
+    .sort((a, b) => lastPublishedAt(b).localeCompare(lastPublishedAt(a)));
 }
 
 export function getFeaturedSeries(): SeriesWithEpisodes {

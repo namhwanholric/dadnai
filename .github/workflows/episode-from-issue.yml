@@ -1,0 +1,86 @@
+name: 이슈로 올린 회차 받기
+
+# "새 회차 올리기" 폼으로 이슈가 열리면 원고 파일을 만들어 PR 을 연다.
+# 승인된 작가(.github/writers.yml)가 아니면 아무것도 만들지 않고 이유만 댓글로 단다.
+#
+# 바로 배포되지 않는다. 서고지기가 PR 을 확인하고 병합해야 사이트에 올라간다.
+on:
+  issues:
+    types: [opened, edited, labeled]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  draft:
+    if: contains(join(github.event.issue.labels.*.name, ','), '새 회차')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 원고 파일 만들기
+        id: draft
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_AUTHOR: ${{ github.event.issue.user.login }}
+        run: node scripts/episode-from-issue.mjs
+
+      - name: 거절 사유 알리기
+        if: steps.draft.outputs.ok != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REASON: ${{ steps.draft.outputs.reason }}
+        run: |
+          gh issue comment "${{ github.event.issue.number }}" --body "회차를 등록하지 못했습니다.
+
+          > $REASON
+
+          내용을 고쳐서 이슈를 수정하시면 다시 확인합니다."
+
+      - name: 빌드가 되는지 확인
+        if: steps.draft.outputs.ok == 'true'
+        run: |
+          npm ci
+          npm run build
+
+      - name: PR 열기
+        if: steps.draft.outputs.ok == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          BRANCH="episode/${{ steps.draft.outputs.series }}-${{ steps.draft.outputs.slug }}"
+          git config user.name "달빛서고 봇"
+          git config user.email "noreply@github.com"
+          git checkout -b "$BRANCH"
+          git add "${{ steps.draft.outputs.path }}"
+          git commit -m "${{ steps.draft.outputs.series }} ${{ steps.draft.outputs.number }}화 추가 (#${{ github.event.issue.number }})"
+          git push -u origin "$BRANCH" --force
+
+          gh pr create \
+            --title "${{ steps.draft.outputs.title }}" \
+            --body "닫음 #${{ github.event.issue.number }}
+
+          @${{ github.event.issue.user.login }} 님이 올린 회차입니다.
+
+          - 작품: \`${{ steps.draft.outputs.series }}\`
+          - 파일: \`${{ steps.draft.outputs.path }}\`
+          - 빌드 확인: 통과
+
+          병합하면 사이트에 올라갑니다. 공개일은 오늘 날짜로 넣었으니, 다른 날로 하려면 파일의 \`publishedAt\` 을 고치세요." \
+            --head "$BRANCH" \
+            --base main || gh pr edit "$BRANCH" --body "이슈 #${{ github.event.issue.number }} 의 원고가 갱신되었습니다."
+
+      - name: 접수 알리기
+        if: steps.draft.outputs.ok == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue comment "${{ github.event.issue.number }}" --body "원고를 받았습니다. 빌드까지 확인했고, 서고지기가 확인하면 사이트에 올라갑니다.
+
+          - 파일: \`${{ steps.draft.outputs.path }}\`"

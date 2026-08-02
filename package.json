@@ -5,6 +5,7 @@
   "description": "달빛서고 — 한 명의 작가가 자신의 작품만 연재하는 개인 웹소설 사이트 (정적 사이트)",
   "scripts": {
     "dev": "next dev",
+    "new": "node scripts/new-episode.mjs",
     "build": "next build && node scripts/copy-ai-study.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "next lint",
