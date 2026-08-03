@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" role="img" aria-label="루미나 유니버시티 표지">
+  <title>루미나 유니버시티</title>
+  <defs>
+    <linearGradient id="l-bg" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#050714"/><stop offset=".55" stop-color="#15143a"/><stop offset="1" stop-color="#080919"/></linearGradient>
+    <linearGradient id="l-line" x1="0" x2="1"><stop stop-color="#ff405f"/><stop offset=".5" stop-color="#ffffff"/><stop offset="1" stop-color="#30aaff"/></linearGradient>
+    <radialGradient id="l-glow"><stop stop-color="#8b7cff" stop-opacity=".45"/><stop offset="1" stop-color="#8b7cff" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="400" height="600" fill="url(#l-bg)"/>
+  <ellipse cx="200" cy="250" rx="180" ry="200" fill="url(#l-glow)"/>
+  <g stroke="#8b7cff" opacity=".18" fill="none"><path d="M35 95H365M35 145H365M35 195H365M35 245H365M35 295H365M35 345H365"/><path d="M75 65V390M125 65V390M175 65V390M225 65V390M275 65V390M325 65V390"/></g>
+  <path d="M88 375 C310 330 310 125 88 82 C8 128 40 220 200 228 C360 236 392 328 312 375 C88 330 88 125 312 82" fill="none" stroke="url(#l-line)" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="200" cy="228" r="14" fill="#f4f1ff"/>
+  <path d="M200 45L214 145L200 182L186 145Z" fill="#ff405f" opacity=".75"/>
+  <path d="M200 410L220 468L200 495L180 468Z" fill="#30aaff" opacity=".7"/>
+  <g font-family="'Malgun Gothic','Noto Sans KR',sans-serif" text-anchor="middle">
+    <text x="200" y="515" font-size="12" letter-spacing="5" fill="#9ca8d8">MAGITECH ACADEMY</text>
+    <text x="200" y="553" font-size="30" font-weight="700" fill="#f4f1ff">루미나 유니버시티</text>
+    <text x="200" y="580" font-size="14" fill="#a9a4d6">네메시스N</text>
+  </g>
+</svg>

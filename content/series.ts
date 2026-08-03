@@ -12,6 +12,25 @@ import type { Series } from '@/lib/types';
  */
 export const SERIES: Series[] = [
   {
+    slug: 'lumina-university',
+    author: 'nemesis-n',
+    title: '루미나 유니버시티',
+    tagline: '두 힘이 하나가 된 순간, 세계의 균열이 숨을 쉬기 시작했다.',
+    synopsis: `마법과 내공, AI와 코드가 공존하는 루미나 아카데미. 서로 다른 두 에너지 계통을 한 몸에 지닌 카이는 이론상 불가능한 이중 공명 실험에 나선다.
+
+붉은 내공과 푸른 마나가 충돌하지 않고 하나로 수렴한 순간, 검날에는 이중 나선이 새겨지고 세계의 균열을 감시하는 루시퍼 시스템이 깨어난다.
+
+기존 분류 체계로는 설명할 수 없는 존재 카이와, 완성되지 않은 세계의 틈에서 시작되는 마법공학 판타지.`,
+    genre: '현대 판타지',
+    tags: ['마법공학', '아카데미', 'AI', '이능', '차원이동'],
+    status: 'ongoing',
+    cover: '/covers/lumina-university.svg',
+    coverAlt: '어두운 실험동 위로 붉고 푸른 이중 나선과 빛나는 균열이 떠오른 추상 표지',
+    accent: '#8b7cff',
+    startedAt: '2026-08-03',
+    updatedAt: '2026-08-03',
+  },
+  {
     slug: 'gray-bell-tower',
     author: 'yun-jaeha',
     title: '회색 탑의 종지기',

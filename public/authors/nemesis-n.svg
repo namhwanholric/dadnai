@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="네메시스N 작가 프로필">
+  <title>네메시스N</title>
+  <defs>
+    <radialGradient id="n-bg"><stop stop-color="#25214f"/><stop offset="1" stop-color="#080916"/></radialGradient>
+    <linearGradient id="n-line" x1="0" x2="1"><stop stop-color="#ff4e68"/><stop offset=".5" stop-color="#f4f1ff"/><stop offset="1" stop-color="#42b8ff"/></linearGradient>
+    <clipPath id="n-clip"><circle cx="100" cy="100" r="100"/></clipPath>
+  </defs>
+  <g clip-path="url(#n-clip)">
+    <rect width="200" height="200" fill="url(#n-bg)"/>
+    <circle cx="100" cy="100" r="70" fill="none" stroke="#8b7cff" opacity=".18"/>
+    <path d="M55 160 C145 135 145 65 55 40 C20 62 32 96 100 100 C168 104 180 138 145 160 C55 135 55 65 145 40" fill="none" stroke="url(#n-line)" stroke-width="7" stroke-linecap="round"/>
+    <circle cx="100" cy="100" r="8" fill="#f4f1ff"/>
+  </g>
+</svg>

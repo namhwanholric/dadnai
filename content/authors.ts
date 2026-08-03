@@ -12,6 +12,20 @@ import type { Author } from '@/lib/types';
  */
 export const AUTHORS: Author[] = [
   {
+    slug: 'nemesis-n',
+    name: '네메시스N',
+    nameEn: 'Nemesis N',
+    tagline: '마법과 기술이 충돌하는 세계를 씁니다.',
+    bio: `마법과 기술, 서로 다른 힘이 한 세계에서 만날 때 생기는 이야기를 씁니다.
+
+《루미나 유니버시티》를 연재합니다.`,
+    avatar: '/authors/nemesis-n.svg',
+    avatarAlt: '붉고 푸른 두 빛이 교차하는 이중 나선 문양',
+    accent: '#8b7cff',
+    joinedAt: '2026-08-03',
+    links: [],
+  },
+  {
     slug: 'yun-jaeha',
     name: '윤재하',
     nameEn: 'Yun Jaeha',
