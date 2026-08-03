@@ -12,6 +12,25 @@ import type { Series } from '@/lib/types';
  */
 export const SERIES: Series[] = [
   {
+    slug: 'dad-ai-learning',
+    author: 'sonndad',
+    title: '아빠표 AI 학습법',
+    tagline: '시험을 준비하되, 시험이 끝난 뒤에도 배우는 사람으로 남는 법.',
+    synopsis: `아이의 높은 목표를 존중하면서도 그 목표가 아이의 세계 전부가 되지 않게 하려면 어떻게 해야 할까.
+
+입시와 성적, 자격증 같은 현실적인 증명을 외면하지 않으면서 시험 밖의 읽기와 탐구, 표현과 학습력을 지키는 방법을 한 아빠의 시선으로 기록한다.
+
+무엇을 얼마나 가르칠지보다, 공부가 끝난 뒤 아이에게 무엇이 남아야 하는지를 묻는 교육 에세이.`,
+    genre: '교육 에세이',
+    tags: ['자녀교육', '공부법', '입시', '학습력', '부모교육'],
+    status: 'ongoing',
+    cover: '/covers/dad-ai-learning.svg',
+    coverAlt: '짙은 녹색 배경 위에 서로 이어진 두 개의 길과 작은 별이 그려진 추상 표지',
+    accent: '#79c7b3',
+    startedAt: '2026-08-03',
+    updatedAt: '2026-08-03',
+  },
+  {
     slug: 'lumina-university',
     author: 'nemesis-n',
     title: '루미나 유니버시티',

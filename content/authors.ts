@@ -12,6 +12,20 @@ import type { Author } from '@/lib/types';
  */
 export const AUTHORS: Author[] = [
   {
+    slug: 'sonndad',
+    name: 'sonNdad',
+    nameEn: 'sonNdad',
+    tagline: '아이에게 정답보다 배우는 힘을 남기고 싶습니다.',
+    bio: `아이의 공부를 곁에서 지켜보며 부모가 무엇을 채우고 무엇을 비워두어야 하는지 기록합니다.
+
+성적과 입시를 외면하지 않으면서도, 시험이 끝난 뒤까지 남는 배움을 고민합니다.`,
+    avatar: '/authors/sonndad.svg',
+    avatarAlt: '큰 원과 작은 원이 나란히 길을 바라보는 추상 도형',
+    accent: '#79c7b3',
+    joinedAt: '2026-08-03',
+    links: [],
+  },
+  {
     slug: 'nemesis-n',
     name: '네메시스N',
     nameEn: 'Nemesis N',

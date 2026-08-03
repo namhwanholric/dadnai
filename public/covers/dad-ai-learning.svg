@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" role="img" aria-label="아빠표 AI 학습법 표지">
+  <title>아빠표 AI 학습법</title>
+  <defs><linearGradient id="dal-bg" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#102f2d"/><stop offset="1" stop-color="#071514"/></linearGradient><radialGradient id="dal-glow"><stop stop-color="#79c7b3" stop-opacity=".3"/><stop offset="1" stop-color="#79c7b3" stop-opacity="0"/></radialGradient></defs>
+  <rect width="400" height="600" fill="url(#dal-bg)"/>
+  <circle cx="250" cy="195" r="180" fill="url(#dal-glow)"/>
+  <path d="M32 438 C104 327 158 373 201 288 C244 203 301 228 368 94" fill="none" stroke="#79c7b3" stroke-width="10" stroke-linecap="round"/>
+  <path d="M32 466 C111 385 173 427 225 353 C275 281 322 300 368 241" fill="none" stroke="#e7d19c" stroke-width="4" stroke-linecap="round" opacity=".72"/>
+  <circle cx="146" cy="359" r="30" fill="#e7d19c"/>
+  <circle cx="209" cy="294" r="20" fill="#effaf6"/>
+  <g fill="#f1d477"><circle cx="319" cy="104" r="5"/><circle cx="345" cy="154" r="3"/><circle cx="276" cy="142" r="3"/></g>
+  <g font-family="'Malgun Gothic','Noto Sans KR',sans-serif" text-anchor="middle"><text x="200" y="492" font-size="13" letter-spacing="5" fill="#9dcfc2">LEARNING AFTER THE TEST</text><text x="200" y="536" font-size="34" font-weight="700" fill="#f2f7f4">아빠표 AI 학습법</text><text x="200" y="570" font-size="15" fill="#b8cfc8">sonNdad</text></g>
+</svg>
