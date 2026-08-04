@@ -12,6 +12,25 @@ import type { Series } from '@/lib/types';
  */
 export const SERIES: Series[] = [
   {
+    slug: 'syndrome',
+    author: 'choi-gahui',
+    title: '신드롬',
+    tagline: '서로의 증상이 서로의 상처를 비추는 한 가족의 기록.',
+    synopsis: `방문 요양보호사 수진은 다른 사람의 몸을 돌볼 때에만 잠시 자신의 불안에서 빠져나올 수 있다. 하지만 집으로 돌아오면 아들 민준의 작은 반응 하나가 수진 안의 오래된 공포를 깨운다.
+
+분위기를 재빨리 읽지만 그다음 말을 자주 놓치는 남편 재현, 감각과 감정을 자기만의 속도로 받아들이는 민준, 사랑과 두려움의 경계를 매일 오가는 수진.
+
+각자의 신경과 상처가 부딪히는 집에서 세 사람은 서로를 고치려다 상처 입고, 마침내 서로의 지도가 되는 법을 배운다.`,
+    genre: '문학',
+    tags: ['가족', '심리', '돌봄', '신경다양성', '중년'],
+    status: 'ongoing',
+    cover: '/covers/syndrome.svg',
+    coverAlt: '어두운 자주색 바탕에 손등의 균열처럼 이어지는 금빛 선과 세 개의 점이 그려진 추상 표지',
+    accent: '#d99a78',
+    startedAt: '2026-08-04',
+    updatedAt: '2026-08-04',
+  },
+  {
     slug: 'dad-ai-learning',
     author: 'sonndad',
     title: '아빠표 AI 학습법',

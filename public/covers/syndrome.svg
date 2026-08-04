@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" role="img" aria-label="신드롬 표지">
+  <title>신드롬</title>
+  <defs><linearGradient id="syn-bg" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#3b2330"/><stop offset="1" stop-color="#110d13"/></linearGradient><radialGradient id="syn-glow"><stop stop-color="#d99a78" stop-opacity=".24"/><stop offset="1" stop-color="#d99a78" stop-opacity="0"/></radialGradient></defs>
+  <rect width="400" height="600" fill="url(#syn-bg)"/>
+  <circle cx="200" cy="255" r="190" fill="url(#syn-glow)"/>
+  <g fill="none" stroke="#d99a78" stroke-linecap="round">
+    <path d="M44 410 C102 362 119 291 177 279 C232 268 243 193 354 137" stroke-width="9"/>
+    <path d="M118 329 C149 342 174 378 194 438" stroke-width="5" opacity=".7"/>
+    <path d="M177 279 C158 235 125 204 76 192" stroke-width="5" opacity=".8"/>
+    <path d="M239 232 C278 251 309 286 337 338" stroke-width="5" opacity=".55"/>
+  </g>
+  <circle cx="118" cy="329" r="11" fill="#e8bd9f"/><circle cx="177" cy="279" r="13" fill="#f2d8c7"/><circle cx="239" cy="232" r="9" fill="#c88772"/>
+  <g font-family="'Malgun Gothic','Noto Sans KR',sans-serif" text-anchor="middle"><text x="200" y="492" font-size="13" letter-spacing="6" fill="#c7a8b2">FAMILY · PSYCHOLOGY</text><text x="200" y="542" font-size="43" font-weight="700" fill="#f7ece8" letter-spacing="8">신드롬</text><text x="200" y="576" font-size="15" fill="#d3b5ae">최가희</text></g>
+</svg>

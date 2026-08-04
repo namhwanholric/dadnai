@@ -12,6 +12,20 @@ import type { Author } from '@/lib/types';
  */
 export const AUTHORS: Author[] = [
   {
+    slug: 'choi-gahui',
+    name: '최가희',
+    nameEn: 'Choi Gahui',
+    tagline: '가족이라는 가장 가까운 거리의 마음을 씁니다.',
+    bio: `서로 사랑하면서도 서로의 상처를 건드리는 사람들에 관해 씁니다.
+
+돌봄과 불안, 말하지 못한 감정이 한 가족의 일상에 남기는 흔적을 오래 바라봅니다.`,
+    avatar: '/authors/choi-gahui.svg',
+    avatarAlt: '갈라진 손등의 선을 닮은 금빛 길이 이어진 추상 초상',
+    accent: '#d99a78',
+    joinedAt: '2026-08-04',
+    links: [],
+  },
+  {
     slug: 'sonndad',
     name: 'sonNdad',
     nameEn: 'sonNdad',
