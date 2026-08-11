@@ -135,6 +135,37 @@ export default function HomePage() {
         </ul>
       </Section>
 
+      {/* ── 파이썬 탈출 FPS ─────────────────────────────── */}
+      <Section title="쉬어가기" description="읽다가 지치면 잠깐 딴짓" className="mt-12">
+        <a
+          href={assetPath('/python100/')}
+          className="group flex items-center gap-4 rounded-xl border border-line bg-surface/40 p-4 transition-colors hover:border-accent/50 sm:p-5"
+        >
+          <div
+            aria-hidden="true"
+            className="flex size-14 shrink-0 items-center justify-center rounded-xl border border-line bg-canvas text-2xl sm:size-16"
+          >
+            🐍
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-[15px] font-bold text-ink transition-colors group-hover:text-accent sm:text-base">
+              PYTHON 100 — 파이썬 탈출 FPS
+            </p>
+            <p className="mt-1 text-[13px] leading-relaxed text-ink-muted">
+              방 100개를 통과하며 파이썬을 배우는 3D 게임. 정답 문을 쏘면 다음 방으로 넘어갑니다.
+            </p>
+            <p className="mt-1.5 text-[12px] text-ink-subtle">
+              브라우저에서 바로 실행 · 설치 없음
+            </p>
+          </div>
+          <Icon
+            name="chevron-right"
+            size={18}
+            className="shrink-0 text-ink-subtle transition-colors group-hover:text-accent"
+          />
+        </a>
+      </Section>
+
       {/* ── 연재 중 ─────────────────────────────── */}
       <Section title="연재 중인 작품" className="mt-12">
         <div className="grid grid-cols-2 gap-x-3.5 gap-y-6 sm:grid-cols-3 lg:grid-cols-5">

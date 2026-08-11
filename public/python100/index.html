@@ -55938,7 +55938,6 @@ let yaw = 0, pitch = 0;
 const LOOK = 0.0022, LOOK_TOUCH = 0.0038;
 const keys = Object.create(null);
 const stickVec = { x: 0, z: 0 };
-const vel = new THREE.Vector3();
 
 function look(dx, dy, k) {
   yaw -= dx * k;
@@ -55954,7 +55953,7 @@ addEventListener("keydown", e => {
 addEventListener("keyup", e => { keys[e.code] = false; });
 function releaseAll() {
   for (const k in keys) keys[k] = false;
-  stickVec.x = 0; stickVec.z = 0; vel.set(0, 0, 0);
+  stickVec.x = 0; stickVec.z = 0;
   drag = null; stickId = null; lookId = null;
   $("stickNub").style.transform = "";
 }
@@ -56055,20 +56054,19 @@ function frame() {
     if (keys["ArrowRight"]) yaw -= 1.6 * dt;
     fx += stickVec.x; fz += stickVec.z;
 
+    // \uB300\uAC01\uC120\uC774 \uBE68\uB77C\uC9C0\uC9C0 \uC54A\uAC8C\uB9CC \uC815\uADDC\uD654\uD558\uACE0, \uAC00\uAC10\uC18D \uC5C6\uC774 \uC989\uC2DC \uC6C0\uC9C1\uC778\uB2E4.
+    // (\uAD00\uC131\uC744 \uB123\uC73C\uBA74 \uD0A4\uB97C \uB5BC\uB3C4 \uBBF8\uB044\uB7EC\uC838\uC11C \uC870\uC900\uC774 \uC5B4\uAE0B\uB09C\uB2E4)
     const len = Math.hypot(fx, fz);
     if (len > 1) { fx /= len; fz /= len; }
-    const speed = (keys["ShiftLeft"] || keys["ShiftRight"]) ? 9.5 : 5.6;
+    const speed = (keys["ShiftLeft"] || keys["ShiftRight"]) ? 7.5 : 4.2;
 
     fwd.set(-Math.sin(yaw), 0, -Math.cos(yaw));
     right.set(Math.cos(yaw), 0, -Math.sin(yaw));
-    const targetX = (fwd.x * fz + right.x * fx) * speed;
-    const targetZ = (fwd.z * fz + right.z * fx) * speed;
-    // \uAC00\uAC10\uC18D \u2014 \uB69D\uB69D \uB04A\uAE30\uC9C0 \uC54A\uAC8C
-    vel.x += (targetX - vel.x) * Math.min(1, dt * 12);
-    vel.z += (targetZ - vel.z) * Math.min(1, dt * 12);
+    const dx = (fwd.x * fz + right.x * fx) * speed * dt;
+    const dz = (fwd.z * fz + right.z * fx) * speed * dt;
 
-    camera.position.x = Math.max(-LIMIT.x, Math.min(LIMIT.x, camera.position.x + vel.x * dt));
-    camera.position.z = Math.max(LIMIT.zMin, Math.min(LIMIT.zMax, camera.position.z + vel.z * dt));
+    camera.position.x = Math.max(-LIMIT.x, Math.min(LIMIT.x, camera.position.x + dx));
+    camera.position.z = Math.max(LIMIT.zMin, Math.min(LIMIT.zMax, camera.position.z + dz));
     camera.position.y = EYE;
   }
 
