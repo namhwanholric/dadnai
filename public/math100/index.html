@@ -641,7 +641,7 @@ Give a helpful hint in English. Do NOT give the direct answer "${m.answer}". Kee
     document.getElementById('gemini-chat').scrollTop = 999999;
     try {
         const res = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`,
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${geminiApiKey}`,
             { method:'POST', headers:{'Content-Type':'application/json'},
               body: JSON.stringify({ contents:[{parts:[{text:systemCtx+'\n\nStudent: '+q}]}], generationConfig:{maxOutputTokens:200,temperature:0.7} }) }
         );
@@ -733,6 +733,7 @@ function buildRoom() {
 
 function openDoorMotion() {
     isDoorOpen = true;
+    currentRoom = currentRoom >= 100 ? 1 : currentRoom + 1; // 즉시 증가
     if (doorMesh) {
         doorMesh.material.color.setHex(0x00ff88);
         doorMesh.material.emissive.setHex(0x00ff88);
@@ -740,10 +741,9 @@ function openDoorMotion() {
     }
     if (doorGlow) { doorGlow.color.setHex(0x00ff88); doorGlow.intensity = 12; }
     setTimeout(() => {
-        currentRoom++;
-        if (currentRoom > 100) currentRoom = 1;
         updateHUD(currentRoom);
         buildRoom();
+        camera.position.set(0, 1.7, 9);
     }, 2000);
 }
 
