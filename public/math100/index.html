@@ -53,6 +53,29 @@ body { background:#030712; color:var(--text); font-family:'Segoe UI',Consolas,mo
 #answer-input:focus { border-color:var(--blue); }
 #feedback-console { height:90px; background:#111; border-top:1px solid var(--border); padding:8px 14px; font-family:Consolas,monospace; font-size:12px; color:#4ec9b0; overflow-y:auto; white-space:pre-wrap; flex-shrink:0; }
 
+/* Symbol buttons */
+#symbol-bar { display:flex; gap:3px; flex-wrap:wrap; padding:5px 14px; background:#1a1a2a; border-top:1px solid #333; flex-shrink:0; align-items:center; }
+#symbol-bar span { font-size:10px; color:#555; margin-right:4px; }
+.sym-btn { background:#2a2a3a; color:#9cdcfe; border:1px solid #3a3a4a; border-radius:3px; padding:3px 8px; font-size:14px; cursor:pointer; font-family:Consolas,monospace; min-width:30px; text-align:center; line-height:1.3; }
+.sym-btn:hover { background:#3a3a5a; border-color:#569cd6; }
+
+/* Calculator popup */
+#calc-popup { position:fixed; bottom:180px; left:calc(50vw - 47vw); background:#12121e; border:1px solid #569cd6; border-radius:8px; box-shadow:0 6px 30px rgba(0,0,0,.9); display:none; z-index:60; width:220px; overflow:hidden; }
+#calc-header { display:flex; justify-content:space-between; align-items:center; padding:6px 10px; background:#1e1e2e; border-bottom:1px solid #333; font-size:11px; color:#569cd6; }
+#calc-display { background:#0a0a14; color:#4ec9b0; font-family:Consolas,monospace; font-size:17px; padding:10px 12px; text-align:right; min-height:44px; word-break:break-all; letter-spacing:1px; border-bottom:1px solid #333; }
+#calc-expr-hint { font-size:10px; color:#555; padding:2px 12px 4px; background:#0a0a14; text-align:right; border-bottom:1px solid #222; min-height:18px; }
+#calc-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:2px; padding:6px; background:#1a1a2a; }
+.cb { background:#252535; color:#d4d4d4; border:1px solid #3a3a4a; border-radius:3px; padding:9px 4px; font-size:13px; cursor:pointer; text-align:center; font-family:Consolas,monospace; transition:background .1s; }
+.cb:hover { background:#3a3a5a; }
+.cb.op { color:#569cd6; font-weight:bold; }
+.cb.fn  { color:#4ec9b0; font-size:12px; }
+.cb.eq  { background:#0e639c; color:#fff; font-weight:bold; }
+.cb.eq:hover { background:#007acc; }
+.cb.cl  { color:#f44747; }
+.cb.send { grid-column:1/-1; background:#388a34; color:#fff; padding:8px; font-size:12px; font-weight:bold; border-radius:3px; border:none; cursor:pointer; }
+.cb.send:hover { background:#46a742; }
+.btn-calc { background:#2a2a3a; border:1px solid #444; color:#ffd700; font-size:11px; padding:4px 9px; white-space:nowrap; }
+
 /* Chat pane right */
 #chat-container-wrapper { flex:1; display:flex; flex-direction:column; background:var(--bg); overflow:hidden; }
 #gemini-chat { flex:1; padding:12px; overflow-y:auto; display:flex; flex-direction:column; gap:10px; font-size:13px; }
@@ -139,11 +162,25 @@ canvas { display:block; }
                 <div id="scratch-label">SCRATCH PAD — show your work</div>
                 <textarea id="scratch-pad" placeholder="Work out the problem here...&#10;You can write anything — it won't be graded." onclick="event.stopPropagation()"></textarea>
             </div>
+            <!-- Symbol buttons -->
+            <div id="symbol-bar">
+                <span>insert:</span>
+                <button class="sym-btn" onclick="insertSym('π')">π</button>
+                <button class="sym-btn" onclick="insertSym('√(')">√</button>
+                <button class="sym-btn" onclick="insertSym('²')">x²</button>
+                <button class="sym-btn" onclick="insertSym('³')">x³</button>
+                <button class="sym-btn" onclick="insertSym('^')">^</button>
+                <button class="sym-btn" onclick="insertSym('/')">÷</button>
+                <button class="sym-btn" onclick="insertSym('×')">×</button>
+                <button class="sym-btn" onclick="insertSym('(')">( )</button>
+                <button class="sym-btn" onclick="insertSym('−')">−</button>
+            </div>
             <div id="answer-row">
                 <span id="answer-label">Answer:</span>
-                <input type="text" id="answer-input" placeholder="Type your answer..."
+                <input type="text" id="answer-input" placeholder="Type answer or expression (e.g. 3.14*25)"
                     onclick="event.stopPropagation()"
                     onkeydown="if(event.key==='Enter'){event.stopPropagation();verifyAnswer();}">
+                <button class="btn-calc" onclick="toggleCalc();event.stopPropagation()">🔢 Calc</button>
                 <button class="btn-verify" onclick="verifyAnswer()">✓ Submit</button>
             </div>
             <div id="feedback-console">> Enter your answer above and press Submit.</div>
@@ -170,6 +207,49 @@ canvas { display:block; }
                 </div>
             </div>
         </div>
+    </div>
+</div>
+
+<!-- Calculator Popup -->
+<div id="calc-popup">
+    <div id="calc-header">
+        <span>🔢 Calculator</span>
+        <button onclick="toggleCalc()" style="background:none;border:none;color:#858585;cursor:pointer;font-size:14px;">✕</button>
+    </div>
+    <div id="calc-display">0</div>
+    <div id="calc-expr-hint"></div>
+    <div id="calc-grid">
+        <button class="cb cl"  onclick="calcClear()">C</button>
+        <button class="cb fn"  onclick="calcBack()">⌫</button>
+        <button class="cb op"  onclick="calcPush('(')"> ( </button>
+        <button class="cb op"  onclick="calcPush(')')"> ) </button>
+
+        <button class="cb"     onclick="calcPush('7')">7</button>
+        <button class="cb"     onclick="calcPush('8')">8</button>
+        <button class="cb"     onclick="calcPush('9')">9</button>
+        <button class="cb op"  onclick="calcPush('÷')">÷</button>
+
+        <button class="cb"     onclick="calcPush('4')">4</button>
+        <button class="cb"     onclick="calcPush('5')">5</button>
+        <button class="cb"     onclick="calcPush('6')">6</button>
+        <button class="cb op"  onclick="calcPush('×')">×</button>
+
+        <button class="cb"     onclick="calcPush('1')">1</button>
+        <button class="cb"     onclick="calcPush('2')">2</button>
+        <button class="cb"     onclick="calcPush('3')">3</button>
+        <button class="cb op"  onclick="calcPush('−')">−</button>
+
+        <button class="cb"     onclick="calcPush('.')">.</button>
+        <button class="cb"     onclick="calcPush('0')">0</button>
+        <button class="cb fn"  onclick="calcPush('√(')">√</button>
+        <button class="cb op"  onclick="calcPush('+')">+</button>
+
+        <button class="cb fn"  onclick="calcPush('π')">π</button>
+        <button class="cb fn"  onclick="calcPush('^')">xʸ</button>
+        <button class="cb eq"  onclick="calcCompute()">=</button>
+        <button class="cb fn"  onclick="calcSend()" style="background:#1a4a2a;color:#4ec9b0;">→ans</button>
+
+        <button class="cb send" onclick="calcSend()">→ Send to Answer</button>
     </div>
 </div>
 
@@ -317,6 +397,73 @@ if (geminiApiKey) {
     });
 }
 
+// ─── SYMBOL INSERT ────────────────────────────────────────────────────────────
+function insertSym(s) {
+    const inp = document.getElementById('answer-input');
+    inp.focus();
+    const start = inp.selectionStart, end = inp.selectionEnd;
+    inp.value = inp.value.slice(0, start) + s + inp.value.slice(end);
+    inp.selectionStart = inp.selectionEnd = start + s.length;
+}
+
+// ─── CALCULATOR ───────────────────────────────────────────────────────────────
+let calcBuf = '', calcResult = null;
+function calcPush(s) {
+    calcBuf += s;
+    calcResult = null;
+    document.getElementById('calc-display').textContent = calcBuf || '0';
+    document.getElementById('calc-expr-hint').textContent = '';
+}
+function calcClear() {
+    calcBuf = ''; calcResult = null;
+    document.getElementById('calc-display').textContent = '0';
+    document.getElementById('calc-expr-hint').textContent = '';
+}
+function calcBack() {
+    calcBuf = calcBuf.slice(0, -1);
+    document.getElementById('calc-display').textContent = calcBuf || '0';
+}
+function calcCompute() {
+    const r = evalMathExpr(calcBuf);
+    if (r !== null) {
+        document.getElementById('calc-expr-hint').textContent = calcBuf + ' =';
+        const display = Number.isInteger(r) ? r : parseFloat(r.toFixed(8));
+        calcResult = display;
+        document.getElementById('calc-display').textContent = display;
+        calcBuf = String(display);
+    } else {
+        document.getElementById('calc-display').textContent = 'Error';
+        document.getElementById('calc-expr-hint').textContent = 'Check expression';
+    }
+}
+function calcSend() {
+    const val = calcResult !== null ? String(calcResult) : (calcBuf || '0');
+    document.getElementById('answer-input').value = val;
+    toggleCalc();
+    document.getElementById('answer-input').focus();
+}
+function toggleCalc() {
+    const p = document.getElementById('calc-popup');
+    p.style.display = p.style.display === 'block' ? 'none' : 'block';
+}
+
+// ─── EXPRESSION EVALUATOR ────────────────────────────────────────────────────
+function evalMathExpr(s) {
+    try {
+        let expr = String(s).trim()
+            .replace(/π/g, '3.14159265358979')
+            .replace(/÷/g, '/').replace(/×/g, '*').replace(/−/g, '-')
+            .replace(/\^/g, '**')
+            .replace(/√\(([^)]+)\)/g, (_, n) => `Math.sqrt(${n})`)
+            .replace(/√(\d+(?:\.\d+)?)/g, (_, n) => `Math.sqrt(${n})`);
+        // Reject anything with unexpected letters (allow Math.sqrt, e for sci notation)
+        const safe = expr.replace(/Math\.sqrt/g, '').replace(/[eE]/g, '');
+        if (/[a-zA-Z]/.test(safe)) return null;
+        const r = Function('"use strict"; return (' + expr + ')')();
+        return (typeof r === 'number' && isFinite(r)) ? r : null;
+    } catch(e) { return null; }
+}
+
 // ─── ANSWER CHECKING ─────────────────────────────────────────────────────────
 function normalize(s) {
     return s.toString().trim().toLowerCase()
@@ -326,7 +473,12 @@ function checkAnswer(userInput, mission) {
     const u = normalize(userInput);
     const allAnswers = [mission.answer, ...(mission.alt||[])].map(normalize);
     if (allAnswers.includes(u)) return true;
-    const uNum = parseFloat(u.replace(/[^\d.\-]/g,''));
+
+    // Try evaluating input as a math expression
+    const evaled = evalMathExpr(userInput);
+
+    // Compare numerically
+    const uNum = evaled !== null ? evaled : parseFloat(u.replace(/[^\d.\-]/g,''));
     if (!isNaN(uNum)) {
         for (const a of allAnswers) {
             const fracM = a.match(/^(-?\d+)\/(\d+)$/);
