@@ -27,6 +27,7 @@ export const SERIES: Series[] = [
     cover: '/covers/syndrome.svg',
     coverAlt: '어두운 자주색 바탕에 손등의 균열처럼 이어지는 금빛 선과 세 개의 점이 그려진 추상 표지',
     accent: '#d99a78',
+    featured: true,
     startedAt: '2026-08-04',
     updatedAt: '2026-08-04',
   },
@@ -87,7 +88,6 @@ export const SERIES: Series[] = [
     coverAlt:
       '어두운 남색 하늘 아래 홀로 선 회색 탑과 그 위로 번지는 금빛 종소리 파문을 그린 추상 표지',
     accent: '#e9bb77',
-    featured: true,
     startedAt: '2026-05-12',
     updatedAt: '2026-07-28',
   },
