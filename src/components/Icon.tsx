@@ -23,7 +23,8 @@ export type IconName =
   | 'external'
   | 'alert'
   | 'bookmark'
-  | 'code';
+  | 'code'
+  | 'math';
 
 const PATHS: Record<IconName, React.ReactNode> = {
   home: <path d="M3 10.5 12 3l9 7.5M5.5 9.5V20h13V9.5" />,
@@ -103,6 +104,12 @@ const PATHS: Record<IconName, React.ReactNode> = {
       <path d="M8.5 7.5 3.5 12l5 4.5" />
       <path d="M15.5 7.5 20.5 12l-5 4.5" />
       <path d="M14 5l-4 14" />
+    </>
+  ),
+  math: (
+    <>
+      <path d="M4 19 L4 5 L20 5" />
+      <path d="M4 16 Q9 8 12 13 Q15 18 20 9" />
     </>
   ),
 };

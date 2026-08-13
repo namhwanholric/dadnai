@@ -34,6 +34,7 @@ export const SITE = {
     { href: '/library/', label: '내 서재', icon: 'library' },
     { href: '/about/', label: '작가', icon: 'author' },
     { href: '/pycsharp/', label: '코딩도어즈', icon: 'code' },
+    { href: '/math100/', label: '수학도어즈', icon: 'math' },
   ] as const,
 } as const;
 
