@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python & C# Unity Academy 3D</title>
+    <!-- Three.js 3D Engine -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/PointerLockControls.js"></script>
+    <!-- Pyodide Python 3.11 Runtime -->
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+    <style>
+        :root {
+            --vscode-bg: #1e1e1e;
+            --vscode-sidebar: #252526;
+            --vscode-border: #333333;
+            --vscode-text: #d4d4d4;
+            --vscode-blue: #007acc;
+            --vscode-accent: #0e639c;
+            --vscode-input: #3c3c3c;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: #030712;
+            color: var(--vscode-text);
+            font-family: 'Segoe WPC', 'Segoe UI', Consolas, monospace;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* 3D HUD */
+        #hud {
+            position: absolute;
+            top: 16px;
+            left: 20px;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            pointer-events: none;
+        }
+        #hud-title {
+            font-size: 10px;
+            letter-spacing: 2.5px;
+            color: #4ec9b0;
+            font-weight: bold;
+        }
+        #hud-room {
+            font-size: 22px;
+            font-weight: bold;
+            color: #569cd6;
+            line-height: 1;
+        }
+        #hud-room span { color: #ffffff; }
+        #hud-meta {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-top: 2px;
+        }
+        #engine-badge {
+            font-size: 10px;
+            padding: 2px 7px;
+            border-radius: 2px;
+            background: var(--vscode-sidebar);
+            color: #4ec9b0;
+            border: 1px solid var(--vscode-border);
+        }
+        #hud-clear {
+            font-size: 10px;
+            color: #b5cea8;
+            letter-spacing: 1px;
+        }
+        #hud-keys {
+            font-size: 10px;
+            color: #444;
+            margin-top: 2px;
+            letter-spacing: 0.5px;
+        }
+        #hud-keys span { color: #666; }
+        #crosshair {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 6px;
+            height: 6px;
+            background: #569cd6;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 10;
+        }
+        #interact-prompt {
+            position: absolute;
+            top: 58%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
+            background: rgba(30, 30, 30, 0.95);
+            padding: 8px 16px;
+            border-radius: 4px;
+            border: 1px solid var(--vscode-blue);
+            font-size: 13px;
+            display: none;
+            z-index: 10;
+        }
+
+        /* VS Code 스타일 콕핏 모달 */
+        #cockpit-modal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 95vw;
+            height: 92vh;
+            background: var(--vscode-bg);
+            border: 1px solid var(--vscode-border);
+            border-radius: 6px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+            display: none;
+            flex-direction: column;
+            z-index: 30;
+            overflow: hidden;
+        }
+
+        #cockpit-header {
+            height: 35px;
+            background: #323233;
+            padding: 0 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--vscode-border);
+            font-size: 12px;
+            color: #9cdcfe;
+        }
+
+        #split-container {
+            flex: 1;
+            display: flex;
+            gap: 1px;
+            background: var(--vscode-border);
+            overflow: hidden;
+        }
+
+        .pane {
+            flex: 1;
+            background: var(--vscode-bg);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .pane-header {
+            padding: 8px 12px;
+            font-size: 12px;
+            background: var(--vscode-sidebar);
+            border-bottom: 1px solid var(--vscode-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #b5cea8;
+        }
+
+        /* 탭 바 스타일 (Python / C#) */
+        .tab-bar {
+            display: flex;
+            background: var(--vscode-sidebar);
+            border-bottom: 1px solid var(--vscode-border);
+        }
+        .tab {
+            padding: 6px 16px;
+            cursor: pointer;
+            font-size: 12px;
+            color: #858585;
+            background: var(--vscode-sidebar);
+            border-right: 1px solid var(--vscode-border);
+        }
+        .tab.active {
+            color: #ffffff;
+            background: var(--vscode-bg);
+            border-top: 2px solid var(--vscode-blue);
+        }
+
+        /* 좌측: 파이썬 & C# IDE 영역 */
+        #mission-banner {
+            padding: 10px 14px;
+            background: #2d2d2d;
+            font-size: 13px;
+            color: #ce9178;
+            border-bottom: 1px solid var(--vscode-border);
+            line-height: 1.4;
+        }
+        #mission-starter-view {
+            padding: 10px 14px;
+            background: #181818;
+            color: #d4d4d4;
+            font-family: 'Consolas', monospace;
+            font-size: 12px;
+            border-bottom: 1px dashed #444;
+            user-select: none;
+            pointer-events: none;
+            white-space: pre-wrap;
+        }
+        #code-editor {
+            flex: 1;
+            background: var(--vscode-bg);
+            color: #9cdcfe;
+            border: none;
+            padding: 12px;
+            font-family: 'Consolas', monospace;
+            font-size: 14px;
+            resize: none;
+            outline: none;
+            line-height: 1.5;
+        }
+        #main-controls {
+            padding: 8px 12px;
+            background: var(--vscode-sidebar);
+            border-top: 1px solid var(--vscode-border);
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        #mini-console {
+            height: 110px;
+            background: #1e1e1e;
+            border-top: 1px solid var(--vscode-border);
+            padding: 8px 12px;
+            font-family: 'Consolas', monospace;
+            font-size: 12px;
+            color: #4ec9b0;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+
+        /* 우측: VS Code 스타일 챗봇 터미널 */
+        #chat-container-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--vscode-bg);
+            overflow: hidden;
+        }
+        #gemini-chat {
+            flex: 1;
+            padding: 12px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            font-size: 13px;
+            scroll-behavior: smooth;
+        }
+        .chat-msg {
+            padding: 8px 12px;
+            border-radius: 4px;
+            line-height: 1.4;
+            max-width: 90%;
+            word-break: break-word;
+        }
+        .msg-user {
+            align-self: flex-end;
+            background: #264f78;
+            color: #ffffff;
+        }
+        .msg-ai {
+            align-self: flex-start;
+            background: #252526;
+            color: #d4d4d4;
+            border-left: 3px solid var(--vscode-blue);
+        }
+
+        .chat-bar {
+            padding: 10px;
+            background: var(--vscode-sidebar);
+            border-top: 1px solid var(--vscode-border);
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .chat-input {
+            flex: 1;
+            background: var(--vscode-input);
+            border: 1px solid var(--vscode-border);
+            color: #ffffff;
+            padding: 7px 10px;
+            border-radius: 2px;
+            font-size: 13px;
+            font-family: 'Consolas', monospace;
+            outline: none;
+        }
+        .chat-input:focus { border-color: var(--vscode-blue); }
+
+        button {
+            padding: 6px 14px;
+            border-radius: 2px;
+            border: none;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .btn-run { background: var(--vscode-accent); color: #fff; }
+        .btn-run:hover { background: #007acc; }
+        .btn-open { background: #388a34; color: #fff; }
+        .btn-open:hover { background: #46a742; }
+        .btn-ask { background: var(--vscode-accent); color: #fff; }
+        .btn-ask:hover { background: #007acc; }
+
+        /* 개념 패널 (Q키) */
+        #concept-panel {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 660px;
+            max-width: 92vw;
+            background: rgba(18, 20, 32, 0.98);
+            border: 1px solid var(--vscode-blue);
+            border-radius: 6px;
+            display: none;
+            z-index: 25;
+            overflow: hidden;
+            font-family: 'Consolas', monospace;
+        }
+        #concept-header {
+            padding: 10px 16px;
+            background: #2a2a3a;
+            border-bottom: 1px solid var(--vscode-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+        }
+        #concept-content { padding: 18px; font-size: 13px; color: #d4d4d4; line-height: 1.7; }
+        .concept-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px; }
+        .concept-lang-label { font-size: 11px; letter-spacing: 1.5px; margin-bottom: 6px; font-weight: bold; }
+        .concept-code {
+            background: #111116;
+            border: 1px solid #333;
+            border-radius: 3px;
+            padding: 10px 12px;
+            white-space: pre-wrap;
+            font-size: 12.5px;
+            color: #9cdcfe;
+            line-height: 1.6;
+        }
+
+        /* 시작 모달 */
+        #start-screen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            gap: 16px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="hud">
+    <div id="hud-title">PYTHON × C# ACADEMY</div>
+    <div id="hud-room">ROOM <span id="room-badge">001</span> <span style="color:#333; font-size:13px; font-weight:normal;">/ 100</span></div>
+    <div id="hud-meta">
+        <span id="engine-badge">Python 엔진 준비 중...</span>
+        <span id="hud-clear">0% CLEAR</span>
+    </div>
+    <div id="hud-keys"><span>[E]</span> 터미널 &nbsp; <span>[Q]</span> 개념 설명 &nbsp; <span>[WASD]</span> 이동</div>
+</div>
+<div id="crosshair"></div>
+<div id="interact-prompt">[E] 키를 눌러 도어 터미널 열기</div>
+
+<!-- 개념 설명 패널 (Q키) -->
+<div id="concept-panel">
+    <div id="concept-header">
+        <span style="color:#4ec9b0; font-size:12px;">📖 개념 설명 — PYTHON × C#</span>
+        <span style="cursor:pointer; color:#f44747; pointer-events:all;" onclick="closeConceptPanel()">[Q 닫기]</span>
+    </div>
+    <div id="concept-content"></div>
+</div>
+
+<!-- VS Code 스타일 콕핏 UI -->
+<div id="cockpit-modal">
+    <div id="cockpit-header">
+        <span>📁 workspace / door_<span id="cockpit-door-num">001</span> - Dual Language Academy</span>
+        <div style="display:flex; gap:14px; align-items:center;">
+            <span style="color:#4ec9b0; font-size:11px;">● 듀얼 타이핑 튜터 활성</span>
+            <span style="cursor:pointer; color:#f44747;" onclick="closeCockpit()">[ESC 닫기]</span>
+        </div>
+    </div>
+
+    <div id="split-container">
+        <!-- 좌측: 파이썬 & C# 듀얼 에디터 -->
+        <div class="pane">
+            <div class="tab-bar">
+                <div class="tab active" id="tab-py" onclick="switchLang('py')">main.py (Python)</div>
+                <div class="tab" id="tab-cs" onclick="switchLang('cs')">Script.cs (C#)</div>
+            </div>
+            <div id="mission-banner">미션 로딩 중...</div>
+            
+            <!-- 참고용 코드 뷰어 (복사 불가) -->
+            <div id="mission-starter-view"></div>
+            
+            <!-- 직접 타이핑하는 에디터 -->
+            <textarea id="code-editor" spellcheck="false" placeholder="참고 코드를 보고 여기에 직접 타이핑하세요..."></textarea>
+            
+            <div id="main-controls">
+                <button class="btn-run" onclick="runScript()">▶ 파이썬 실행 (Run)</button>
+                <button class="btn-open" onclick="verifyAndOpenDoor()">⚡ 듀얼 검증 및 문 열기</button>
+            </div>
+            <div id="mini-console">> Terminal Ready...</div>
+        </div>
+
+        <!-- 우측: VS Code 스타일 챗봇 터미널 -->
+        <div class="pane">
+            <div class="pane-header">
+                <span>💬 AI Assistant Terminal (Chat)</span>
+            </div>
+            <div id="chat-container-wrapper">
+                <div id="gemini-chat">
+                    <div class="chat-msg msg-ai">
+                        환영합니다! 파이썬으로 로직을 잡고, C# 탭으로 넘어가 동일한 코드를 타이핑해야 문이 열립니다. 질문이 있으면 입력하세요!
+                    </div>
+                </div>
+                <div class="chat-bar">
+                    <input type="text" class="chat-input" id="gemini-input" placeholder="Type a message or question...">
+                    <button class="btn-ask" onclick="sendAiChat()">전송</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 시작 화면 -->
+<div id="start-screen">
+    <h1 style="color:#569cd6; font-size:24px;">PYTHON & C# 3D DOORS ACADEMY</h1>
+    <p style="color:#858585; font-size:13px; text-align:center; max-width: 460px; line-height: 1.5;">
+        3D 공간을 탐험하며 파이썬과 C#을 직접 타이핑으로 마스터하는 방탈출 학습 에뮬레이터입니다.
+    </p>
+    <button class="btn-run" style="padding:10px 24px; font-size:13px;" onclick="bootSystem()">에뮬레이터 시작하기</button>
+</div>
+
+<script>
+let pyodideEngine = null;
+let currentRoom = 1;
+
+// 언어 탭 상태 관리 및 코드 저장소
+let currentLang = 'py';
+let userCodes = { py: "", cs: "" };
+
+// 1. Pyodide 파이썬 런타임 초기화
+async function initPyodide() {
+    try {
+        pyodideEngine = await loadPyodide();
+        document.getElementById('engine-badge').textContent = 'Python 3.11 Ready';
+    } catch(e) {
+        document.getElementById('engine-badge').textContent = 'Python Fallback Mode';
+    }
+}
+initPyodide();
+
+// 2. 미션 정의 (파이썬 코드와 C# 검증 키워드 분리)
+function getMission(num) {
+    const list = {
+        1: {
+            title: "Hello, World! — 첫 출력",
+            desc: "Python은 print(), C#은 Console.WriteLine()으로 텍스트를 화면에 출력합니다.",
+            pyStarter: "print('Hello, World!')",
+            csStarter: 'using System;\nclass Program {\n    static void Main() {\n        Console.WriteLine("Hello, World!");\n    }\n}',
+            pyKeyword: "Hello, World!",
+            csKeyword: "Console.WriteLine"
+        },
+        2: {
+            title: "변수 선언 — int / str",
+            desc: "Python은 타입 없이, C#은 타입(int, string)을 명시해 변수를 선언합니다.",
+            pyStarter: "score = 100\nname = 'Unity'\nprint(score, name)",
+            csStarter: "int score = 100;\nstring name = \"Unity\";\nConsole.WriteLine(score + \" \" + name);",
+            pyKeyword: "100",
+            csKeyword: "string name"
+        },
+        3: {
+            title: "조건문 — if / else",
+            desc: "Python은 콜론(:)과 들여쓰기, C#은 중괄호({})로 블록을 표현합니다.",
+            pyStarter: "hp = 50\nif hp > 0:\n    print('ALIVE')\nelse:\n    print('DEAD')",
+            csStarter: "int hp = 50;\nif (hp > 0) {\n    Console.WriteLine(\"ALIVE\");\n} else {\n    Console.WriteLine(\"DEAD\");\n}",
+            pyKeyword: "ALIVE",
+            csKeyword: "if (hp"
+        },
+        4: {
+            title: "for 루프 — 반복",
+            desc: "Python은 range()를, C#은 for(int i=0; i<N; i++) 구문을 사용합니다.",
+            pyStarter: "for i in range(3):\n    print('LOOP', i)",
+            csStarter: "for (int i = 0; i < 3; i++) {\n    Console.WriteLine(\"LOOP \" + i);\n}",
+            pyKeyword: "LOOP 0",
+            csKeyword: "i < 3"
+        },
+        5: {
+            title: "while 루프 — 조건 반복",
+            desc: "조건이 참인 동안 반복합니다. Python과 C# 모두 while 키워드를 사용합니다.",
+            pyStarter: "count = 0\nwhile count < 3:\n    print('COUNT', count)\n    count += 1",
+            csStarter: "int count = 0;\nwhile (count < 3) {\n    Console.WriteLine(\"COUNT \" + count);\n    count++;\n}",
+            pyKeyword: "COUNT 0",
+            csKeyword: "count++"
+        },
+        6: {
+            title: "리스트 / 배열",
+            desc: "Python은 list[], C#은 int[] 또는 List<int>로 여러 값을 묶습니다.",
+            pyStarter: "items = ['sword', 'shield', 'potion']\nprint(items[0])\nprint(len(items))",
+            csStarter: "string[] items = {\"sword\", \"shield\", \"potion\"};\nConsole.WriteLine(items[0]);\nConsole.WriteLine(items.Length);",
+            pyKeyword: "sword",
+            csKeyword: "items.Length"
+        },
+        7: {
+            title: "딕셔너리 / Dictionary",
+            desc: "키-값 쌍으로 데이터를 저장합니다. Python은 dict{}, C#은 Dictionary<K,V>입니다.",
+            pyStarter: "player = {'name': 'Hero', 'hp': 100}\nprint(player['name'])",
+            csStarter: "var player = new Dictionary<string, object> {\n    {\"name\", \"Hero\"}, {\"hp\", 100}\n};\nConsole.WriteLine(player[\"name\"]);",
+            pyKeyword: "Hero",
+            csKeyword: "Dictionary"
+        },
+        8: {
+            title: "함수 정의 — def / void",
+            desc: "Python은 def, C#은 반환 타입을 앞에 쓰고 메서드를 정의합니다.",
+            pyStarter: "def greet(name):\n    return 'Hello, ' + name\nprint(greet('Pythonista'))",
+            csStarter: "string Greet(string name) {\n    return \"Hello, \" + name;\n}\nConsole.WriteLine(Greet(\"Pythonista\"));",
+            pyKeyword: "Hello, Pythonista",
+            csKeyword: "string Greet"
+        },
+        9: {
+            title: "클래스 — class",
+            desc: "객체지향의 핵심. Python과 C# 모두 class 키워드를 사용하지만 문법이 다릅니다.",
+            pyStarter: "class Hero:\n    def __init__(self, name):\n        self.name = name\n    def attack(self):\n        return self.name + ' attacks!'\n\nh = Hero('Arthur')\nprint(h.attack())",
+            csStarter: "class Hero {\n    public string Name;\n    public Hero(string name) { Name = name; }\n    public string Attack() { return Name + \" attacks!\"; }\n}\nvar h = new Hero(\"Arthur\");\nConsole.WriteLine(h.Attack());",
+            pyKeyword: "Arthur attacks!",
+            csKeyword: "new Hero"
+        },
+        10: {
+            title: "문자열 메서드",
+            desc: "문자열 조작 메서드. Python과 C# 모두 강력한 string 메서드를 제공합니다.",
+            pyStarter: "msg = 'hello world'\nprint(msg.upper())\nprint(msg.replace('world', 'Python'))",
+            csStarter: "string msg = \"hello world\";\nConsole.WriteLine(msg.ToUpper());\nConsole.WriteLine(msg.Replace(\"world\", \"Python\"));",
+            pyKeyword: "HELLO WORLD",
+            csKeyword: "ToUpper"
+        },
+        11: {
+            title: "예외 처리 — try / except",
+            desc: "오류를 안전하게 처리합니다. Python은 except, C#은 catch를 사용합니다.",
+            pyStarter: "try:\n    result = 10 / 0\nexcept ZeroDivisionError:\n    print('DIVIDE_ERROR')",
+            csStarter: "try {\n    int result = 10 / 0;\n} catch (DivideByZeroException) {\n    Console.WriteLine(\"DIVIDE_ERROR\");\n}",
+            pyKeyword: "DIVIDE_ERROR",
+            csKeyword: "catch"
+        },
+        12: {
+            title: "람다 / Lambda",
+            desc: "익명 함수. Python은 lambda, C#은 => 화살표 함수(람다식)를 사용합니다.",
+            pyStarter: "double = lambda x: x * 2\nprint(double(21))",
+            csStarter: "var doubleVal = (int x) => x * 2;\nConsole.WriteLine(doubleVal(21));",
+            pyKeyword: "42",
+            csKeyword: "=> x * 2"
+        }
+    };
+    return list[num] || {
+        title: `심화 Phase ${num} — 복합 패턴`,
+        desc: `[DOOR ${num}] 파이썬 로직과 C# 스크립트를 작성하여 게이트를 통과하세요.`,
+        pyStarter: `# Door ${num}\nprint('DOOR_${num}_CLEAR')`,
+        csStarter: `// Door ${num} C#\nConsole.WriteLine("DOOR_${num}_CLEAR");`,
+        pyKeyword: `DOOR_${num}_CLEAR`,
+        csKeyword: `DOOR_${num}_CLEAR`
+    };
+}
+
+// 탭 전환 함수
+function switchLang(lang) {
+    // 현재 에디터 내용 임시 저장
+    userCodes[currentLang] = document.getElementById('code-editor').value;
+    currentLang = lang;
+    
+    // 대상 언어 코드 불러오기
+    document.getElementById('code-editor').value = userCodes[lang];
+    
+    // UI 활성화 변경
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(`tab-${lang}`).classList.add('active');
+    
+    // 뷰어 내용 변경
+    const m = getMission(currentRoom);
+    const starterText = (lang === 'py') ? m.pyStarter : m.csStarter;
+    document.getElementById('mission-starter-view').textContent = `▶ [${lang.toUpperCase()} 참고 코드 - 직접 타이핑하세요]:\n` + starterText;
+    
+    // 버튼 텍스트 변경
+    const runBtn = document.querySelector('.btn-run');
+    if (lang === 'py') {
+        runBtn.textContent = "▶ 파이썬 실행 (Run)";
+        runBtn.style.display = "block";
+    } else {
+        runBtn.textContent = "ℹ C#은 구문 검사만 수행";
+        runBtn.style.display = "block";
+    }
+}
+
+// 3. 브라우저 파이썬 코드 실행 (파이썬 탭에서만 동작)
+async function runScript() {
+    if (currentLang !== 'py') {
+        document.getElementById('mini-console').textContent = "> C# 코드는 '통합 검증' 버튼을 통해 문법을 체크합니다.";
+        return;
+    }
+    
+    userCodes.py = document.getElementById('code-editor').value;
+    const con = document.getElementById('mini-console');
+    con.textContent = "> Running Python script...\n";
+
+    if (pyodideEngine) {
+        try {
+            pyodideEngine.runPython(`import sys, io\nsys.stdout = io.StringIO()\nsys.stderr = io.StringIO()`);
+            await pyodideEngine.runPythonAsync(userCodes.py);
+            const stdout = pyodideEngine.runPython("sys.stdout.getvalue()");
+            const stderr = pyodideEngine.runPython("sys.stderr.getvalue()");
+            
+            let res = stdout || "";
+            if (stderr) res += "\n[Error]\n" + stderr;
+            if (!res) res = "(Execution completed with no output)";
+            con.textContent = "> Output:\n" + res;
+            return res;
+        } catch(err) {
+            con.textContent = "> Execution Error:\n" + err;
+            return "";
+        }
+    }
+    con.textContent = "> Output:\n" + userCodes.py;
+    return userCodes.py;
+}
+
+// 채팅창 자동 하단 스크롤 함수
+function appendMsg(text, isUser = false) {
+    const log = document.getElementById('gemini-chat');
+    const div = document.createElement('div');
+    div.className = `chat-msg ${isUser ? 'msg-user' : 'msg-ai'}`;
+    div.textContent = text;
+    log.appendChild(div);
+    log.scrollTop = log.scrollHeight;
+}
+
+// 4. 에뮬레이터 AI 튜터
+function sendAiChat() {
+    const input = document.getElementById('gemini-input');
+    const q = input.value.trim();
+    if (!q) return;
+    input.value = '';
+
+    appendMsg(q, true);
+    const mission = getMission(currentRoom);
+
+    setTimeout(() => {
+        let reply = "파이썬과 C# 에디터를 번갈아가며 코드를 꼼꼼히 타이핑해보세요!";
+        if (q.includes("힌트") || q.includes("모르")) {
+            reply = `[힌트] 파이썬 결과값에는 '${mission.pyKeyword}'가, C# 코드에는 '${mission.csKeyword}' 문법이 포함되어야 합니다.`;
+        }
+        appendMsg(reply);
+    }, 400);
+}
+
+// 5. 듀얼 미션 검증 및 3D 도어 개방
+async function verifyAndOpenDoor() {
+    // 현재 탭 내용 저장 후 검증 (탭 무관하게 양쪽 코드 모두 검사)
+    userCodes[currentLang] = document.getElementById('code-editor').value;
+
+    const mission = getMission(currentRoom);
+    const con = document.getElementById('mini-console');
+    appendMsg(`[통합 검증] 파이썬 및 C# 코드 분석 중...`, true);
+
+    // Python 코드를 탭 상태와 무관하게 직접 실행
+    let pyOutput = "";
+    con.textContent = "> Running Python verification...\n";
+    if (pyodideEngine) {
+        try {
+            pyodideEngine.runPython(`import sys, io\nsys.stdout = io.StringIO()\nsys.stderr = io.StringIO()`);
+            await pyodideEngine.runPythonAsync(userCodes.py);
+            const stdout = pyodideEngine.runPython("sys.stdout.getvalue()");
+            const stderr = pyodideEngine.runPython("sys.stderr.getvalue()");
+            pyOutput = stdout || "";
+            if (stderr) pyOutput += "\n[Error]\n" + stderr;
+            con.textContent = "> Python Output:\n" + (pyOutput || "(no output)");
+        } catch(err) {
+            con.textContent = "> Python Error:\n" + err;
+            pyOutput = "";
+        }
+    } else {
+        // Pyodide 없을 때 폴백: 코드 자체를 출력값으로 취급
+        pyOutput = userCodes.py;
+        con.textContent = "> Python Fallback Mode\n" + pyOutput;
+    }
+
+    setTimeout(() => {
+        const pyPassed = pyOutput.includes(mission.pyKeyword);
+        const csPassed = userCodes.cs.includes(mission.csKeyword);
+
+        if (pyPassed && csPassed) {
+            appendMsg(`[PASS] 완벽합니다! 파이썬 로직과 C# 문법을 모두 정확히 타이핑하셨습니다. 문을 엽니다.`);
+            setTimeout(() => {
+                closeCockpit();
+                openDoorMotion();
+            }, 600);
+        } else {
+            let errorMsg = "[FAIL] 검증 실패:\n";
+            if (!pyPassed) errorMsg += `- 파이썬 결과값에 '${mission.pyKeyword}'가 누락되었습니다. (Python 탭에서 코드를 작성하고 실행해보세요)\n`;
+            if (!csPassed) errorMsg += `- C# 에디터에 필수 키워드('${mission.csKeyword}')가 누락되었습니다. (C# 탭에서 코드를 작성하세요)`;
+            appendMsg(errorMsg);
+        }
+    }, 500);
+}
+
+// 6. 3D 엔진 및 도어즈 가상 공간
+let scene, camera, renderer, controls;
+let completedRooms = 0;
+let moveF = false, moveB = false, moveL = false, moveR = false, isSprint = false;
+let prevT = performance.now();
+const vel = new THREE.Vector3();
+const dir = new THREE.Vector3();
+let roomMeshGroup, doorMesh;
+let isCockpitOpen = false, isDoorOpen = false;
+
+function init3D() {
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x030712);
+    scene.fog = new THREE.Fog(0x030712, 14, 42);
+
+    camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 1.6, 9);
+
+    scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+    buildRoom();
+
+    controls = new THREE.PointerLockControls(camera, document.body);
+    scene.add(controls.getObject());
+
+    document.addEventListener('keydown', (e) => {
+        if (isCockpitOpen) {
+            if (e.key === 'Escape') closeCockpit();
+            return;
+        }
+        if (e.code === 'KeyW') moveF = true;
+        if (e.code === 'KeyS') moveB = true;
+        if (e.code === 'KeyA') moveL = true;
+        if (e.code === 'KeyD') moveR = true;
+        if (e.code === 'ShiftLeft') isSprint = true;
+        if (e.code === 'KeyE') checkOpen();
+        if (e.code === 'KeyQ') toggleConceptPanel();
+    });
+
+    document.addEventListener('keyup', (e) => {
+        if (e.code === 'KeyW') moveF = false;
+        if (e.code === 'KeyS') moveB = false;
+        if (e.code === 'KeyA') moveL = false;
+        if (e.code === 'KeyD') moveR = false;
+        if (e.code === 'ShiftLeft') isSprint = false;
+    });
+
+    document.addEventListener('click', () => {
+        if (!controls.isLocked && !isCockpitOpen) controls.lock();
+        else if (controls.isLocked && !isCockpitOpen) checkOpen();
+    });
+
+    document.getElementById('gemini-input').addEventListener('keydown', (e) => {
+        if(e.key === 'Enter') sendAiChat();
+    });
+
+    // 코드 에디터 Tab 키: 들여쓰기 삽입
+    document.getElementById('code-editor').addEventListener('keydown', function(e) {
+        if (e.key === 'Tab') {
+            e.preventDefault();
+            const s = this.selectionStart, en = this.selectionEnd;
+            this.value = this.value.substring(0, s) + '    ' + this.value.substring(en);
+            this.selectionStart = this.selectionEnd = s + 4;
+        }
+    });
+
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    document.body.appendChild(renderer.domElement);
+
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+}
+
+function buildRoom() {
+    if (roomMeshGroup) scene.remove(roomMeshGroup);
+    roomMeshGroup = new THREE.Group();
+
+    const W = 7, H = 4.5, roomLen = 28, midZ = -2;
+    const wallMat = () => new THREE.MeshStandardMaterial({ color: 0x1a1f30 });
+    const floorMat = new THREE.MeshStandardMaterial({ color: 0x181c28 });
+
+    // 바닥
+    const floor = new THREE.Mesh(new THREE.PlaneGeometry(W, roomLen), floorMat);
+    floor.rotation.x = -Math.PI / 2;
+    floor.position.set(0, 0, midZ);
+    roomMeshGroup.add(floor);
+
+    // 천장
+    const ceil = new THREE.Mesh(new THREE.PlaneGeometry(W, roomLen), wallMat());
+    ceil.rotation.x = Math.PI / 2;
+    ceil.position.set(0, H, midZ);
+    roomMeshGroup.add(ceil);
+
+    // 왼쪽 벽
+    const wallL = new THREE.Mesh(new THREE.PlaneGeometry(roomLen, H), wallMat());
+    wallL.rotation.y = Math.PI / 2;
+    wallL.position.set(-W/2, H/2, midZ);
+    roomMeshGroup.add(wallL);
+
+    // 오른쪽 벽
+    const wallR = new THREE.Mesh(new THREE.PlaneGeometry(roomLen, H), wallMat());
+    wallR.rotation.y = -Math.PI / 2;
+    wallR.position.set(W/2, H/2, midZ);
+    roomMeshGroup.add(wallR);
+
+    // 바닥 그리드
+    const grid = new THREE.GridHelper(roomLen, 20, 0x007acc, 0x1e2940);
+    grid.position.set(0, 0.02, midZ);
+    roomMeshGroup.add(grid);
+
+    // 뒷 벽 (문 구멍 주변)
+    const sideW = (W - 3.4) / 2;
+    [-1, 1].forEach(sign => {
+        const bw = new THREE.Mesh(new THREE.PlaneGeometry(sideW, H), wallMat());
+        bw.rotation.y = sign > 0 ? Math.PI : 0;
+        bw.position.set(sign * (3.4/2 + sideW/2), H/2, -13.05);
+        roomMeshGroup.add(bw);
+    });
+    const topH = H - 4.2;
+    if (topH > 0) {
+        const bwTop = new THREE.Mesh(new THREE.PlaneGeometry(W, topH), wallMat());
+        bwTop.position.set(0, 4.2 + topH/2, -13.05);
+        roomMeshGroup.add(bwTop);
+    }
+
+    // 문
+    doorMesh = new THREE.Mesh(
+        new THREE.BoxGeometry(3.2, 4.2, 0.2),
+        new THREE.MeshStandardMaterial({ color: 0x0e639c, emissive: 0x002244, emissiveIntensity: 0.6, metalness: 0.7, roughness: 0.3 })
+    );
+    doorMesh.position.set(0, 2.1, -13);
+    roomMeshGroup.add(doorMesh);
+
+    // 문 테두리 발광선
+    const edgeGeo = new THREE.EdgesGeometry(new THREE.BoxGeometry(3.45, 4.45, 0.3));
+    const edgeLine = new THREE.LineSegments(edgeGeo, new THREE.LineBasicMaterial({ color: 0x569cd6 }));
+    edgeLine.position.copy(doorMesh.position);
+    roomMeshGroup.add(edgeLine);
+
+    // 복도 천장 조명 (균등 배치 → 플레이어 위치까지 커버)
+    [8, 2.5, -3, -8.5].forEach(z => {
+        const pl = new THREE.PointLight(0x8ab4f8, 2.5, 18);
+        pl.position.set(0, H - 0.4, z);
+        roomMeshGroup.add(pl);
+        // 전구 모양
+        const bulb = new THREE.Mesh(
+            new THREE.SphereGeometry(0.1, 6, 6),
+            new THREE.MeshStandardMaterial({ emissive: 0x8ab4f8, emissiveIntensity: 5, color: 0xffffff })
+        );
+        bulb.position.set(0, H - 0.1, z);
+        roomMeshGroup.add(bulb);
+    });
+
+    // 문 앞 집중 조명
+    const doorGlow = new THREE.PointLight(0x007acc, 6, 10);
+    doorGlow.position.set(0, 2.5, -11);
+    roomMeshGroup.add(doorGlow);
+
+    scene.add(roomMeshGroup);
+    isDoorOpen = false;
+}
+
+function openCockpit() {
+    isCockpitOpen = true;
+    controls.unlock();
+
+    currentLang = 'py';
+    userCodes = { py: "", cs: "" };
+
+    const m = getMission(currentRoom);
+    document.getElementById('cockpit-door-num').textContent = String(currentRoom).padStart(3, '0');
+    document.getElementById('mission-banner').innerHTML = `<b>[미션 ${currentRoom}] ${m.title}</b><br>${m.desc}`;
+    
+    // 초기 탭 상태 설정 (파이썬)
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-py').classList.add('active');
+    
+    document.getElementById('mission-starter-view').textContent = "▶ [PYTHON 참고 코드 - 직접 타이핑하세요]:\n" + m.pyStarter;
+    document.getElementById('code-editor').value = "";
+    document.getElementById('mini-console').textContent = "> Terminal Ready...";
+
+    document.getElementById('cockpit-modal').style.display = 'flex';
+}
+
+function closeCockpit() {
+    document.getElementById('cockpit-modal').style.display = 'none';
+    isCockpitOpen = false;
+    controls.lock();
+}
+
+// 개념 패널 (Q키)
+function toggleConceptPanel() {
+    const panel = document.getElementById('concept-panel');
+    if (panel.style.display === 'block') {
+        closeConceptPanel();
+    } else {
+        openConceptPanel();
+    }
+}
+
+function openConceptPanel() {
+    if (isCockpitOpen) return;
+    controls.unlock();
+    const m = getMission(currentRoom);
+    document.getElementById('concept-content').innerHTML = `
+        <div style="margin-bottom:14px;">
+            <span style="color:#ce9178; font-weight:bold;">[DOOR ${currentRoom}] ${m.title}</span><br>
+            <span style="color:#858585; font-size:12px;">${m.desc}</span>
+        </div>
+        <div class="concept-grid">
+            <div>
+                <div class="concept-lang-label" style="color:#4ec9b0;">🐍 PYTHON</div>
+                <div class="concept-code">${m.pyStarter}</div>
+                <div style="font-size:11px; color:#666; margin-top:4px;">출력에 "${m.pyKeyword}" 포함 필요</div>
+            </div>
+            <div>
+                <div class="concept-lang-label" style="color:#9cdcfe;">⚙ C#</div>
+                <div class="concept-code">${m.csStarter}</div>
+                <div style="font-size:11px; color:#666; margin-top:4px;">"${m.csKeyword}" 키워드 필요</div>
+            </div>
+        </div>`;
+    document.getElementById('concept-panel').style.display = 'block';
+}
+
+function closeConceptPanel() {
+    document.getElementById('concept-panel').style.display = 'none';
+    if (!isCockpitOpen) controls.lock();
+}
+
+function openDoorMotion() {
+    isDoorOpen = true;
+    let p = 0;
+    const inv = setInterval(() => {
+        p += 0.06;
+        doorMesh.position.x = THREE.MathUtils.lerp(0, -3.2, p);
+        if (p >= 1) clearInterval(inv);
+    }, 16);
+}
+
+function checkOpen() {
+    if (controls.getObject().position.distanceTo(doorMesh.position) < 5.2 && !isDoorOpen) {
+        openCockpit();
+    }
+}
+
+function bootSystem() {
+    document.getElementById('start-screen').style.display = 'none';
+    init3D();
+    animate();
+    controls.lock();
+}
+
+function animate() {
+    requestAnimationFrame(animate);
+    const time = performance.now();
+
+    if (controls.isLocked && !isCockpitOpen) {
+        const dt = (time - prevT) / 1000;
+        vel.x -= vel.x * 10.0 * dt;
+        vel.z -= vel.z * 10.0 * dt;
+
+        dir.z = Number(moveF) - Number(moveB);
+        dir.x = Number(moveR) - Number(moveL);
+        dir.normalize();
+
+        const spd = isSprint ? 85.0 : 45.0;
+        if (moveF || moveB) vel.z -= dir.z * spd * dt;
+        if (moveL || moveR) vel.x -= dir.x * spd * dt;
+
+        controls.moveRight(-vel.x * dt);
+        controls.moveForward(-vel.z * dt);
+
+        const pos = controls.getObject().position;
+        pos.y = 1.6;
+        pos.x = Math.max(-3, Math.min(3, pos.x));
+
+        if (isDoorOpen && pos.z < -13) {
+            completedRooms++;
+            currentRoom++;
+            document.getElementById('room-badge').textContent = String(currentRoom).padStart(3, '0');
+            document.getElementById('hud-clear').textContent = Math.min(completedRooms, 100) + '% CLEAR';
+            pos.set(0, 1.6, 9);
+            buildRoom();
+        } else if (!isDoorOpen && pos.z < -11.5) {
+            pos.z = -11.5;
+        }
+
+        const d = pos.distanceTo(doorMesh.position);
+        document.getElementById('interact-prompt').style.display = (d < 5.2 && !isDoorOpen) ? 'block' : 'none';
+    }
+    prevT = time;
+    renderer.render(scene, camera);
+}
+</script>
+</body>
+</html>
