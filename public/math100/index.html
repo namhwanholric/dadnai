@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Math Doors Academy 3D</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/PointerLockControls.js"></script>
+<style>
+:root {
+    --bg: #1e1e1e; --sidebar: #252526; --border: #333;
+    --text: #d4d4d4; --blue: #007acc; --accent: #0e639c;
+    --input: #3c3c3c; --green: #4ec9b0; --orange: #ce9178;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background:#030712; color:var(--text); font-family:'Segoe UI',Consolas,monospace; overflow:hidden; user-select:none; }
+
+/* HUD */
+#hud { position:absolute; top:16px; left:20px; z-index:10; display:flex; flex-direction:column; gap:4px; pointer-events:none; }
+#hud-title { font-size:10px; letter-spacing:2.5px; color:#4ec9b0; font-weight:bold; }
+#hud-room { font-size:22px; font-weight:bold; color:#569cd6; line-height:1; }
+#hud-room span { color:#fff; }
+#hud-meta { display:flex; gap:10px; align-items:center; margin-top:2px; }
+#grade-badge { font-size:10px; padding:2px 7px; border-radius:2px; background:var(--sidebar); color:#4ec9b0; border:1px solid var(--border); }
+#hud-clear { font-size:10px; color:#b5cea8; letter-spacing:1px; }
+#hud-keys { font-size:10px; color:#444; margin-top:2px; }
+#hud-keys span { color:#666; }
+#hud-jump { display:flex; gap:4px; margin-top:6px; pointer-events:all; }
+
+#crosshair { position:absolute; top:50%; left:50%; width:6px; height:6px; background:#569cd6; border-radius:50%; transform:translate(-50%,-50%); pointer-events:none; z-index:10; }
+#interact-prompt { position:absolute; top:58%; left:50%; transform:translate(-50%,-50%); color:#fff; background:rgba(30,30,30,.95); padding:8px 16px; border-radius:4px; border:1px solid var(--blue); font-size:13px; display:none; z-index:10; }
+
+/* Cockpit modal */
+#cockpit-modal { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:95vw; height:92vh; background:var(--bg); border:1px solid var(--border); border-radius:6px; box-shadow:0 10px 30px rgba(0,0,0,.8); display:none; flex-direction:column; z-index:30; overflow:hidden; }
+#cockpit-header { height:35px; background:#323233; padding:0 15px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); font-size:12px; color:#9cdcfe; }
+#split-container { flex:1; display:flex; gap:1px; background:var(--border); overflow:hidden; }
+.pane { flex:1; background:var(--bg); display:flex; flex-direction:column; overflow:hidden; }
+.pane-header { padding:8px 12px; font-size:12px; background:var(--sidebar); border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; color:#b5cea8; }
+
+/* Math pane left */
+#topic-banner { padding:10px 14px; background:#2d2d2d; border-bottom:1px solid var(--border); }
+#topic-title { font-size:13px; color:#4ec9b0; font-weight:bold; margin-bottom:3px; }
+#topic-desc { font-size:11px; color:#858585; line-height:1.5; }
+#problem-box { margin:10px 14px; padding:12px 14px; background:#181818; border:1px solid #444; border-left:3px solid #569cd6; border-radius:3px; }
+#problem-label { font-size:10px; color:#569cd6; letter-spacing:1px; margin-bottom:6px; }
+#problem-text { font-size:15px; color:#fff; line-height:1.6; white-space:pre-wrap; }
+#work-area { flex:1; padding:0 14px 8px; display:flex; flex-direction:column; gap:6px; overflow:hidden; min-height:0; }
+#scratch-label { font-size:10px; color:#555; padding-top:6px; }
+#scratch-pad { flex:1; background:#1a1a1a; color:#9cdcfe; border:1px solid #333; border-radius:2px; padding:8px; font-family:Consolas,monospace; font-size:13px; resize:none; outline:none; min-height:60px; }
+#answer-row { display:flex; gap:8px; align-items:center; padding:8px 14px; background:var(--sidebar); border-top:1px solid var(--border); }
+#answer-label { font-size:12px; color:#4ec9b0; white-space:nowrap; font-weight:bold; }
+#answer-input { flex:1; background:var(--input); border:1px solid var(--border); color:#fff; padding:7px 10px; border-radius:2px; font-size:14px; font-family:Consolas,monospace; outline:none; }
+#answer-input:focus { border-color:var(--blue); }
+#feedback-console { height:90px; background:#111; border-top:1px solid var(--border); padding:8px 14px; font-family:Consolas,monospace; font-size:12px; color:#4ec9b0; overflow-y:auto; white-space:pre-wrap; flex-shrink:0; }
+
+/* Chat pane right */
+#chat-container-wrapper { flex:1; display:flex; flex-direction:column; background:var(--bg); overflow:hidden; }
+#gemini-chat { flex:1; padding:12px; overflow-y:auto; display:flex; flex-direction:column; gap:10px; font-size:13px; }
+.chat-msg { padding:8px 12px; border-radius:4px; line-height:1.5; max-width:90%; word-break:break-word; }
+.msg-user { align-self:flex-end; background:#264f78; color:#fff; }
+.msg-ai { align-self:flex-start; background:#252526; color:var(--text); border-left:3px solid var(--blue); }
+.chat-bar { padding:10px; background:var(--sidebar); border-top:1px solid var(--border); display:flex; gap:8px; align-items:center; }
+.chat-input { flex:1; background:var(--input); border:1px solid var(--border); color:#fff; padding:7px 10px; border-radius:2px; font-size:13px; font-family:Consolas,monospace; outline:none; }
+.chat-input:focus { border-color:var(--blue); }
+
+button { padding:6px 14px; border-radius:2px; border:none; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit; }
+.btn-verify { background:#388a34; color:#fff; padding:8px 18px; font-size:13px; }
+.btn-verify:hover { background:#46a742; }
+.btn-ask { background:var(--accent); color:#fff; }
+.btn-ask:hover { background:#007acc; }
+.btn-hint { background:#5a3e00; color:#ffd700; font-size:11px; padding:4px 10px; }
+.btn-hint:hover { background:#7a5500; }
+
+/* Concept panel (Q key) */
+#concept-panel { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:680px; max-height:80vh; background:#1e1e2e; border:1px solid #569cd6; border-radius:6px; box-shadow:0 8px 32px rgba(0,0,0,.9); display:none; flex-direction:column; z-index:40; overflow:hidden; }
+#concept-header { padding:10px 16px; background:#252540; border-bottom:1px solid #444; display:flex; justify-content:space-between; align-items:center; font-size:13px; color:#569cd6; font-weight:bold; }
+#concept-body { padding:16px; overflow-y:auto; font-size:13px; line-height:1.7; color:var(--text); }
+#concept-body h3 { color:#4ec9b0; margin-bottom:8px; font-size:14px; }
+#concept-body .formula { background:#181818; border:1px solid #444; border-left:3px solid #ffd700; padding:10px 14px; border-radius:3px; margin:8px 0; font-family:Consolas,monospace; color:#ffd700; font-size:14px; }
+#concept-body .example { background:#1a2a1a; border:1px solid #3a5a3a; padding:10px 14px; border-radius:3px; margin:8px 0; }
+#concept-body .example .ex-label { font-size:10px; color:#4ec9b0; letter-spacing:1px; margin-bottom:4px; }
+
+/* Start screen */
+#start-screen { position:absolute; top:0; left:0; width:100%; height:100%; background:#030712; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; z-index:50; }
+
+/* API key bar */
+#api-key-bar { display:flex; align-items:center; gap:6px; padding:6px 10px; background:#1e1e2e; border-bottom:1px solid #333; flex-shrink:0; }
+
+canvas { display:block; }
+</style>
+</head>
+<body>
+
+<!-- 3D Canvas -->
+<canvas id="c"></canvas>
+
+<!-- HUD -->
+<div id="hud">
+    <div id="hud-title">MATH DOORS ACADEMY</div>
+    <div id="hud-room">ROOM <span id="room-badge">001</span> <span>/ 100</span></div>
+    <div id="hud-meta">
+        <span id="grade-badge">Grade 6</span>
+        <span id="hud-clear">0% CLEAR</span>
+    </div>
+    <div id="hud-keys"><span>[E]</span> Problem &nbsp;<span>[Q]</span> Formula Sheet &nbsp;<span>[WASD]</span> Move</div>
+    <div id="hud-jump">
+        <input type="number" id="room-input" min="1" max="100" placeholder="Room (1–100)"
+            onkeydown="if(event.key==='Enter'){event.stopPropagation();jumpToRoom();}"
+            onclick="event.stopPropagation()"
+            style="width:130px;background:#1a1a2e;border:1px solid #333;color:#fff;padding:4px 8px;border-radius:3px;font-size:11px;outline:none;">
+        <button onclick="jumpToRoom()" style="background:#0e639c;border:none;color:#fff;font-size:11px;padding:4px 10px;border-radius:3px;cursor:pointer;">GO</button>
+    </div>
+</div>
+<div id="crosshair"></div>
+<div id="interact-prompt">[E] Solve Problem</div>
+
+<!-- Cockpit Modal -->
+<div id="cockpit-modal">
+    <div id="cockpit-header">
+        <span id="cockpit-title">📐 Math Problem Terminal</span>
+        <button onclick="closeCockpit()" style="background:none;border:none;color:#858585;font-size:16px;cursor:pointer;padding:0 4px;">✕</button>
+    </div>
+    <div id="split-container">
+        <!-- Left: Math Problem -->
+        <div class="pane">
+            <div class="pane-header">
+                <span>📐 Problem</span>
+                <button class="btn-hint" onclick="showHint()">💡 Hint</button>
+            </div>
+            <div id="topic-banner">
+                <div id="topic-title">Loading...</div>
+                <div id="topic-desc"></div>
+            </div>
+            <div id="problem-box">
+                <div id="problem-label">PROBLEM</div>
+                <div id="problem-text"></div>
+            </div>
+            <div id="work-area">
+                <div id="scratch-label">SCRATCH PAD — show your work</div>
+                <textarea id="scratch-pad" placeholder="Work out the problem here...&#10;You can write anything — it won't be graded." onclick="event.stopPropagation()"></textarea>
+            </div>
+            <div id="answer-row">
+                <span id="answer-label">Answer:</span>
+                <input type="text" id="answer-input" placeholder="Type your answer..."
+                    onclick="event.stopPropagation()"
+                    onkeydown="if(event.key==='Enter'){event.stopPropagation();verifyAnswer();}">
+                <button class="btn-verify" onclick="verifyAnswer()">✓ Submit</button>
+            </div>
+            <div id="feedback-console">> Enter your answer above and press Submit.</div>
+        </div>
+
+        <!-- Right: Gemini AI Tutor -->
+        <div class="pane">
+            <div class="pane-header"><span>🤖 Gemini Math Tutor</span></div>
+            <div id="api-key-bar">
+                <span style="color:#569cd6;font-size:11px;white-space:nowrap;">🔑 API Key</span>
+                <input id="gemini-api-key" type="password" placeholder="Paste Gemini API key → Enter"
+                    style="flex:1;background:#2d2d2d;border:1px solid #444;border-radius:3px;color:#d4d4d4;font-size:11px;padding:3px 7px;outline:none;"
+                    onclick="event.stopPropagation()"
+                    onkeydown="if(event.key==='Enter'){event.stopPropagation();saveApiKey();}">
+                <button onclick="saveApiKey()" style="background:#0e639c;border:none;color:#fff;font-size:10px;padding:3px 8px;border-radius:3px;cursor:pointer;">Save</button>
+            </div>
+            <div id="chat-container-wrapper">
+                <div id="gemini-chat">
+                    <div class="chat-msg msg-ai">Welcome to Math Doors Academy! 🎓<br>Solve the problem on the left to open the door.<br><span style="color:#569cd6;font-size:11px;">Add a free Gemini API key above for real AI tutoring. (aistudio.google.com)</span></div>
+                </div>
+                <div class="chat-bar">
+                    <input type="text" class="chat-input" id="gemini-input" placeholder="Ask for help...">
+                    <button class="btn-ask" onclick="sendAiChat()">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Formula Sheet Panel (Q key) -->
+<div id="concept-panel">
+    <div id="concept-header">
+        <span id="concept-title">📋 Formula Sheet</span>
+        <button onclick="closeConceptPanel()" style="background:none;border:none;color:#858585;font-size:16px;cursor:pointer;">✕</button>
+    </div>
+    <div id="concept-body"></div>
+</div>
+
+<!-- Start Screen -->
+<div id="start-screen">
+    <div style="color:#569cd6;font-size:26px;font-weight:bold;letter-spacing:2px;">MATH DOORS ACADEMY</div>
+    <div style="color:#4ec9b0;font-size:12px;letter-spacing:3px;">GRADE 6 · 7 · 8 — 100 ROOMS</div>
+    <div style="color:#858585;font-size:12px;text-align:center;max-width:420px;line-height:1.6;">
+        Explore a 3D corridor and solve one math problem per room.<br>
+        Correct answer = door opens. Use Gemini AI to guide you!
+    </div>
+    <button onclick="bootSystem()" style="background:#0e639c;border:none;color:#fff;padding:12px 28px;font-size:14px;border-radius:3px;cursor:pointer;letter-spacing:1px;">START ACADEMY</button>
+</div>
+
+<script>
+// ─── MISSIONS (100 rooms) ────────────────────────────────────────────────────
+function getMission(n) {
+    const list = {
+        1:{title:"Whole Number Multiplication",grade:"Grade 6",topic:"Number Operations",desc:"Multiply large whole numbers. Line up digits by place value.",problem:"Calculate:\n248 × 37 = ?",answer:"9176",alt:[],formula:"a × b = product\nLong multiply: 248×37 = 248×30 + 248×7",example:"12 × 34 = 12×30 + 12×4 = 360 + 48 = 408"},
+        2:{title:"Order of Operations (PEMDAS)",grade:"Grade 6",topic:"Number Operations",desc:"Parentheses → Exponents → Multiply/Divide → Add/Subtract",problem:"Evaluate:\n3 + 4 × 2 = ?",answer:"11",alt:[],formula:"PEMDAS: P E MD AS\nMultiply before adding!",example:"5 + 3 × 2 = 5 + 6 = 11  (NOT 16)"},
+        3:{title:"Prime Numbers",grade:"Grade 6",topic:"Number Theory",desc:"A prime number has exactly two factors: 1 and itself.",problem:"What is the 8th prime number?\n(List: 2, 3, 5, 7, ...)",answer:"19",alt:[],formula:"Primes: 2,3,5,7,11,13,17,19,23,...\nCheck divisibility up to √n",example:"Is 17 prime? √17≈4.1 → test 2,3: neither divides → YES"},
+        4:{title:"Greatest Common Factor",grade:"Grade 6",topic:"Number Theory",desc:"GCF is the largest number that divides both numbers evenly.",problem:"Find GCF(24, 36) = ?",answer:"12",alt:[],formula:"List factors of each, pick the largest common one.\nOr: use prime factorization.",example:"GCF(12,18): factors of 12={1,2,3,4,6,12}, 18={1,2,3,6,9,18} → GCF=6"},
+        5:{title:"Least Common Multiple",grade:"Grade 6",topic:"Number Theory",desc:"LCM is the smallest number that both numbers divide into evenly.",problem:"Find LCM(4, 6) = ?",answer:"12",alt:[],formula:"LCM(a,b) = a×b / GCF(a,b)",example:"LCM(3,4): multiples of 3={3,6,9,12}, of 4={4,8,12} → LCM=12"},
+        6:{title:"Simplifying Fractions",grade:"Grade 6",topic:"Fractions",desc:"Divide numerator and denominator by their GCF.",problem:"Simplify 24/36",answer:"2/3",alt:["2 / 3"],formula:"a/b ÷ GCF/GCF = simplified fraction",example:"18/24: GCF=6 → 18÷6 / 24÷6 = 3/4"},
+        7:{title:"Adding Fractions — Same Denominator",grade:"Grade 6",topic:"Fractions",desc:"Same denominator: just add the numerators.",problem:"3/8 + 5/8 = ?",answer:"1",alt:["8/8","1/1"],formula:"a/c + b/c = (a+b)/c",example:"2/7 + 3/7 = 5/7"},
+        8:{title:"Adding Fractions — Different Denominators",grade:"Grade 6",topic:"Fractions",desc:"Find the LCD (Least Common Denominator), convert, then add.",problem:"1/3 + 1/4 = ?",answer:"7/12",alt:[],formula:"LCD of 3 and 4 = 12\n1/3 = 4/12,  1/4 = 3/12",example:"1/2 + 1/3: LCD=6 → 3/6 + 2/6 = 5/6"},
+        9:{title:"Subtracting Fractions",grade:"Grade 6",topic:"Fractions",desc:"Find LCD, convert both fractions, then subtract.",problem:"5/6 − 1/4 = ?",answer:"7/12",alt:[],formula:"LCD of 6 and 4 = 12\n5/6 = 10/12,  1/4 = 3/12",example:"3/4 - 1/3: LCD=12 → 9/12 - 4/12 = 5/12"},
+        10:{title:"Multiplying Fractions",grade:"Grade 6",topic:"Fractions",desc:"Multiply numerators together, then denominators together.",problem:"2/3 × 3/4 = ?",answer:"1/2",alt:["6/12","0.5"],formula:"a/b × c/d = (a×c)/(b×d)",example:"2/5 × 5/6 = 10/30 = 1/3"},
+        11:{title:"Dividing Fractions",grade:"Grade 6",topic:"Fractions",desc:"Keep, Change, Flip — multiply by the reciprocal.",problem:"3/4 ÷ 1/2 = ?",answer:"3/2",alt:["1.5","1 1/2"],formula:"a/b ÷ c/d = a/b × d/c",example:"2/3 ÷ 4/5 = 2/3 × 5/4 = 10/12 = 5/6"},
+        12:{title:"Mixed Numbers",grade:"Grade 6",topic:"Fractions",desc:"Improper fraction → divide to find whole number and remainder.",problem:"Convert 7/3 to a mixed number.\n(Write as: 2 1/3)",answer:"2 1/3",alt:["2 1/3","2⅓"],formula:"7÷3 = 2 remainder 1 → 2 1/3",example:"11/4: 11÷4=2 R3 → 2 3/4"},
+        13:{title:"Decimal Multiplication",grade:"Grade 6",topic:"Decimals",desc:"Multiply ignoring decimals, then count total decimal places.",problem:"3.14 × 2 = ?",answer:"6.28",alt:[],formula:"Count decimal places in both factors → place in product",example:"1.5 × 3 = 4.5  (1 decimal place)"},
+        14:{title:"Adding Decimals",grade:"Grade 6",topic:"Decimals",desc:"Line up decimal points, then add as normal.",problem:"4.75 + 2.3 = ?",answer:"7.05",alt:[],formula:"Align decimals:\n  4.75\n+ 2.30\n------",example:"3.6 + 1.04 = 4.64"},
+        15:{title:"Decimal Division",grade:"Grade 6",topic:"Decimals",desc:"Move decimal in divisor to make it a whole number; move dividend's decimal the same amount.",problem:"7.2 ÷ 0.4 = ?",answer:"18",alt:[],formula:"7.2 ÷ 0.4 → 72 ÷ 4 = 18",example:"4.8 ÷ 0.6 → 48 ÷ 6 = 8"},
+        16:{title:"Percent to Decimal",grade:"Grade 6",topic:"Percents",desc:"Divide by 100 (move decimal point two places left).",problem:"Write 35% as a decimal.",answer:"0.35",alt:[".35"],formula:"n% = n ÷ 100 = n/100",example:"72% = 0.72"},
+        17:{title:"Percent of a Number",grade:"Grade 6",topic:"Percents",desc:"Convert percent to decimal, then multiply.",problem:"What is 20% of 80?",answer:"16",alt:[],formula:"part = % × whole\n20% × 80 = 0.20 × 80",example:"15% of 60 = 0.15 × 60 = 9"},
+        18:{title:"Simplifying Ratios",grade:"Grade 6",topic:"Ratios",desc:"Divide both parts by their GCF.",problem:"Simplify the ratio 12 : 18",answer:"2:3",alt:["2 : 3","2/3"],formula:"12:18 → GCF=6 → 2:3",example:"8:20 → GCF=4 → 2:5"},
+        19:{title:"Unit Rate",grade:"Grade 6",topic:"Ratios",desc:"Divide to find the amount per 1 unit.",problem:"A car travels 150 miles in 3 hours.\nFind the speed in miles per hour.",answer:"50",alt:["50 mph"],formula:"rate = total ÷ units\n150 miles ÷ 3 hours",example:"$12 for 4 items → $12÷4 = $3 per item"},
+        20:{title:"Solving Proportions",grade:"Grade 6",topic:"Ratios",desc:"Cross-multiply to solve for the unknown.",problem:"Solve for x:\n3/4 = x/12",answer:"9",alt:["x=9"],formula:"a/b = c/d → a×d = b×c\n3×12 = 4×x",example:"2/5 = x/15 → 2×15=5x → x=6"},
+        21:{title:"Negative Number Addition",grade:"Grade 6",topic:"Integers",desc:"Same sign: add and keep the sign. Different signs: subtract and keep the sign of the larger absolute value.",problem:"(−3) + (−5) = ?",answer:"-8",alt:["−8"],formula:"Same sign: add magnitudes, keep sign\n(-3)+(-5) = -(3+5)",example:"(-4) + (-7) = -11"},
+        22:{title:"Absolute Value",grade:"Grade 6",topic:"Integers",desc:"Absolute value is the distance from zero — always non-negative.",problem:"|−7| + |3| = ?",answer:"10",alt:[],formula:"|−n| = n,  |n| = n",example:"|−5| + |8| = 5 + 8 = 13"},
+        23:{title:"Comparing & Ordering Integers",grade:"Grade 6",topic:"Integers",desc:"On a number line, numbers increase to the right.",problem:"Order from least to greatest:\n−3, 1, −5, 2\nWhat is the 2nd number?",answer:"-3",alt:["−3"],formula:"Sorted: −5, −3, 1, 2",example:"Order: −4, 0, −2, 3 → −4,−2,0,3"},
+        24:{title:"Evaluating Algebraic Expressions",grade:"Grade 6",topic:"Algebra Basics",desc:"Substitute the given value for the variable and simplify.",problem:"Evaluate 3x + 2 when x = 4",answer:"14",alt:[],formula:"Substitute x=4:\n3(4) + 2 = 12 + 2",example:"2y − 1 when y=5: 2(5)−1 = 9"},
+        25:{title:"Writing Algebraic Expressions",grade:"Grade 6",topic:"Algebra Basics",desc:"Translate words into math. 'more than' = +, 'times' = ×, 'less than' = −.",problem:"Write an expression for:\n'5 more than twice a number n'",answer:"2n+5",alt:["5+2n","2*n+5","2n + 5"],formula:"twice n = 2n\n5 more than = + 5",example:"'3 less than 4 times n' = 4n−3"},
+        26:{title:"One-Step Equations — Addition",grade:"Grade 6",topic:"Equations",desc:"Isolate x by doing the opposite operation on both sides.",problem:"Solve for x:\nx + 7 = 15",answer:"8",alt:["x=8"],formula:"Subtract 7 from both sides:\nx = 15 − 7",example:"x + 4 = 11 → x = 7"},
+        27:{title:"One-Step Equations — Multiplication",grade:"Grade 6",topic:"Equations",desc:"Divide both sides by the coefficient.",problem:"Solve for x:\n4x = 28",answer:"7",alt:["x=7"],formula:"Divide both sides by 4:\nx = 28 ÷ 4",example:"6x = 42 → x = 7"},
+        28:{title:"One-Step Equations — Division",grade:"Grade 6",topic:"Equations",desc:"Multiply both sides to eliminate the fraction.",problem:"Solve for x:\nx / 6 = 9",answer:"54",alt:["x=54"],formula:"Multiply both sides by 6:\nx = 9 × 6",example:"x/4 = 7 → x = 28"},
+        29:{title:"One-Step Inequalities",grade:"Grade 6",topic:"Inequalities",desc:"Solve like an equation. If you multiply/divide by a negative, flip the inequality sign.",problem:"Solve: x − 3 > 5\nWhat is the smallest integer x can be?",answer:"9",alt:[],formula:"x > 5 + 3 → x > 8\nSmallest integer greater than 8 = 9",example:"x − 2 > 7 → x > 9 → smallest int = 10"},
+        30:{title:"Area of a Rectangle",grade:"Grade 6",topic:"Geometry",desc:"Area = length × width",problem:"A rectangle has length = 8 and width = 5.\nFind its area.",answer:"40",alt:[],formula:"A = l × w",example:"l=6, w=4 → A = 24"},
+        31:{title:"Area of a Triangle",grade:"Grade 6",topic:"Geometry",desc:"Area = ½ × base × height. The height must be perpendicular to the base.",problem:"A triangle has base = 10 and height = 6.\nFind its area.",answer:"30",alt:[],formula:"A = ½ × b × h",example:"b=8, h=5 → A = ½×8×5 = 20"},
+        32:{title:"Area of a Parallelogram",grade:"Grade 6",topic:"Geometry",desc:"Area = base × height (perpendicular height).",problem:"A parallelogram has base = 9 and height = 4.\nFind its area.",answer:"36",alt:[],formula:"A = b × h",example:"b=7, h=3 → A = 21"},
+        33:{title:"Volume of a Rectangular Prism",grade:"Grade 6",topic:"Geometry",desc:"Volume = length × width × height",problem:"A box has dimensions 5 × 4 × 3.\nFind its volume.",answer:"60",alt:[],formula:"V = l × w × h",example:"2×3×6 = 36"},
+        34:{title:"Integer Addition & Subtraction",grade:"Grade 7",topic:"Integers",desc:"Subtracting a negative is the same as adding a positive.",problem:"(−12) + 15 = ?",answer:"3",alt:[],formula:"Different signs: subtract, keep sign of larger\n|15|−|−12| = 3, positive wins",example:"(−8) + 11 = 3"},
+        35:{title:"Subtracting Negative Numbers",grade:"Grade 7",topic:"Integers",desc:"a − (−b) = a + b",problem:"(−8) − (−3) = ?",answer:"-5",alt:["−5"],formula:"−8 − (−3) = −8 + 3 = −5",example:"5 − (−4) = 5 + 4 = 9"},
+        36:{title:"Multiplying Integers",grade:"Grade 7",topic:"Integers",desc:"Same signs → positive. Different signs → negative.",problem:"(−6) × (−7) = ?",answer:"42",alt:[],formula:"(−) × (−) = (+)\n6 × 7 = 42",example:"(−3) × (−9) = 27"},
+        37:{title:"Dividing Integers",grade:"Grade 7",topic:"Integers",desc:"Same sign rule applies to division.",problem:"(−45) ÷ 9 = ?",answer:"-5",alt:["−5"],formula:"(−) ÷ (+) = (−)",example:"(−36) ÷ 6 = −6"},
+        38:{title:"Adding Rational Numbers",grade:"Grade 7",topic:"Rational Numbers",desc:"Find common denominator, then add.",problem:"−1/2 + 3/4 = ?",answer:"1/4",alt:["0.25"],formula:"LCD=4: −2/4 + 3/4 = 1/4",example:"−1/3 + 5/6: LCD=6 → −2/6+5/6 = 3/6 = 1/2"},
+        39:{title:"Subtracting Rational Numbers",grade:"Grade 7",topic:"Rational Numbers",desc:"Change to adding the opposite, then find common denominator.",problem:"2/3 − (−1/6) = ?",answer:"5/6",alt:[],formula:"2/3 + 1/6: LCD=6 → 4/6 + 1/6 = 5/6",example:"1/2 − (−1/4) = 1/2 + 1/4 = 3/4"},
+        40:{title:"Multiplying Rational Numbers",grade:"Grade 7",topic:"Rational Numbers",desc:"Multiply numerators and denominators; watch the sign.",problem:"(−3/5) × (2/3) = ?",answer:"-2/5",alt:["-0.4","−2/5"],formula:"(−3×2)/(5×3) = −6/15 = −2/5",example:"(−2/3)×(3/4) = −6/12 = −1/2"},
+        41:{title:"Constant of Proportionality",grade:"Grade 7",topic:"Proportional Relationships",desc:"In y = kx, k is the constant of proportionality (unit rate).",problem:"The point (2, 6) satisfies y = kx.\nFind k.",answer:"3",alt:[],formula:"k = y/x = 6/2",example:"(4,10) on y=kx → k = 10/4 = 2.5"},
+        42:{title:"Proportional Relationships",grade:"Grade 7",topic:"Proportional Relationships",desc:"If ratios are equal, quantities are proportional.",problem:"If 4 pencils cost $2.00,\nhow much do 10 pencils cost?",answer:"5",alt:["$5","5.00","$5.00"],formula:"Rate: $2÷4 = $0.50 each\n10 × $0.50 = $5",example:"6 apples for $3 → 15 apples = $7.50"},
+        43:{title:"Percent Increase",grade:"Grade 7",topic:"Percents",desc:"% increase = (increase ÷ original) × 100",problem:"A price rose from $50 to $65.\nWhat is the percent increase?",answer:"30",alt:["30%"],formula:"(65−50)/50 × 100 = 15/50 × 100",example:"40→50: (10/40)×100 = 25%"},
+        44:{title:"Percent Decrease",grade:"Grade 7",topic:"Percents",desc:"% decrease = (decrease ÷ original) × 100",problem:"A price dropped from $80 to $60.\nWhat is the percent decrease?",answer:"25",alt:["25%"],formula:"(80−60)/80 × 100 = 20/80 × 100",example:"100→75: (25/100)×100 = 25%"},
+        45:{title:"Discount",grade:"Grade 7",topic:"Percents",desc:"Sale price = original − (% × original)",problem:"A $45 item is 20% off.\nWhat is the final price?",answer:"36",alt:["$36","36.00"],formula:"discount = 0.20 × 45 = 9\nprice = 45 − 9",example:"$60, 15% off: 60 − 9 = $51"},
+        46:{title:"Sales Tax",grade:"Grade 7",topic:"Percents",desc:"Final price = original × (1 + tax rate)",problem:"A $60 item has 8% tax added.\nWhat is the final price?",answer:"64.8",alt:["64.80","$64.80","$64.8"],formula:"60 × 1.08 = 64.80",example:"$40 + 5% tax = 40 × 1.05 = $42"},
+        47:{title:"Simple Interest",grade:"Grade 7",topic:"Percents",desc:"I = P × r × t",problem:"P = $1000, r = 5% per year, t = 3 years.\nFind the simple interest.",answer:"150",alt:["$150","150.00"],formula:"I = 1000 × 0.05 × 3",example:"P=500, r=4%, t=2 → I=40"},
+        48:{title:"Simplifying Expressions",grade:"Grade 7",topic:"Algebra",desc:"Combine like terms (same variable and exponent).",problem:"Simplify:\n3x + 2y − x + 4y",answer:"2x+6y",alt:["2x + 6y","6y+2x"],formula:"Group: (3x−x) + (2y+4y)",example:"5a + 3b − 2a + b = 3a + 4b"},
+        49:{title:"Distributive Property",grade:"Grade 7",topic:"Algebra",desc:"a(b + c) = ab + ac",problem:"Expand:\n4(x + 3)",answer:"4x+12",alt:["4x + 12"],formula:"4×x + 4×3",example:"3(2x−5) = 6x − 15"},
+        50:{title:"Combining Like Terms (Polynomials)",grade:"Grade 7",topic:"Algebra",desc:"Only combine terms with the same variable AND exponent.",problem:"Simplify:\n5x² + 3x − 2x² + x",answer:"3x²+4x",alt:["3x^2+4x","3x² + 4x"],formula:"(5x²−2x²) + (3x+x)",example:"4y²−y²+2y = 3y²+2y"},
+        51:{title:"Two-Step Equations",grade:"Grade 7",topic:"Equations",desc:"Undo addition/subtraction first, then multiplication/division.",problem:"Solve:\n2x + 5 = 13",answer:"4",alt:["x=4"],formula:"Step 1: 2x = 13−5 = 8\nStep 2: x = 8÷2",example:"3x + 2 = 11 → 3x=9 → x=3"},
+        52:{title:"Two-Step Equations II",grade:"Grade 7",topic:"Equations",desc:"Isolate the variable in two steps.",problem:"Solve:\n3x − 4 = 11",answer:"5",alt:["x=5"],formula:"3x = 11+4 = 15 → x = 5",example:"4x−3=9 → 4x=12 → x=3"},
+        53:{title:"Equations with Fractions",grade:"Grade 7",topic:"Equations",desc:"Multiply both sides by the denominator to clear the fraction.",problem:"Solve:\nx/3 + 2 = 5",answer:"9",alt:["x=9"],formula:"x/3 = 3 → x = 3×3",example:"x/4 + 1 = 5 → x/4=4 → x=16"},
+        54:{title:"Two-Step Inequalities",grade:"Grade 7",topic:"Inequalities",desc:"Solve like a two-step equation; flip sign if dividing by negative.",problem:"Solve: 2x + 3 < 11\nWhat is the maximum integer x can be?",answer:"3",alt:[],formula:"2x < 8 → x < 4\nMax integer less than 4 = 3",example:"3x+1<10 → x<3 → max int = 2"},
+        55:{title:"Supplementary Angles",grade:"Grade 7",topic:"Geometry",desc:"Supplementary angles add up to 180°.",problem:"Two angles are supplementary.\nOne measures 65°. Find the other.",answer:"115",alt:["115°"],formula:"180° − 65° = 115°",example:"One angle 72° → other = 108°"},
+        56:{title:"Triangle Angle Sum",grade:"Grade 7",topic:"Geometry",desc:"The three interior angles of a triangle always sum to 180°.",problem:"Two angles of a triangle are 45° and 70°.\nFind the third angle.",answer:"65",alt:["65°"],formula:"180° − 45° − 70°",example:"60°+80°+?=180° → ?=40°"},
+        57:{title:"Area of a Circle",grade:"Grade 7",topic:"Geometry",desc:"A = πr². Use π ≈ 3.14.",problem:"Find the area of a circle with radius = 5.\n(Use π ≈ 3.14)",answer:"78.5",alt:["78.50"],formula:"A = 3.14 × 5² = 3.14 × 25",example:"r=3: A = 3.14×9 = 28.26"},
+        58:{title:"Circumference of a Circle",grade:"Grade 7",topic:"Geometry",desc:"C = πd = 2πr. Use π ≈ 3.14.",problem:"Find the circumference of a circle with diameter = 10.\n(Use π ≈ 3.14)",answer:"31.4",alt:[],formula:"C = π × d = 3.14 × 10",example:"d=6: C = 3.14×6 = 18.84"},
+        59:{title:"Scale Drawings",grade:"Grade 7",topic:"Geometry",desc:"Scale ratio → actual = measured × scale factor.",problem:"Scale: 1 cm = 50 m.\nA road is 4 cm on the map.\nHow long is it in meters?",answer:"200",alt:["200m","200 m"],formula:"actual = 4 × 50",example:"Scale 1:100, drawing 3cm → actual 300cm"},
+        60:{title:"Volume of Triangular Prism",grade:"Grade 7",topic:"Geometry",desc:"V = (½ × b × h) × length",problem:"Triangular prism: base=6, height=4, length=10.\nFind its volume.",answer:"120",alt:[],formula:"V = ½×6×4 × 10 = 12×10",example:"b=3,h=4,l=5: V=½×3×4×5=30"},
+        61:{title:"Surface Area of Rectangular Prism",grade:"Grade 7",topic:"Geometry",desc:"SA = 2(lw + lh + wh)",problem:"A box has dimensions 4 × 3 × 2.\nFind its surface area.",answer:"52",alt:[],formula:"2(4×3 + 4×2 + 3×2) = 2(12+8+6)",example:"2×3×5: 2(6+10+15) = 62"},
+        62:{title:"Simple Probability",grade:"Grade 7",topic:"Probability",desc:"P(event) = favorable outcomes / total outcomes",problem:"What is P(rolling a 4) on a fair 6-sided die?\n(Write as a fraction)",answer:"1/6",alt:[],formula:"1 favorable out of 6 total",example:"P(rolling even) = 3/6 = 1/2"},
+        63:{title:"Compound Probability — Independent",grade:"Grade 7",topic:"Probability",desc:"P(A and B) = P(A) × P(B) for independent events.",problem:"A coin is flipped twice.\nP(heads AND heads) = ?\n(Write as a fraction)",answer:"1/4",alt:[],formula:"P(H)×P(H) = 1/2 × 1/2",example:"P(H,H,H) = 1/2³ = 1/8"},
+        64:{title:"Mean (Average)",grade:"Grade 7",topic:"Statistics",desc:"Mean = sum of values ÷ count",problem:"Find the mean of:\n3, 7, 5, 9, 6",answer:"6",alt:[],formula:"(3+7+5+9+6) ÷ 5 = 30 ÷ 5",example:"Mean of 4,8,2 = 14÷3 ≈ 4.67"},
+        65:{title:"Median",grade:"Grade 7",topic:"Statistics",desc:"Sort the data; median is the middle value.",problem:"Find the median of:\n2, 8, 5, 3, 8, 1, 4",answer:"4",alt:[],formula:"Sorted: 1,2,3,4,5,8,8\nMiddle (4th) = 4",example:"1,3,5,7,9 → median = 5"},
+        66:{title:"Range",grade:"Grade 7",topic:"Statistics",desc:"Range = maximum − minimum",problem:"Find the range of:\n12, 7, 3, 18, 5",answer:"15",alt:[],formula:"18 − 3 = 15",example:"4,9,2,15,6 → 15−2=13"},
+        67:{title:"Exponents — Basic",grade:"Grade 8",topic:"Exponents",desc:"aⁿ means a multiplied by itself n times.",problem:"What is 2⁸?",answer:"256",alt:[],formula:"2⁸ = 2×2×2×2×2×2×2×2",example:"3⁴ = 81"},
+        68:{title:"Product Rule of Exponents",grade:"Grade 8",topic:"Exponents",desc:"aᵐ × aⁿ = aᵐ⁺ⁿ",problem:"Simplify: x³ × x⁵\n(write as x^n)",answer:"x^8",alt:["x8"],formula:"x^(3+5) = x^8",example:"y²×y⁶ = y⁸"},
+        69:{title:"Quotient Rule of Exponents",grade:"Grade 8",topic:"Exponents",desc:"aᵐ ÷ aⁿ = aᵐ⁻ⁿ",problem:"Simplify: y⁷ ÷ y³\n(write as y^n)",answer:"y^4",alt:["y4"],formula:"y^(7−3) = y^4",example:"x⁵÷x² = x³"},
+        70:{title:"Power Rule of Exponents",grade:"Grade 8",topic:"Exponents",desc:"(aᵐ)ⁿ = aᵐˣⁿ",problem:"Simplify: (x³)⁴\n(write as x^n)",answer:"x^12",alt:["x12"],formula:"x^(3×4) = x^12",example:"(y²)⁵ = y¹⁰"},
+        71:{title:"Zero Exponent",grade:"Grade 8",topic:"Exponents",desc:"Any non-zero number raised to the power 0 equals 1.",problem:"What is 5⁰?",answer:"1",alt:[],formula:"a⁰ = 1  (a ≠ 0)",example:"100⁰ = 1, (−3)⁰ = 1"},
+        72:{title:"Negative Exponents",grade:"Grade 8",topic:"Exponents",desc:"a⁻ⁿ = 1/aⁿ",problem:"Write 2⁻³ as a fraction.",answer:"1/8",alt:[],formula:"2⁻³ = 1/2³ = 1/8",example:"3⁻² = 1/9"},
+        73:{title:"Scientific Notation",grade:"Grade 8",topic:"Scientific Notation",desc:"a × 10ⁿ where 1 ≤ a < 10",problem:"Write 45,000 in scientific notation.\n(write as: 4.5×10^4)",answer:"4.5×10^4",alt:["4.5 × 10^4","4.5x10^4","4.5e4","4.5×10⁴"],formula:"45000 = 4.5 × 10⁴\nMove decimal 4 places left",example:"320,000 = 3.2 × 10⁵"},
+        74:{title:"Scientific Notation Multiplication",grade:"Grade 8",topic:"Scientific Notation",desc:"Multiply the coefficients, add the exponents.",problem:"(3 × 10⁴) × (2 × 10³) = ?\n(write as: 6×10^7)",answer:"6×10^7",alt:["6 × 10^7","6e7"],formula:"(3×2) × 10^(4+3) = 6 × 10⁷",example:"(4×10²)×(2×10³) = 8×10⁵"},
+        75:{title:"Square Roots",grade:"Grade 8",topic:"Roots",desc:"√n = the number that multiplied by itself gives n.",problem:"√144 = ?",answer:"12",alt:[],formula:"12 × 12 = 144",example:"√81 = 9, √25 = 5"},
+        76:{title:"Cube Roots",grade:"Grade 8",topic:"Roots",desc:"∛n = the number that cubed gives n.",problem:"∛27 = ?",answer:"3",alt:[],formula:"3³ = 27",example:"∛64 = 4, ∛125 = 5"},
+        77:{title:"Pythagorean Theorem",grade:"Grade 8",topic:"Pythagorean Theorem",desc:"In a right triangle: a² + b² = c²",problem:"A right triangle has legs = 3 and 4.\nFind the hypotenuse.",answer:"5",alt:[],formula:"c² = 3² + 4² = 9 + 16 = 25\nc = √25",example:"legs 5,12 → 5²+12²=169 → c=13"},
+        78:{title:"Pythagorean Theorem — Find a Leg",grade:"Grade 8",topic:"Pythagorean Theorem",desc:"Rearrange a² + b² = c² to find a missing leg.",problem:"Hypotenuse = 13, one leg = 5.\nFind the other leg.",answer:"12",alt:[],formula:"b² = 13² − 5² = 169 − 25 = 144\nb = √144",example:"c=10, a=6: b²=100−36=64 → b=8"},
+        79:{title:"Distance Formula",grade:"Grade 8",topic:"Coordinate Geometry",desc:"d = √[(x₂−x₁)² + (y₂−y₁)²]",problem:"Find the distance between\nA(1, 2) and B(4, 6).",answer:"5",alt:[],formula:"d = √[(4−1)²+(6−2)²] = √[9+16]",example:"A(0,0) B(3,4): d=√25=5"},
+        80:{title:"Slope",grade:"Grade 8",topic:"Linear Functions",desc:"slope = rise/run = (y₂−y₁)/(x₂−x₁)",problem:"Find the slope of the line through\n(2, 3) and (6, 7).",answer:"1",alt:[],formula:"m = (7−3)/(6−2) = 4/4",example:"(1,2) and (3,6): m=(6−2)/(3−1)=2"},
+        81:{title:"Slope-Intercept Form",grade:"Grade 8",topic:"Linear Functions",desc:"y = mx + b, where m=slope and b=y-intercept.",problem:"Write the equation of a line with\nslope = 3 and y-intercept = −2.",answer:"y=3x-2",alt:["y = 3x - 2","y=3x+(-2)"],formula:"y = mx + b → y = 3x + (−2)",example:"m=2, b=5 → y=2x+5"},
+        82:{title:"Finding Slope from an Equation",grade:"Grade 8",topic:"Linear Functions",desc:"In y = mx + b, the coefficient of x is the slope.",problem:"What is the slope of:\ny = −2x + 5?",answer:"-2",alt:["−2"],formula:"y = mx + b → m = −2",example:"y=4x−7 → slope=4"},
+        83:{title:"Y-intercept",grade:"Grade 8",topic:"Linear Functions",desc:"The y-intercept is where the line crosses the y-axis (x=0).",problem:"What is the y-intercept of:\ny = 2x + 1?",answer:"1",alt:[],formula:"Set x=0: y = 2(0) + 1 = 1",example:"y=5x−3 → y-intercept = −3"},
+        84:{title:"Equation from Two Points",grade:"Grade 8",topic:"Linear Functions",desc:"Find slope, then use one point to find b.",problem:"Find the equation through\n(0, 4) and (2, 8).\n(write as y=mx+b)",answer:"y=2x+4",alt:["y = 2x + 4"],formula:"m=(8−4)/(2−0)=2; b=4 (at x=0)",example:"(0,1)(3,7): m=2, b=1 → y=2x+1"},
+        85:{title:"Systems of Equations — Substitution",grade:"Grade 8",topic:"Systems",desc:"Substitute one equation into the other to solve.",problem:"Solve the system:\ny = x + 2\ny = 2x − 1\nFind x.",answer:"3",alt:["x=3"],formula:"x+2 = 2x−1 → 3 = x",example:"y=x+1, y=3x−1: x+1=3x−1→x=1"},
+        86:{title:"Systems of Equations — Elimination",grade:"Grade 8",topic:"Systems",desc:"Add or subtract equations to eliminate one variable.",problem:"Solve:\n2x + y = 7\n  x + y = 4\nFind x.",answer:"3",alt:["x=3"],formula:"Subtract bottom from top:\n(2x−x)+(y−y)=7−4 → x=3",example:"x+y=5, 2x+y=8: subtract → x=3"},
+        87:{title:"Functions — Definition",grade:"Grade 8",topic:"Functions",desc:"A function has exactly one output (y) for each input (x).",problem:"Is this a function?\n{(1,2), (2,3), (1,4)}\nAnswer yes or no.",answer:"no",alt:["no."],formula:"x=1 maps to BOTH y=2 and y=4 → NOT a function",example:"{(1,3),(2,4),(3,5)} → yes (each x has one y)"},
+        88:{title:"Evaluating Functions",grade:"Grade 8",topic:"Functions",desc:"Substitute the input value into the function.",problem:"For f(x) = 2x − 3,\nfind f(5).",answer:"7",alt:[],formula:"f(5) = 2(5) − 3 = 10 − 3",example:"f(x)=x²+1, f(3)=9+1=10"},
+        89:{title:"Applying Functions",grade:"Grade 8",topic:"Functions",desc:"Evaluate at multiple inputs and combine.",problem:"f(x) = x²\nFind f(−2) + f(3).",answer:"13",alt:[],formula:"f(−2)=(−2)²=4; f(3)=3²=9\n4+9=13",example:"g(x)=2x, g(1)+g(4)=2+8=10"},
+        90:{title:"Rate of Change",grade:"Grade 8",topic:"Functions",desc:"Rate of change = slope = Δy/Δx",problem:"A line passes through (0, 5) and (4, 13).\nFind the rate of change.",answer:"2",alt:[],formula:"(13−5)/(4−0) = 8/4",example:"(0,3)(5,8): (8−3)/5 = 1"},
+        91:{title:"Finding Y-intercept from a Point",grade:"Grade 8",topic:"Linear Functions",desc:"Use y = mx + b; plug in point to solve for b.",problem:"A line has slope 2 and passes through (1, 3).\nFind the y-intercept (b).",answer:"1",alt:[],formula:"3 = 2(1) + b → b = 3−2",example:"m=3, through (2,7): 7=6+b → b=1"},
+        92:{title:"Reflections",grade:"Grade 8",topic:"Transformations",desc:"Reflecting over x-axis: (x,y)→(x,−y). Over y-axis: (x,y)→(−x,y).",problem:"Reflect point (3, −2) over the x-axis.\nWrite coordinates as: x,y",answer:"3,2",alt:["(3,2)","3, 2"],formula:"Over x-axis: flip y-sign\n(3,−2) → (3,2)",example:"(−4,5) over x-axis → (−4,−5)"},
+        93:{title:"Translations",grade:"Grade 8",topic:"Transformations",desc:"Translation (right +x, left −x, up +y, down −y).",problem:"Translate point (2, 5) right 4 and down 3.\nWrite coordinates as: x,y",answer:"6,2",alt:["(6,2)","6, 2"],formula:"x: 2+4=6  y: 5−3=2",example:"(1,4) right 3 up 2 → (4,6)"},
+        94:{title:"Rotations",grade:"Grade 8",topic:"Transformations",desc:"90° CCW rotation: (x,y) → (−y, x)",problem:"Rotate (4, 0) by 90° counterclockwise\nabout the origin.\nWrite as: x,y",answer:"0,4",alt:["(0,4)","0, 4"],formula:"(x,y) → (−y, x)\n(4,0) → (0,4)",example:"(3,2) 90°CCW → (−2,3)"},
+        95:{title:"Dilations",grade:"Grade 8",topic:"Transformations",desc:"Dilation by factor k: multiply both coordinates by k.",problem:"Dilate point (6, 4) by scale factor 1/2.\nWrite as: x,y",answer:"3,2",alt:["(3,2)","3, 2"],formula:"(6×½, 4×½) = (3,2)",example:"(8,4) by ½ → (4,2)"},
+        96:{title:"Volume of a Cone",grade:"Grade 8",topic:"Volume",desc:"V = (1/3)πr²h. Use π ≈ 3.14.",problem:"Cone: radius = 3, height = 12.\nFind the volume. (Use π ≈ 3.14)",answer:"113.04",alt:[],formula:"V = (1/3) × 3.14 × 3² × 12\n= (1/3) × 3.14 × 9 × 12",example:"r=2,h=6: V=(1/3)×3.14×4×6=25.12"},
+        97:{title:"Volume of a Cylinder",grade:"Grade 8",topic:"Volume",desc:"V = πr²h. Use π ≈ 3.14.",problem:"Cylinder: radius = 5, height = 8.\nFind the volume. (Use π ≈ 3.14)",answer:"628",alt:[],formula:"V = 3.14 × 5² × 8 = 3.14 × 25 × 8",example:"r=3,h=7: V=3.14×9×7=197.82"},
+        98:{title:"Volume of a Sphere",grade:"Grade 8",topic:"Volume",desc:"V = (4/3)πr³. Use π ≈ 3.14.",problem:"Sphere: radius = 3.\nFind the volume. (Use π ≈ 3.14)",answer:"113.04",alt:[],formula:"V = (4/3)×3.14×3³ = (4/3)×3.14×27",example:"r=1: V=(4/3)×3.14≈4.19"},
+        99:{title:"Scatter Plot Correlation",grade:"Grade 8",topic:"Statistics",desc:"Positive: both increase together. Negative: one increases, other decreases.",problem:"As study time increases, test scores increase.\nIs the correlation positive or negative?\n(write: positive  or  negative)",answer:"positive",alt:[],formula:"Both variables move in same direction → positive correlation",example:"Height & weight tend positive. Age & reaction time negative."},
+        100:{title:"★ FINAL BOSS — Multi-Step Master",grade:"Grade 8",topic:"All Topics",desc:"Combine Pythagorean theorem with area to solve a real-world problem.",problem:"A right triangle has legs a = 6 and b = 8.\nA square is built on the hypotenuse.\nWhat is the AREA of that square?",answer:"100",alt:[],formula:"c² = 6² + 8² = 36 + 64 = 100\nArea of square = c² = 100",example:"legs 3,4: c²=25 → square area=25"},
+    };
+    return list[n] || {title:`Room ${n}`,grade:"Grade 8",topic:"Review",desc:"Challenge room.",problem:`Solve: What is ${n} × ${n}?`,answer:String(n*n),alt:[],formula:"n²",example:""};
+}
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let currentRoom = 1, completedRooms = new Set();
+let isCockpitOpen = false, isConceptOpen = false;
+let scene, camera, renderer, controls, roomMeshGroup, isDoorOpen = false;
+let moveF=false,moveB=false,moveL=false,moveR=false,isSprint=false;
+let doorMesh=null, doorGlow=null;
+let geminiApiKey = localStorage.getItem('gemini_api_key') || '';
+if (geminiApiKey) {
+    document.addEventListener('DOMContentLoaded', () => {
+        const el = document.getElementById('gemini-api-key');
+        if(el){el.value='●'.repeat(20);el.placeholder='API key saved ✓';}
+        const bar = document.getElementById('api-key-bar');
+        if(bar) bar.style.borderBottom='1px solid #0e639c';
+    });
+}
+
+// ─── ANSWER CHECKING ─────────────────────────────────────────────────────────
+function normalize(s) {
+    return s.toString().trim().toLowerCase()
+        .replace(/\s+/g,'').replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-');
+}
+function checkAnswer(userInput, mission) {
+    const u = normalize(userInput);
+    const allAnswers = [mission.answer, ...(mission.alt||[])].map(normalize);
+    if (allAnswers.includes(u)) return true;
+    const uNum = parseFloat(u.replace(/[^\d.\-]/g,''));
+    if (!isNaN(uNum)) {
+        for (const a of allAnswers) {
+            const fracM = a.match(/^(-?\d+)\/(\d+)$/);
+            if (fracM) {
+                if (Math.abs(uNum - parseInt(fracM[1])/parseInt(fracM[2])) < 0.01) return true;
+            }
+            const aNum = parseFloat(a.replace(/[^\d.\-]/g,''));
+            if (!isNaN(aNum) && Math.abs(uNum - aNum) < 0.01) return true;
+        }
+    }
+    return false;
+}
+
+// ─── UI HELPERS ──────────────────────────────────────────────────────────────
+function updateHUD(room) {
+    document.getElementById('room-badge').textContent = String(room).padStart(3,'0');
+    const m = getMission(room);
+    document.getElementById('grade-badge').textContent = m.grade;
+    const pct = Math.round(completedRooms.size);
+    document.getElementById('hud-clear').textContent = pct + '% CLEAR';
+}
+function loadMissionUI(room) {
+    const m = getMission(room);
+    document.getElementById('cockpit-title').textContent = `📐 Room ${String(room).padStart(3,'0')} — ${m.title}`;
+    document.getElementById('topic-title').textContent = `${m.topic} — ${m.title}`;
+    document.getElementById('topic-desc').textContent = m.desc;
+    document.getElementById('problem-text').textContent = m.problem;
+    document.getElementById('feedback-console').textContent = '> Enter your answer above and press Submit.';
+    document.getElementById('answer-input').value = '';
+    document.getElementById('scratch-pad').value = '';
+}
+function appendMsg(text, isUser=false) {
+    const log = document.getElementById('gemini-chat');
+    const div = document.createElement('div');
+    div.className = `chat-msg ${isUser?'msg-user':'msg-ai'}`;
+    div.textContent = text;
+    log.appendChild(div);
+    log.scrollTop = log.scrollHeight;
+}
+
+// ─── COCKPIT ─────────────────────────────────────────────────────────────────
+function openCockpit() {
+    if (controls.isLocked) controls.unlock();
+    isCockpitOpen = true;
+    loadMissionUI(currentRoom);
+    document.getElementById('cockpit-modal').style.display = 'flex';
+    setTimeout(() => document.getElementById('answer-input').focus(), 100);
+}
+function closeCockpit() {
+    document.getElementById('cockpit-modal').style.display = 'none';
+    isCockpitOpen = false;
+    if (!isConceptOpen) controls.lock();
+}
+
+// ─── FORMULA SHEET (Q key) ───────────────────────────────────────────────────
+function openConceptPanel() {
+    const m = getMission(currentRoom);
+    document.getElementById('concept-title').textContent = `📋 ${m.topic} — Formula Sheet`;
+    document.getElementById('concept-body').innerHTML = `
+        <h3>${m.title}</h3>
+        <p style="color:#858585;margin-bottom:10px">${m.desc}</p>
+        <div class="formula">${m.formula.replace(/\n/g,'<br>')}</div>
+        ${m.example ? `<div class="example"><div class="ex-label">EXAMPLE</div>${m.example.replace(/\n/g,'<br>')}</div>` : ''}
+    `;
+    document.getElementById('concept-panel').style.display = 'flex';
+    isConceptOpen = true;
+    if (controls.isLocked) controls.unlock();
+}
+function closeConceptPanel() {
+    document.getElementById('concept-panel').style.display = 'none';
+    isConceptOpen = false;
+    if (!isCockpitOpen) controls.lock();
+}
+function toggleConceptPanel() {
+    isConceptOpen ? closeConceptPanel() : openConceptPanel();
+}
+
+// ─── HINT ─────────────────────────────────────────────────────────────────────
+function showHint() {
+    const m = getMission(currentRoom);
+    document.getElementById('feedback-console').textContent =
+        `💡 Hint:\n${m.formula}\n\nExample: ${m.example}`;
+}
+
+// ─── VERIFY ANSWER ───────────────────────────────────────────────────────────
+function verifyAnswer() {
+    const userInput = document.getElementById('answer-input').value.trim();
+    if (!userInput) return;
+    const m = getMission(currentRoom);
+    const con = document.getElementById('feedback-console');
+    if (checkAnswer(userInput, m)) {
+        con.textContent = `✅ CORRECT! "${userInput}" is right!\nDoor opening...`;
+        completedRooms.add(currentRoom);
+        document.getElementById('hud-clear').textContent = Math.round(completedRooms.size) + '% CLEAR';
+        appendMsg(`✅ Room ${currentRoom} solved! Great work!`);
+        setTimeout(() => { closeCockpit(); openDoorMotion(); }, 700);
+    } else {
+        con.textContent = `❌ Not quite. You wrote: "${userInput}"\nCheck your work and try again!\n💡 Press the Hint button for a formula reminder.`;
+        appendMsg(`Hmm, "${userInput}" isn't quite right for Room ${currentRoom}. Want a hint?`);
+    }
+}
+
+// ─── ROOM JUMP ───────────────────────────────────────────────────────────────
+function jumpToRoom() {
+    const n = parseInt(document.getElementById('room-input').value);
+    if (n >= 1 && n <= 100) {
+        currentRoom = n;
+        updateHUD(n);
+        buildRoom();
+        if (isCockpitOpen) closeCockpit();
+        closeConceptPanel();
+        document.getElementById('room-input').value = '';
+        if (!isCockpitOpen) controls.lock();
+    }
+}
+
+// ─── GEMINI API ───────────────────────────────────────────────────────────────
+function saveApiKey() {
+    const el = document.getElementById('gemini-api-key');
+    const raw = el.value.trim();
+    if (!raw || raw === '●'.repeat(20)) { appendMsg('[System] Please enter your API key.'); return; }
+    geminiApiKey = raw;
+    localStorage.setItem('gemini_api_key', geminiApiKey);
+    el.value = '●'.repeat(20); el.placeholder = 'API key saved ✓';
+    document.getElementById('api-key-bar').style.borderBottom = '1px solid #0e639c';
+    appendMsg('[System] Gemini API key saved! Ask me anything about math 🎓');
+}
+async function sendAiChat() {
+    const input = document.getElementById('gemini-input');
+    const q = input.value.trim();
+    if (!q) return;
+    input.value = '';
+    appendMsg(q, true);
+    const m = getMission(currentRoom);
+    if (!geminiApiKey) {
+        setTimeout(() => {
+            const lq = q.toLowerCase();
+            let reply = "Try working through the problem step by step! Use the Hint button for formulas.";
+            if (lq.includes('hint') || lq.includes("don't know") || lq.includes("help")) {
+                reply = `Hint for Room ${currentRoom}:\n${m.formula}\n\nExample: ${m.example}`;
+            } else if (lq.includes('what') || lq.includes('problem') || lq.includes('mission')) {
+                reply = `Room ${currentRoom}: ${m.title}\n${m.desc}`;
+            } else if (lq.includes('api') || lq.includes('key') || lq.includes('gemini')) {
+                reply = "Add your free Gemini API key above for real AI tutoring! Get one at aistudio.google.com";
+            }
+            appendMsg(reply);
+        }, 300);
+        return;
+    }
+    const systemCtx = `You are a middle school math tutor. The student is playing a math game.
+Current room: Room ${currentRoom} — ${m.title}
+Topic: ${m.topic} (${m.grade})
+Problem: ${m.problem}
+Key formula: ${m.formula}
+Give a helpful hint in English. Do NOT give the direct answer "${m.answer}". Keep response under 80 words.`;
+    const thinkingEl = document.createElement('div');
+    thinkingEl.className = 'chat-msg msg-ai';
+    thinkingEl.textContent = '...';
+    document.getElementById('gemini-chat').appendChild(thinkingEl);
+    document.getElementById('gemini-chat').scrollTop = 999999;
+    try {
+        const res = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`,
+            { method:'POST', headers:{'Content-Type':'application/json'},
+              body: JSON.stringify({ contents:[{parts:[{text:systemCtx+'\n\nStudent: '+q}]}], generationConfig:{maxOutputTokens:200,temperature:0.7} }) }
+        );
+        const data = await res.json();
+        if (data.error) { thinkingEl.textContent = '[Error] ' + (data.error.message||'API error'); }
+        else { thinkingEl.textContent = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response.'; }
+    } catch(err) { thinkingEl.textContent = '[Network error] ' + err.message; }
+    document.getElementById('gemini-chat').scrollTop = 999999;
+}
+
+// ─── 3D SCENE ─────────────────────────────────────────────────────────────────
+function initThree() {
+    const canvas = document.getElementById('c');
+    renderer = new THREE.WebGLRenderer({canvas, antialias:true});
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.shadowMap.enabled = true;
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x030712);
+    scene.fog = new THREE.Fog(0x030712, 14, 42);
+    camera = new THREE.PerspectiveCamera(70, window.innerWidth/window.innerHeight, 0.1, 100);
+    camera.position.set(0, 1.7, 9);
+    controls = new THREE.PointerLockControls(camera, renderer.domElement);
+    scene.add(new THREE.AmbientLight(0x111122, 0.5));
+    window.addEventListener('resize', () => {
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        camera.aspect = window.innerWidth/window.innerHeight;
+        camera.updateProjectionMatrix();
+    });
+}
+
+function buildRoom() {
+    if (roomMeshGroup) scene.remove(roomMeshGroup);
+    roomMeshGroup = new THREE.Group();
+    const W=7, H=4.5, roomLen=28, midZ=-2;
+    const wallMat = new THREE.MeshStandardMaterial({color:0x111827,roughness:0.9,metalness:0.1});
+    const ceilMat = new THREE.MeshStandardMaterial({color:0x0d1117,roughness:1});
+    const floorMat = new THREE.MeshStandardMaterial({color:0x0f172a,roughness:0.8,metalness:0.2});
+    // Floor
+    const floor = new THREE.Mesh(new THREE.PlaneGeometry(W,roomLen), floorMat);
+    floor.rotation.x = -Math.PI/2; floor.position.set(0,0,midZ); floor.receiveShadow=true;
+    roomMeshGroup.add(floor);
+    // Ceiling
+    const ceil = new THREE.Mesh(new THREE.PlaneGeometry(W,roomLen), ceilMat);
+    ceil.rotation.x = Math.PI/2; ceil.position.set(0,H,midZ);
+    roomMeshGroup.add(ceil);
+    // Left wall
+    const lw = new THREE.Mesh(new THREE.PlaneGeometry(roomLen,H), wallMat);
+    lw.rotation.y = Math.PI/2; lw.position.set(-W/2,H/2,midZ);
+    roomMeshGroup.add(lw);
+    // Right wall
+    const rw = new THREE.Mesh(new THREE.PlaneGeometry(roomLen,H), wallMat);
+    rw.rotation.y = -Math.PI/2; rw.position.set(W/2,H/2,midZ);
+    roomMeshGroup.add(rw);
+    // Back wall (with door gap)
+    const dW=2.2, dH=3.3, bZ=-16;
+    const bwTop = new THREE.Mesh(new THREE.PlaneGeometry(W,H-dH), wallMat);
+    bwTop.position.set(0,dH+(H-dH)/2,bZ);
+    roomMeshGroup.add(bwTop);
+    const bwL = new THREE.Mesh(new THREE.PlaneGeometry((W-dW)/2,dH), wallMat);
+    bwL.position.set(-(W/2+dW/2)/2-0.05,dH/2,bZ);
+    roomMeshGroup.add(bwL);
+    const bwR = new THREE.Mesh(new THREE.PlaneGeometry((W-dW)/2,dH), wallMat);
+    bwR.position.set((W/2+dW/2)/2+0.05,dH/2,bZ);
+    roomMeshGroup.add(bwR);
+    // Door
+    const doorColor = isDoorOpen ? 0x00ff88 : 0x1a3a5c;
+    const doorMat2 = new THREE.MeshStandardMaterial({color:doorColor, emissive:doorColor, emissiveIntensity:0.3, roughness:0.3, metalness:0.6});
+    doorMesh = new THREE.Mesh(new THREE.BoxGeometry(dW,dH,0.12), doorMat2);
+    doorMesh.position.set(0,dH/2,bZ+0.06);
+    roomMeshGroup.add(doorMesh);
+    const edges = new THREE.LineSegments(new THREE.EdgesGeometry(doorMesh.geometry), new THREE.LineBasicMaterial({color:0x569cd6,linewidth:2}));
+    doorMesh.add(edges);
+    // Door glow light
+    doorGlow = new THREE.PointLight(isDoorOpen ? 0x00ff88 : 0x1a6aff, 6, 10);
+    doorGlow.position.set(0,2,bZ+2);
+    roomMeshGroup.add(doorGlow);
+    // Corridor ceiling lights
+    [8, 2.5, -3, -8.5].forEach(z => {
+        const pl = new THREE.PointLight(0x9cdcfe, 0.9, 18);
+        pl.position.set(0, H-0.3, z);
+        roomMeshGroup.add(pl);
+        const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.08,8,8), new THREE.MeshStandardMaterial({emissive:0x9cdcfe,emissiveIntensity:2}));
+        bulb.position.copy(pl.position);
+        roomMeshGroup.add(bulb);
+    });
+    scene.add(roomMeshGroup);
+    isDoorOpen = false;
+}
+
+function openDoorMotion() {
+    isDoorOpen = true;
+    if (doorMesh) {
+        doorMesh.material.color.setHex(0x00ff88);
+        doorMesh.material.emissive.setHex(0x00ff88);
+        doorMesh.material.emissiveIntensity = 1.0;
+    }
+    if (doorGlow) { doorGlow.color.setHex(0x00ff88); doorGlow.intensity = 12; }
+    setTimeout(() => {
+        currentRoom++;
+        if (currentRoom > 100) currentRoom = 1;
+        updateHUD(currentRoom);
+        buildRoom();
+    }, 2000);
+}
+
+// ─── PROXIMITY CHECK ─────────────────────────────────────────────────────────
+function checkOpen() {
+    if (!controls.isLocked) return;
+    const camZ = camera.position.z;
+    if (camZ < -10 && !isDoorOpen) {
+        const prompt = document.getElementById('interact-prompt');
+        prompt.style.display = 'block';
+        if (camZ < -13) { openCockpit(); document.getElementById('interact-prompt').style.display='none'; }
+    } else {
+        document.getElementById('interact-prompt').style.display = 'none';
+    }
+}
+
+// ─── GAME LOOP ────────────────────────────────────────────────────────────────
+function animate() {
+    requestAnimationFrame(animate);
+    if (controls.isLocked && !isCockpitOpen) {
+        const speed = isSprint ? 0.12 : 0.065;
+        const dir = new THREE.Vector3();
+        camera.getWorldDirection(dir); dir.y = 0; dir.normalize();
+        const right = new THREE.Vector3().crossVectors(dir, new THREE.Vector3(0,1,0));
+        if (moveF) camera.position.addScaledVector(dir, speed);
+        if (moveB) camera.position.addScaledVector(dir, -speed);
+        if (moveL) camera.position.addScaledVector(right, -speed);
+        if (moveR) camera.position.addScaledVector(right, speed);
+        camera.position.x = Math.max(-3, Math.min(3, camera.position.x));
+        camera.position.y = 1.7;
+        camera.position.z = Math.max(-15.5, Math.min(10, camera.position.z));
+        checkOpen();
+    }
+    renderer.render(scene, camera);
+}
+
+// ─── BOOT ─────────────────────────────────────────────────────────────────────
+function bootSystem() {
+    document.getElementById('start-screen').style.display = 'none';
+    initThree();
+    buildRoom();
+    updateHUD(1);
+    animate();
+    // Input events
+    document.addEventListener('keydown', e => {
+        if (isCockpitOpen || isConceptOpen) {
+            if (e.key === 'Escape') { closeCockpit(); closeConceptPanel(); }
+            return;
+        }
+        if (e.code==='KeyW') moveF=true;
+        if (e.code==='KeyS') moveB=true;
+        if (e.code==='KeyA') moveL=true;
+        if (e.code==='KeyD') moveR=true;
+        if (e.code==='ShiftLeft') isSprint=true;
+        if (e.code==='KeyE') { if(!isCockpitOpen) openCockpit(); }
+        if (e.code==='KeyQ') toggleConceptPanel();
+    });
+    document.addEventListener('keyup', e => {
+        if (e.code==='KeyW') moveF=false;
+        if (e.code==='KeyS') moveB=false;
+        if (e.code==='KeyA') moveL=false;
+        if (e.code==='KeyD') moveR=false;
+        if (e.code==='ShiftLeft') isSprint=false;
+    });
+    document.addEventListener('click', () => {
+        if (!controls.isLocked && !isCockpitOpen && !isConceptOpen) controls.lock();
+    });
+    document.getElementById('gemini-input').addEventListener('keydown', e => {
+        if(e.key==='Enter') { e.stopPropagation(); sendAiChat(); }
+    });
+    document.getElementById('room-input').addEventListener('keydown', e => {
+        if(e.key==='Enter') { e.stopPropagation(); jumpToRoom(); }
+    });
+}
+</script>
+</body>
+</html>
