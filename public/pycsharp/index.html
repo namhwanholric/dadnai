@@ -79,6 +79,12 @@
             letter-spacing: 0.5px;
         }
         #hud-keys span { color: #666; }
+        #hud-jump {
+            display: flex;
+            gap: 4px;
+            margin-top: 6px;
+            pointer-events: all;
+        }
         #crosshair {
             position: absolute;
             top: 50%;
@@ -309,6 +315,42 @@
         .btn-ask { background: var(--vscode-accent); color: #fff; }
         .btn-ask:hover { background: #007acc; }
 
+        /* 자동완성 드롭다운 */
+        #autocomplete-dropdown {
+            position: fixed;
+            background: #12121c;
+            border: 1px solid #007acc;
+            border-radius: 3px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 200;
+            display: none;
+            font-family: 'Consolas', monospace;
+            font-size: 12px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.7);
+            min-width: 190px;
+        }
+        .ac-item {
+            padding: 5px 10px;
+            cursor: pointer;
+            color: #9cdcfe;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            white-space: nowrap;
+        }
+        .ac-item.ac-selected { background: #264f78; }
+        .ac-item:hover { background: #1f3a5a; }
+        .ac-badge {
+            font-size: 10px;
+            padding: 1px 4px;
+            border-radius: 2px;
+            color: #4ec9b0;
+            background: rgba(78,201,176,0.12);
+            flex-shrink: 0;
+        }
+
         /* 개념 패널 (Q키) */
         #concept-panel {
             position: absolute;
@@ -372,9 +414,21 @@
         <span id="hud-clear">0% CLEAR</span>
     </div>
     <div id="hud-keys"><span>[E]</span> 터미널 &nbsp; <span>[Q]</span> 개념 설명 &nbsp; <span>[WASD]</span> 이동</div>
+    <div id="hud-jump">
+        <input type="number" id="room-input" min="1" max="100" placeholder="방 번호 (1~100)"
+            onkeydown="if(event.key==='Enter'){event.stopPropagation();jumpToRoom();}"
+            onclick="event.stopPropagation()"
+            style="width:120px;background:#12121c;border:1px solid #007acc;color:#9cdcfe;
+                   font-family:Consolas;font-size:11px;padding:3px 7px;border-radius:2px;outline:none;">
+        <button onclick="jumpToRoom()"
+            style="background:#0e639c;color:#fff;border:none;padding:3px 8px;border-radius:2px;
+                   cursor:pointer;font-size:11px;font-family:Consolas;">GO</button>
+    </div>
 </div>
 <div id="crosshair"></div>
 <div id="interact-prompt">[E] 키를 눌러 도어 터미널 열기</div>
+
+<div id="autocomplete-dropdown"></div>
 
 <!-- 개념 설명 패널 (Q키) -->
 <div id="concept-panel">
@@ -563,6 +617,710 @@ function getMission(num) {
             csStarter: "var doubleVal = (int x) => x * 2;\nConsole.WriteLine(doubleVal(21));",
             pyKeyword: "42",
             csKeyword: "=> x * 2"
+        },
+        13: {
+            title: "상속 — Inheritance",
+            desc: "Python은 class 자식(부모):, C#은 class 자식 : 부모 형식으로 상속합니다.",
+            pyStarter: "class Animal:\n    def speak(self):\n        return 'Sound'\n\nclass Dog(Animal):\n    def speak(self):\n        return 'Woof'\n\nd = Dog()\nprint(d.speak())",
+            csStarter: "class Animal { public virtual string Speak() => \"Sound\"; }\nclass Dog : Animal {\n    public override string Speak() => \"Woof\";\n}\nvar d = new Dog();\nConsole.WriteLine(d.Speak());",
+            pyKeyword: "Woof",
+            csKeyword: "override"
+        },
+        14: {
+            title: "리스트 컴프리헨션 / LINQ",
+            desc: "Python은 [식 for x in 목록], C#은 LINQ의 .Where().Select()를 사용합니다.",
+            pyStarter: "nums = [1,2,3,4,5]\nevens = [x for x in nums if x % 2 == 0]\nprint(evens)",
+            csStarter: "var nums = new List<int>{1,2,3,4,5};\nvar evens = nums.Where(x => x % 2 == 0).ToList();\nConsole.WriteLine(string.Join(\",\", evens));",
+            pyKeyword: "[2, 4]",
+            csKeyword: "Where"
+        },
+        15: {
+            title: "정적 메서드 — static",
+            desc: "인스턴스 없이 호출하는 메서드. Python은 @staticmethod, C#은 static을 씁니다.",
+            pyStarter: "class MathUtil:\n    @staticmethod\n    def add(a, b):\n        return a + b\n\nprint(MathUtil.add(3, 7))",
+            csStarter: "class MathUtil {\n    public static int Add(int a, int b) => a + b;\n}\nConsole.WriteLine(MathUtil.Add(3, 7));",
+            pyKeyword: "10",
+            csKeyword: "static int Add"
+        },
+        16: {
+            title: "프로퍼티 — getter / setter",
+            desc: "Python은 @property 데코레이터, C#은 { get; set; } 자동 프로퍼티를 사용합니다.",
+            pyStarter: "class Circle:\n    def __init__(self, r):\n        self._r = r\n    @property\n    def area(self):\n        return 3.14 * self._r ** 2\n\nc = Circle(5)\nprint(round(c.area, 2))",
+            csStarter: "class Circle {\n    public double Radius { get; set; }\n    public double Area => 3.14 * Radius * Radius;\n}\nvar c = new Circle { Radius = 5 };\nConsole.WriteLine(Math.Round(c.Area, 2));",
+            pyKeyword: "78.5",
+            csKeyword: "get; set;"
+        },
+        17: {
+            title: "열거형 — Enum",
+            desc: "Python은 Enum 클래스, C#은 enum 키워드로 명명된 상수 집합을 만듭니다.",
+            pyStarter: "from enum import Enum\nclass Direction(Enum):\n    NORTH = 1\n    SOUTH = 2\n\nprint(Direction.NORTH.name)",
+            csStarter: "enum Direction { NORTH = 1, SOUTH = 2 }\nConsole.WriteLine(Direction.NORTH.ToString());",
+            pyKeyword: "NORTH",
+            csKeyword: "enum Direction"
+        },
+        18: {
+            title: "파일 입출력 — File I/O",
+            desc: "Python은 open(), C#은 File.WriteAllText / ReadAllText를 사용합니다.",
+            pyStarter: "# 파일 쓰기 & 읽기 시뮬레이션\ndata = 'Hello File'\nprint('WRITE:', data)\nprint('READ:', data)",
+            csStarter: "string data = \"Hello File\";\nConsole.WriteLine(\"WRITE: \" + data);\nConsole.WriteLine(\"READ: \" + data);",
+            pyKeyword: "Hello File",
+            csKeyword: "WRITE:"
+        },
+        19: {
+            title: "제너레이터 — yield",
+            desc: "Python의 yield는 값을 하나씩 반환합니다. C#은 yield return으로 동일하게 동작합니다.",
+            pyStarter: "def count_up(n):\n    for i in range(n):\n        yield i\n\nfor v in count_up(3):\n    print(v)",
+            csStarter: "IEnumerable<int> CountUp(int n) {\n    for (int i = 0; i < n; i++)\n        yield return i;\n}\nforeach (var v in CountUp(3))\n    Console.WriteLine(v);",
+            pyKeyword: "0",
+            csKeyword: "yield return"
+        },
+        20: {
+            title: "예외 커스텀 — Custom Exception",
+            desc: "직접 예외 클래스를 정의합니다. Python은 Exception 상속, C#은 Exception 상속입니다.",
+            pyStarter: "class GameOver(Exception):\n    pass\n\ntry:\n    raise GameOver('HP가 0입니다')\nexcept GameOver as e:\n    print('GAME_OVER:', e)",
+            csStarter: "class GameOver : Exception {\n    public GameOver(string msg) : base(msg) {}\n}\ntry {\n    throw new GameOver(\"HP가 0입니다\");\n} catch (GameOver e) {\n    Console.WriteLine(\"GAME_OVER: \" + e.Message);\n}",
+            pyKeyword: "GAME_OVER:",
+            csKeyword: "class GameOver"
+        },
+        21: {
+            title: "튜플 언패킹 / 구조 분해",
+            desc: "Python은 a, b = tuple, C#은 var (a, b) = tuple로 값을 분해합니다.",
+            pyStarter: "pos = (10, 20)\nx, y = pos\nprint(f'x={x}, y={y}')",
+            csStarter: "var pos = (10, 20);\nvar (x, y) = pos;\nConsole.WriteLine($\"x={x}, y={y}\");",
+            pyKeyword: "x=10",
+            csKeyword: "var (x, y)"
+        },
+        22: {
+            title: "문자열 포매팅 — f-string / $\"\"",
+            desc: "Python은 f'{변수}', C#은 $\"{변수}\"로 문자열 안에 변수를 삽입합니다.",
+            pyStarter: "name = 'Claude'\nhp = 100\nprint(f'{name}의 HP: {hp}')",
+            csStarter: "string name = \"Claude\";\nint hp = 100;\nConsole.WriteLine($\"{name}의 HP: {hp}\");",
+            pyKeyword: "Claude의 HP: 100",
+            csKeyword: "$\""
+        },
+        23: {
+            title: "async / await — 비동기",
+            desc: "Python은 asyncio, C#은 Task와 async/await로 비동기를 처리합니다.",
+            pyStarter: "import asyncio\nasync def fetch():\n    await asyncio.sleep(0)\n    return 'DATA_LOADED'\n\nresult = asyncio.run(fetch())\nprint(result)",
+            csStarter: "async Task<string> Fetch() {\n    await Task.Delay(0);\n    return \"DATA_LOADED\";\n}\nConsole.WriteLine(await Fetch());",
+            pyKeyword: "DATA_LOADED",
+            csKeyword: "async Task"
+        },
+        24: {
+            title: "딕셔너리 컴프리헨션 / LINQ ToDictionary",
+            desc: "Python은 {k:v for ...}, C#은 .ToDictionary()로 딕셔너리를 한 줄에 생성합니다.",
+            pyStarter: "keys = ['a', 'b', 'c']\nd = {k: i for i, k in enumerate(keys)}\nprint(d['b'])",
+            csStarter: "var keys = new List<string>{\"a\",\"b\",\"c\"};\nvar d = keys.Select((k,i) => (k,i)).ToDictionary(x=>x.k, x=>x.i);\nConsole.WriteLine(d[\"b\"]);",
+            pyKeyword: "1",
+            csKeyword: "ToDictionary"
+        },
+        25: {
+            title: "인터페이스 / 추상 클래스",
+            desc: "Python은 ABC(추상 기반 클래스), C#은 interface 키워드로 계약을 정의합니다.",
+            pyStarter: "from abc import ABC, abstractmethod\nclass Shape(ABC):\n    @abstractmethod\n    def area(self): pass\n\nclass Square(Shape):\n    def area(self): return 4 * 4\n\nprint(Square().area())",
+            csStarter: "interface IShape { double Area(); }\nclass Square : IShape {\n    public double Area() => 4 * 4;\n}\nConsole.WriteLine(new Square().Area());",
+            pyKeyword: "16",
+            csKeyword: "interface IShape"
+        },
+        26: {
+            title: "기본 매개변수 — Default Parameters",
+            desc: "함수 매개변수에 기본값을 지정합니다.",
+            pyStarter: "def greet(name, greeting='Hello'):\n    print(f'{greeting}, {name}!')\ngreet('Python')\ngreet('C#', 'Hi')",
+            csStarter: "void Greet(string name, string greeting = \"Hello\") {\n    Console.WriteLine($\"{greeting}, {name}!\");\n}\nGreet(\"Python\");\nGreet(\"C#\", \"Hi\");",
+            pyKeyword: "Hello, Python!",
+            csKeyword: "greeting = \"Hello\""
+        },
+        27: {
+            title: "가변 인수 — *args / params",
+            desc: "개수가 정해지지 않은 인수를 받습니다.",
+            pyStarter: "def total(*nums):\n    return sum(nums)\nprint(total(1, 2, 3, 4))",
+            csStarter: "int Total(params int[] nums) {\n    int s = 0;\n    foreach (var n in nums) s += n;\n    return s;\n}\nConsole.WriteLine(Total(1, 2, 3, 4));",
+            pyKeyword: "10",
+            csKeyword: "params int[]"
+        },
+        28: {
+            title: "문자열 슬라이싱 — Substring",
+            desc: "Python은 [start:end], C#은 Substring(start, length)로 자릅니다.",
+            pyStarter: "s = 'Hello, World!'\nprint(s[0:5])\nprint(s[7:])",
+            csStarter: "string s = \"Hello, World!\";\nConsole.WriteLine(s.Substring(0, 5));\nConsole.WriteLine(s.Substring(7));",
+            pyKeyword: "Hello",
+            csKeyword: "Substring(0, 5)"
+        },
+        29: {
+            title: "리스트 정렬 — sort / Sort",
+            desc: "Python sort()는 in-place, C# Sort()도 동일합니다.",
+            pyStarter: "scores = [85, 42, 91, 67]\nscores.sort(reverse=True)\nprint(scores[0])",
+            csStarter: "var scores = new List<int>{85, 42, 91, 67};\nscores.Sort();\nscores.Reverse();\nConsole.WriteLine(scores[0]);",
+            pyKeyword: "91",
+            csKeyword: "scores.Sort()"
+        },
+        30: {
+            title: "딕셔너리 get / GetValueOrDefault",
+            desc: "키가 없을 때 기본값을 반환합니다.",
+            pyStarter: "inv = {'sword': 3}\nprint(inv.get('shield', 0))\nprint(inv.get('sword', 0))",
+            csStarter: "var inv = new Dictionary<string,int>{{\"sword\",3}};\nConsole.WriteLine(inv.GetValueOrDefault(\"shield\", 0));\nConsole.WriteLine(inv.GetValueOrDefault(\"sword\", 0));",
+            pyKeyword: "0",
+            csKeyword: "GetValueOrDefault"
+        },
+        31: {
+            title: "집합 연산 — Set / HashSet",
+            desc: "중복 없는 컬렉션. 교집합(&), 합집합(|) 연산이 가능합니다.",
+            pyStarter: "a = {1,2,3,4,5}\nb = {4,5,6,7,8}\nprint(len(a & b))\nprint(len(a | b))",
+            csStarter: "var a = new HashSet<int>{1,2,3,4,5};\nvar b = new HashSet<int>{4,5,6,7,8};\nvar inter = new HashSet<int>(a); inter.IntersectWith(b);\nvar union = new HashSet<int>(a); union.UnionWith(b);\nConsole.WriteLine(inter.Count);\nConsole.WriteLine(union.Count);",
+            pyKeyword: "2",
+            csKeyword: "HashSet<int>"
+        },
+        32: {
+            title: "스택 — Stack (LIFO)",
+            desc: "마지막에 넣은 것이 먼저 나옵니다. append/pop vs Push/Pop.",
+            pyStarter: "stack = []\nstack.append('A')\nstack.append('B')\nstack.append('C')\nprint(stack.pop())\nprint(len(stack))",
+            csStarter: "var stack = new Stack<string>();\nstack.Push(\"A\"); stack.Push(\"B\"); stack.Push(\"C\");\nConsole.WriteLine(stack.Pop());\nConsole.WriteLine(stack.Count);",
+            pyKeyword: "C",
+            csKeyword: "Stack<string>"
+        },
+        33: {
+            title: "큐 — Queue (FIFO)",
+            desc: "먼저 넣은 것이 먼저 나옵니다. deque.popleft() vs Dequeue().",
+            pyStarter: "from collections import deque\nq = deque(['A','B','C'])\nprint(q.popleft())\nprint(len(q))",
+            csStarter: "var q = new Queue<string>();\nq.Enqueue(\"A\"); q.Enqueue(\"B\"); q.Enqueue(\"C\");\nConsole.WriteLine(q.Dequeue());\nConsole.WriteLine(q.Count);",
+            pyKeyword: "A",
+            csKeyword: "Queue<string>"
+        },
+        34: {
+            title: "재귀 — Recursion",
+            desc: "함수가 자기 자신을 호출하는 기법. 기저 조건(base case)이 필수입니다.",
+            pyStarter: "def factorial(n):\n    if n <= 1: return 1\n    return n * factorial(n-1)\nprint(factorial(5))",
+            csStarter: "int Factorial(int n) {\n    if (n <= 1) return 1;\n    return n * Factorial(n - 1);\n}\nConsole.WriteLine(Factorial(5));",
+            pyKeyword: "120",
+            csKeyword: "Factorial(n - 1)"
+        },
+        35: {
+            title: "피보나치 — Fibonacci",
+            desc: "이전 두 값의 합으로 수열을 만듭니다.",
+            pyStarter: "def fib(n):\n    a, b = 0, 1\n    for _ in range(n):\n        a, b = b, a+b\n    return a\nprint(fib(10))",
+            csStarter: "int Fib(int n) {\n    int a=0, b=1;\n    for(int i=0;i<n;i++) (a,b)=(b,a+b);\n    return a;\n}\nConsole.WriteLine(Fib(10));",
+            pyKeyword: "55",
+            csKeyword: "(a,b)=(b,a+b)"
+        },
+        36: {
+            title: "이진 탐색 — Binary Search",
+            desc: "정렬된 배열에서 O(log n)으로 탐색합니다.",
+            pyStarter: "import bisect\narr = [1,3,5,7,9,11]\nidx = bisect.bisect_left(arr, 7)\nprint(idx, arr[idx])",
+            csStarter: "var arr = new List<int>{1,3,5,7,9,11};\nint idx = arr.BinarySearch(7);\nConsole.WriteLine(idx + \" \" + arr[idx]);",
+            pyKeyword: "3 7",
+            csKeyword: "BinarySearch"
+        },
+        37: {
+            title: "정규 표현식 — Regex",
+            desc: "문자열 패턴 매칭. Python은 re 모듈, C#은 Regex 클래스를 사용합니다.",
+            pyStarter: "import re\ntext = 'Player HP: 75/100'\nm = re.search(r'\\d+', text)\nprint(m.group())",
+            csStarter: "using System.Text.RegularExpressions;\nstring text = \"Player HP: 75/100\";\nvar m = Regex.Match(text, @\"\\d+\");\nConsole.WriteLine(m.Value);",
+            pyKeyword: "75",
+            csKeyword: "Regex.Match"
+        },
+        38: {
+            title: "수학 함수 — Math",
+            desc: "Python은 math 모듈, C#은 Math 클래스로 수학 함수를 제공합니다.",
+            pyStarter: "import math\nprint(math.sqrt(144))\nprint(math.floor(3.7))\nprint(math.ceil(3.2))",
+            csStarter: "Console.WriteLine(Math.Sqrt(144));\nConsole.WriteLine(Math.Floor(3.7));\nConsole.WriteLine(Math.Ceiling(3.2));",
+            pyKeyword: "12.0",
+            csKeyword: "Math.Sqrt"
+        },
+        39: {
+            title: "날짜/시간 — DateTime",
+            desc: "Python은 datetime 모듈, C#은 DateTime 구조체를 사용합니다.",
+            pyStarter: "from datetime import datetime\ndt = datetime(2024, 12, 25)\nprint(dt.strftime('%Y-%m-%d'))\nprint(dt.year)",
+            csStarter: "var dt = new DateTime(2024, 12, 25);\nConsole.WriteLine(dt.ToString(\"yyyy-MM-dd\"));\nConsole.WriteLine(dt.Year);",
+            pyKeyword: "2024-12-25",
+            csKeyword: "DateTime(2024"
+        },
+        40: {
+            title: "컨텍스트 매니저 — with / using",
+            desc: "리소스를 자동으로 해제합니다. Python은 with, C#은 using 구문입니다.",
+            pyStarter: "class Resource:\n    def __enter__(self): print('OPEN'); return self\n    def __exit__(self, *a): print('CLOSE')\n\nwith Resource() as r:\n    print('USING')",
+            csStarter: "class Resource : IDisposable {\n    public Resource() { Console.WriteLine(\"OPEN\"); }\n    public void Dispose() { Console.WriteLine(\"CLOSE\"); }\n}\nusing (var r = new Resource()) {\n    Console.WriteLine(\"USING\");\n}",
+            pyKeyword: "OPEN",
+            csKeyword: "IDisposable"
+        },
+        41: {
+            title: "연산자 오버로딩 — Vector2",
+            desc: "사용자 정의 클래스에 +, - 연산을 정의합니다. Unity Vector2 패턴.",
+            pyStarter: "class Vec2:\n    def __init__(self, x, y): self.x, self.y = x, y\n    def __add__(self, o): return Vec2(self.x+o.x, self.y+o.y)\n    def __str__(self): return f'({self.x},{self.y})'\nprint(Vec2(1,2)+Vec2(3,4))",
+            csStarter: "struct Vec2 {\n    public float X, Y;\n    public Vec2(float x, float y){X=x;Y=y;}\n    public static Vec2 operator+(Vec2 a, Vec2 b) => new Vec2(a.X+b.X,a.Y+b.Y);\n    public override string ToString() => $\"({X},{Y})\";\n}\nConsole.WriteLine(new Vec2(1,2)+new Vec2(3,4));",
+            pyKeyword: "(4,6)",
+            csKeyword: "operator+"
+        },
+        42: {
+            title: "타입 힌트 / 제네릭 — Generic<T>",
+            desc: "Python의 타입 힌트(3.5+)와 C#의 제네릭<T>으로 타입 안전성을 높입니다.",
+            pyStarter: "def add(a: int, b: int) -> int:\n    return a + b\n\ndef first(items: list) -> object:\n    return items[0]\n\nprint(add(3, 4))\nprint(first([10, 20, 30]))",
+            csStarter: "int Add(int a, int b) => a + b;\nT First<T>(List<T> items) => items[0];\nConsole.WriteLine(Add(3, 4));\nConsole.WriteLine(First(new List<int>{10,20,30}));",
+            pyKeyword: "7",
+            csKeyword: "First<T>"
+        },
+        43: {
+            title: "메모이제이션 — lru_cache / Dictionary",
+            desc: "함수 결과를 캐시해 반복 계산을 줄입니다.",
+            pyStarter: "from functools import lru_cache\n\n@lru_cache(maxsize=None)\ndef fib(n):\n    if n < 2: return n\n    return fib(n-1) + fib(n-2)\n\nprint(fib(30))",
+            csStarter: "var cache = new Dictionary<int,long>();\nlong Fib(int n) {\n    if (n < 2) return n;\n    if (!cache.ContainsKey(n)) cache[n] = Fib(n-1)+Fib(n-2);\n    return cache[n];\n}\nConsole.WriteLine(Fib(30));",
+            pyKeyword: "832040",
+            csKeyword: "cache.ContainsKey"
+        },
+        44: {
+            title: "이터레이터 — __iter__ / IEnumerable",
+            desc: "Python은 __iter__/__next__, C#은 IEnumerable<T>로 반복 가능 객체를 만듭니다.",
+            pyStarter: "def count_down(n):\n    while n > 0:\n        yield n\n        n -= 1\n\nfor v in count_down(3):\n    print(v)",
+            csStarter: "IEnumerable<int> CountDown(int n) {\n    while (n > 0) yield return n--;\n}\nforeach (var v in CountDown(3))\n    Console.WriteLine(v);",
+            pyKeyword: "3",
+            csKeyword: "IEnumerable<int>"
+        },
+        45: {
+            title: "데이터 클래스 — dataclass / record",
+            desc: "데이터 저장용 클래스를 간결하게 선언합니다.",
+            pyStarter: "from dataclasses import dataclass\n\n@dataclass\nclass Player:\n    name: str\n    hp: int = 100\n\np = Player('Hero')\nprint(p.name, p.hp)",
+            csStarter: "record Player(string Name, int Hp = 100);\nvar p = new Player(\"Hero\");\nConsole.WriteLine(p.Name + \" \" + p.Hp);",
+            pyKeyword: "Hero 100",
+            csKeyword: "record Player"
+        },
+        46: {
+            title: "Unity — MonoBehaviour 구조",
+            desc: "Unity의 핵심 클래스. Start(초기화), Update(매 프레임)가 자동 호출됩니다.",
+            pyStarter: "class MonoBehaviour:\n    def Start(self): pass\n    def Update(self): pass\n\nclass Player(MonoBehaviour):\n    def Start(self):\n        print('PLAYER_READY')\n\nPlayer().Start()",
+            csStarter: "using UnityEngine;\npublic class Player : MonoBehaviour {\n    void Start() { Debug.Log(\"PLAYER_READY\"); }\n    void Update() { }\n}",
+            pyKeyword: "PLAYER_READY",
+            csKeyword: "MonoBehaviour"
+        },
+        47: {
+            title: "Unity — Vector3 위치/방향",
+            desc: "3D 공간의 좌표. Unity의 핵심 구조체로 덧셈, 스칼라 곱 등을 지원합니다.",
+            pyStarter: "class Vector3:\n    def __init__(self, x, y, z): self.x,self.y,self.z=x,y,z\n    def __add__(self, o): return Vector3(self.x+o.x,self.y+o.y,self.z+o.z)\n    def __str__(self): return f'({self.x},{self.y},{self.z})'\n\nprint(Vector3(1,0,0)+Vector3(0,1,0))",
+            csStarter: "// Unity 내장 Vector3\nVector3 pos = Vector3.right + Vector3.up;\nConsole.WriteLine($\"({pos.x},{pos.y},{pos.z})\");",
+            pyKeyword: "(1,1,0)",
+            csKeyword: "Vector3.right"
+        },
+        48: {
+            title: "Unity — Transform (이동/회전)",
+            desc: "오브젝트의 위치, 회전, 크기를 담당하는 컴포넌트입니다.",
+            pyStarter: "class Transform:\n    def __init__(self): self.x, self.z = 0, 0\n    def Translate(self, dx, dz): self.x+=dx; self.z+=dz\n\nt = Transform()\nt.Translate(5, 0)\nprint('POS:', t.x)",
+            csStarter: "// Unity Update()에서 사용\nvoid Update() {\n    transform.Translate(Vector3.forward * speed * Time.deltaTime);\n    Console.WriteLine(\"POS: \" + transform.position.x);\n}",
+            pyKeyword: "POS: 5",
+            csKeyword: "transform.Translate"
+        },
+        49: {
+            title: "Unity — Input 시스템",
+            desc: "WASD, 마우스 등의 입력을 감지합니다.",
+            pyStarter: "class Input:\n    @staticmethod\n    def GetKey(k): return k == 'W'\n    @staticmethod\n    def GetAxis(axis): return 1.0 if axis=='Horizontal' else 0.0\n\nif Input.GetKey('W'):\n    print('MOVING_FORWARD')",
+            csStarter: "void Update() {\n    float h = Input.GetAxis(\"Horizontal\");\n    float v = Input.GetAxis(\"Vertical\");\n    if (Input.GetKey(KeyCode.W))\n        Console.WriteLine(\"MOVING_FORWARD\");\n}",
+            pyKeyword: "MOVING_FORWARD",
+            csKeyword: "Input.GetAxis"
+        },
+        50: {
+            title: "Unity — Rigidbody 물리",
+            desc: "AddForce, velocity로 물리 기반 이동을 구현합니다.",
+            pyStarter: "class Rigidbody:\n    def __init__(self): self.vy = 0\n    def AddForce(self, fy): self.vy += fy\n\nrb = Rigidbody()\nrb.AddForce(10)\nprint('VY:', rb.vy)",
+            csStarter: "void Jump(Rigidbody rb) {\n    rb.AddForce(Vector3.up * 10f, ForceMode.Impulse);\n    Console.WriteLine(\"VY: 10\");\n}",
+            pyKeyword: "VY: 10",
+            csKeyword: "ForceMode.Impulse"
+        },
+        51: {
+            title: "Unity — Coroutine (코루틴)",
+            desc: "시간 지연 없이 비동기 처리를 구현합니다. yield return new WaitForSeconds().",
+            pyStarter: "def fade_out():\n    print('START')\n    yield 1\n    print('RESUME')\n    yield 2\n    print('DONE')\n\nfor step in fade_out(): pass",
+            csStarter: "IEnumerator FadeOut() {\n    Debug.Log(\"START\");\n    yield return new WaitForSeconds(1f);\n    Debug.Log(\"RESUME\");\n    yield return new WaitForSeconds(2f);\n    Debug.Log(\"DONE\");\n}\n// StartCoroutine(FadeOut());",
+            pyKeyword: "START",
+            csKeyword: "WaitForSeconds"
+        },
+        52: {
+            title: "Unity — GetComponent 패턴",
+            desc: "오브젝트에서 컴포넌트를 가져옵니다. Unity의 핵심 패턴입니다.",
+            pyStarter: "class GameObject:\n    def __init__(self): self._comps = {}\n    def AddComponent(self, T, c): self._comps[T] = c\n    def GetComponent(self, T): return self._comps.get(T)\n\ngo = GameObject()\ngo.AddComponent('Rigidbody', {'mass': 1.0})\nrb = go.GetComponent('Rigidbody')\nprint('MASS:', rb['mass'])",
+            csStarter: "Rigidbody rb = GetComponent<Rigidbody>();\nif (rb != null) {\n    rb.mass = 1.0f;\n    Console.WriteLine(\"MASS: \" + rb.mass);\n}",
+            pyKeyword: "MASS: 1.0",
+            csKeyword: "GetComponent<Rigidbody>"
+        },
+        53: {
+            title: "Unity — Instantiate & Destroy",
+            desc: "런타임에 오브젝트를 생성하고 제거합니다.",
+            pyStarter: "instances = []\nclass GameObject:\n    def __init__(self, name):\n        self.name = name\n        instances.append(self)\n\nbullet = GameObject('Bullet')\nprint('CREATED:', bullet.name)\ninstances.remove(bullet)\nprint('COUNT:', len(instances))",
+            csStarter: "GameObject bullet = Instantiate(bulletPrefab, transform.position, Quaternion.identity);\nConsole.WriteLine(\"CREATED: \" + bullet.name);\nDestroy(bullet, 3f);\nConsole.WriteLine(\"COUNT: 0\");",
+            pyKeyword: "CREATED: Bullet",
+            csKeyword: "Instantiate"
+        },
+        54: {
+            title: "Unity — 충돌 감지 (OnCollisionEnter)",
+            desc: "물리 충돌과 트리거 이벤트를 감지합니다.",
+            pyStarter: "class Collider:\n    def OnCollisionEnter(self, other):\n        print(f'HIT: {other}')\n    def OnTriggerEnter(self, other):\n        print(f'TRIGGER: {other}')\n\nc = Collider()\nc.OnCollisionEnter('Enemy')\nc.OnTriggerEnter('Checkpoint')",
+            csStarter: "void OnCollisionEnter(Collision col) {\n    Debug.Log(\"HIT: \" + col.gameObject.name);\n}\nvoid OnTriggerEnter(Collider other) {\n    Debug.Log(\"TRIGGER: \" + other.name);\n}",
+            pyKeyword: "HIT: Enemy",
+            csKeyword: "OnCollisionEnter"
+        },
+        55: {
+            title: "Unity — ScriptableObject",
+            desc: "씬 독립적인 데이터 컨테이너. 아이템/스탯 설정에 사용합니다.",
+            pyStarter: "class ItemData:\n    def __init__(self, name, damage):\n        self.name = name\n        self.damage = damage\n\nsword = ItemData('Excalibur', 150)\nprint(f'{sword.name}: {sword.damage}dmg')",
+            csStarter: "[CreateAssetMenu]\npublic class ItemData : ScriptableObject {\n    public string itemName;\n    public int damage;\n}\n// Inspector에서 생성하여 사용",
+            pyKeyword: "Excalibur: 150dmg",
+            csKeyword: "ScriptableObject"
+        },
+        56: {
+            title: "싱글턴 패턴 — Singleton",
+            desc: "인스턴스가 하나만 존재하도록 보장하는 디자인 패턴입니다.",
+            pyStarter: "class GameManager:\n    _inst = None\n    @classmethod\n    def get_instance(cls):\n        if not cls._inst: cls._inst = cls()\n        return cls._inst\n    def __init__(self): self.score = 0\n\ngm1 = GameManager.get_instance()\ngm1.score = 100\nprint(GameManager.get_instance().score)",
+            csStarter: "public class GameManager {\n    static GameManager _inst;\n    public static GameManager Instance => _inst ??= new GameManager();\n    public int Score;\n}\nGameManager.Instance.Score = 100;\nConsole.WriteLine(GameManager.Instance.Score);",
+            pyKeyword: "100",
+            csKeyword: "_inst ??="
+        },
+        57: {
+            title: "옵저버 패턴 — Observer / C# Events",
+            desc: "이벤트 발생 시 등록된 모든 구독자에게 알립니다.",
+            pyStarter: "class EventSystem:\n    def __init__(self): self.listeners = []\n    def subscribe(self, fn): self.listeners.append(fn)\n    def emit(self, data):\n        for fn in self.listeners: fn(data)\n\nevt = EventSystem()\nevt.subscribe(lambda d: print('A:', d))\nevt.emit('LEVEL_UP')",
+            csStarter: "class EventSystem {\n    public event Action<string> OnEvent;\n    public void Emit(string data) => OnEvent?.Invoke(data);\n}\nvar evt = new EventSystem();\nevt.OnEvent += d => Console.WriteLine(\"A: \" + d);\nevt.Emit(\"LEVEL_UP\");",
+            pyKeyword: "A: LEVEL_UP",
+            csKeyword: "event Action"
+        },
+        58: {
+            title: "팩토리 패턴 — Factory",
+            desc: "객체 생성을 팩토리 메서드에 위임하는 패턴입니다.",
+            pyStarter: "class Enemy:\n    def __init__(self, t, hp): self.type=t; self.hp=hp\n\ndef create_enemy(level):\n    return Enemy('Goblin',50) if level<5 else Enemy('Dragon',500)\n\ne = create_enemy(3)\nprint(f'{e.type}: {e.hp}HP')",
+            csStarter: "class Enemy { public string Type; public int Hp; }\nEnemy CreateEnemy(int lv) =>\n    lv < 5 ? new Enemy{Type=\"Goblin\",Hp=50} : new Enemy{Type=\"Dragon\",Hp=500};\nvar e = CreateEnemy(3);\nConsole.WriteLine($\"{e.Type}: {e.Hp}HP\");",
+            pyKeyword: "Goblin: 50HP",
+            csKeyword: "CreateEnemy"
+        },
+        59: {
+            title: "전략 패턴 — Strategy",
+            desc: "알고리즘을 교체 가능하게 캡슐화합니다.",
+            pyStarter: "class Sword:\n    def attack(self): return 'SLASH 50'\nclass Bow:\n    def attack(self): return 'ARROW 30'\n\nclass Fighter:\n    def __init__(self, w): self.w = w\n    def attack(self): return self.w.attack()\n\nf = Fighter(Sword())\nprint(f.attack())",
+            csStarter: "interface IWeapon { string Attack(); }\nclass Sword : IWeapon { public string Attack() => \"SLASH 50\"; }\nclass Bow : IWeapon { public string Attack() => \"ARROW 30\"; }\nclass Fighter { public IWeapon W; public string Attack() => W.Attack(); }\nConsole.WriteLine(new Fighter{W=new Sword()}.Attack());",
+            pyKeyword: "SLASH 50",
+            csKeyword: "IWeapon"
+        },
+        60: {
+            title: "오브젝트 풀링 — Object Pool",
+            desc: "자주 생성/삭제되는 객체를 미리 만들어 재사용합니다. Unity 총알 등에 필수.",
+            pyStarter: "class Bullet:\n    active = False\n    def fire(self, pos): self.active=True; return f'FIRED@{pos}'\n\npool = [Bullet() for _ in range(3)]\nb = next(x for x in pool if not x.active)\nprint(b.fire('(0,5,0)'))",
+            csStarter: "class BulletPool {\n    Queue<GameObject> _pool = new();\n    public GameObject Get() =>\n        _pool.Count > 0 ? _pool.Dequeue() : Instantiate(prefab);\n    public void Return(GameObject b) => _pool.Enqueue(b);\n}\nConsole.WriteLine(\"FIRED@(0,5,0)\");",
+            pyKeyword: "FIRED@(0,5,0)",
+            csKeyword: "Queue<GameObject>"
+        },
+        61: {
+            title: "명령 패턴 — Command (Undo/Redo)",
+            desc: "액션을 객체로 캡슐화해 실행 취소를 구현합니다.",
+            pyStarter: "class MoveCmd:\n    def __init__(self, obj, dx): self.obj=obj; self.dx=dx\n    def execute(self): self.obj['x']+=self.dx\n    def undo(self): self.obj['x']-=self.dx\n\np={'x':0}\nc=MoveCmd(p,5)\nc.execute(); print('X:',p['x'])\nc.undo(); print('X:',p['x'])",
+            csStarter: "interface ICommand { void Execute(); void Undo(); }\nclass MoveCmd : ICommand {\n    Player _p; float _dx;\n    public MoveCmd(Player p, float dx){_p=p;_dx=dx;}\n    public void Execute() => _p.X+=_dx;\n    public void Undo() => _p.X-=_dx;\n}",
+            pyKeyword: "X: 5",
+            csKeyword: "ICommand"
+        },
+        62: {
+            title: "상태 머신 — State Machine",
+            desc: "게임 AI와 캐릭터 상태 관리의 핵심 패턴입니다.",
+            pyStarter: "state = 'IDLE'\ndef transition(trigger):\n    global state\n    if state=='IDLE' and trigger=='attack': state='ATTACKING'\n    elif state=='ATTACKING' and trigger=='done': state='IDLE'\n    print('STATE:', state)\n\ntransition('attack')\ntransition('done')",
+            csStarter: "enum State { Idle, Attacking }\nState cur = State.Idle;\nvoid Transition(string t) {\n    cur = (cur, t) switch {\n        (State.Idle, \"attack\") => State.Attacking,\n        (State.Attacking, \"done\") => State.Idle,\n        _ => cur\n    };\n    Console.WriteLine(\"STATE: \" + cur.ToString().ToUpper());\n}",
+            pyKeyword: "STATE: ATTACKING",
+            csKeyword: "State.Attacking"
+        },
+        63: {
+            title: "Unity — PlayerPrefs (데이터 저장)",
+            desc: "간단한 키-값 데이터를 영구 저장합니다. 점수, 설정 등에 사용합니다.",
+            pyStarter: "prefs = {}\ndef SetInt(k,v): prefs[k]=v\ndef GetInt(k,d=0): return prefs.get(k,d)\n\nSetInt('HighScore', 9999)\nprint('SCORE:', GetInt('HighScore'))",
+            csStarter: "PlayerPrefs.SetInt(\"HighScore\", 9999);\nPlayerPrefs.Save();\nint score = PlayerPrefs.GetInt(\"HighScore\", 0);\nConsole.WriteLine(\"SCORE: \" + score);",
+            pyKeyword: "SCORE: 9999",
+            csKeyword: "PlayerPrefs"
+        },
+        64: {
+            title: "Delegate — Action & Func",
+            desc: "함수를 변수처럼 다룹니다. Python의 일급 함수 vs C#의 delegate.",
+            pyStarter: "def apply(fn, v): return fn(v)\n\ndouble = lambda x: x*2\nsquare = lambda x: x**2\n\nprint(apply(double, 5))\nprint(apply(square, 5))",
+            csStarter: "T Apply<T>(Func<T,T> fn, T v) => fn(v);\nFunc<int,int> dbl = x => x*2;\nFunc<int,int> sq = x => x*x;\nConsole.WriteLine(Apply(dbl, 5));\nConsole.WriteLine(Apply(sq, 5));",
+            pyKeyword: "10",
+            csKeyword: "Func<T,T>"
+        },
+        65: {
+            title: "LINQ — Select / Where / Aggregate",
+            desc: "C#의 강력한 쿼리 언어. Python의 map/filter/reduce에 대응합니다.",
+            pyStarter: "from functools import reduce\nnums=[1,2,3,4,5]\nprint(list(map(lambda x:x*2, nums))[0])\nprint(reduce(lambda a,b:a+b, nums))",
+            csStarter: "var nums=new[]{1,2,3,4,5};\nvar doubled=nums.Select(x=>x*2).ToList();\nint total=nums.Aggregate((a,b)=>a+b);\nConsole.WriteLine(doubled[0]);\nConsole.WriteLine(total);",
+            pyKeyword: "2",
+            csKeyword: "Aggregate"
+        },
+        66: {
+            title: "제네릭 제약 — where T : Interface",
+            desc: "Python의 덕 타이핑 vs C#의 명시적 제약(where T : Interface).",
+            pyStarter: "def print_name(item):\n    print(f'Name: {item.name}')\n\nclass Weapon:\n    name = 'Sword'\nclass Armor:\n    name = 'Shield'\n\nfor item in [Weapon(), Armor()]:\n    print_name(item)",
+            csStarter: "interface INamed { string Name { get; } }\nvoid PrintName<T>(T item) where T : INamed {\n    Console.WriteLine(\"Name: \" + item.Name);\n}\nclass Weapon : INamed { public string Name => \"Sword\"; }\nPrintName(new Weapon());",
+            pyKeyword: "Name: Sword",
+            csKeyword: "where T : INamed"
+        },
+        67: {
+            title: "확장 메서드 — Extension Methods",
+            desc: "기존 클래스를 수정하지 않고 메서드를 추가합니다.",
+            pyStarter: "def is_even(n): return n % 2 == 0\nint.is_even = is_even\nprint((4).is_even())\nprint((7).is_even())",
+            csStarter: "static class IntExt {\n    public static bool IsEven(this int n) => n % 2 == 0;\n}\nConsole.WriteLine(4.IsEven());\nConsole.WriteLine(7.IsEven());",
+            pyKeyword: "True",
+            csKeyword: "this int n"
+        },
+        68: {
+            title: "인덱서 — __getitem__ / this[]",
+            desc: "Python의 __getitem__/__setitem__과 C#의 indexer는 같은 개념입니다.",
+            pyStarter: "class Grid:\n    def __init__(self,w,h): self.d=[[0]*w for _ in range(h)]\n    def __getitem__(self,p): return self.d[p[0]][p[1]]\n    def __setitem__(self,p,v): self.d[p[0]][p[1]]=v\n\ng=Grid(3,3); g[1,1]=99\nprint(g[1,1])",
+            csStarter: "class Grid {\n    int[,] d;\n    public Grid(int w,int h){d=new int[h,w];}\n    public int this[int r,int c]{get=>d[r,c];set=>d[r,c]=value;}\n}\nvar g=new Grid(3,3);\ng[1,1]=99;\nConsole.WriteLine(g[1,1]);",
+            pyKeyword: "99",
+            csKeyword: "this[int r"
+        },
+        69: {
+            title: "Null 병합 — ?? / ?.",
+            desc: "Python의 or 연산자와 C#의 ??(null 병합), ?.(null 조건).",
+            pyStarter: "class Player:\n    def __init__(self, name): self.name=name\n\np1=Player('Hero'); p2=None\nprint(p1.name if p1 else 'Unknown')\nprint(p2.name if p2 else 'Unknown')",
+            csStarter: "class Player { public string Name; }\nPlayer p1=new(){Name=\"Hero\"}, p2=null;\nConsole.WriteLine(p1?.Name ?? \"Unknown\");\nConsole.WriteLine(p2?.Name ?? \"Unknown\");",
+            pyKeyword: "Hero",
+            csKeyword: "?? \"Unknown\""
+        },
+        70: {
+            title: "switch 표현식 — match / switch",
+            desc: "복잡한 조건 분기를 간결하게 표현합니다.",
+            pyStarter: "def dmg(w):\n    match w:\n        case 'sword': return 100\n        case 'bow': return 60\n        case _: return 10\n\nfor w in ['sword','bow','staff']:\n    print(f'{w}:{dmg(w)}')",
+            csStarter: "int Dmg(string w) => w switch {\n    \"sword\" => 100, \"bow\" => 60, _ => 10\n};\nforeach(var w in new[]{\"sword\",\"bow\",\"staff\"})\n    Console.WriteLine($\"{w}:{Dmg(w)}\");",
+            pyKeyword: "sword:100",
+            csKeyword: "w switch"
+        },
+        71: {
+            title: "비동기 — Task.Run / asyncio",
+            desc: "병렬/비동기 실행으로 성능을 높입니다.",
+            pyStarter: "import asyncio\nasync def fetch(id):\n    return f'DATA_{id}'\n\nasync def main():\n    results = await asyncio.gather(fetch(1), fetch(2))\n    for r in results: print(r)\n\nasyncio.run(main())",
+            csStarter: "async Task<string> Fetch(int id) => $\"DATA_{id}\";\nasync Task Main() {\n    var tasks = new[]{Fetch(1), Fetch(2)};\n    var results = await Task.WhenAll(tasks);\n    foreach(var r in results) Console.WriteLine(r);\n}",
+            pyKeyword: "DATA_1",
+            csKeyword: "Task.WhenAll"
+        },
+        72: {
+            title: "IComparable — 커스텀 정렬",
+            desc: "커스텀 클래스의 정렬 순서를 정의합니다.",
+            pyStarter: "class Hero:\n    def __init__(self,n,p): self.n=n; self.p=p\n    def __lt__(self,o): return self.p<o.p\n\nheroes=[Hero('A',50),Hero('B',20),Hero('C',80)]\nheroes.sort()\nprint(heroes[0].n)",
+            csStarter: "class Hero:IComparable<Hero>{\n    public string N; public int P;\n    public int CompareTo(Hero o)=>P.CompareTo(o.P);\n}\nvar h=new List<Hero>{new(){N=\"A\",P=50},new(){N=\"B\",P=20},new(){N=\"C\",P=80}};\nh.Sort();\nConsole.WriteLine(h[0].N);",
+            pyKeyword: "B",
+            csKeyword: "IComparable<Hero>"
+        },
+        73: {
+            title: "JSON 직렬화 — json / JsonSerializer",
+            desc: "객체를 JSON 문자열로 변환해 저장하고 불러옵니다.",
+            pyStarter: "import json\nitem = {'name': 'Potion', 'qty': 5}\nj = json.dumps(item)\nprint('Potion' in j)\nloaded = json.loads(j)\nprint(loaded['name'])",
+            csStarter: "using System.Text.Json;\nrecord Item(string Name, int Qty);\nvar item = new Item(\"Potion\", 5);\nstring j = JsonSerializer.Serialize(item);\nConsole.WriteLine(j.Contains(\"Potion\"));\nvar loaded = JsonSerializer.Deserialize<Item>(j);\nConsole.WriteLine(loaded.Name);",
+            pyKeyword: "Potion",
+            csKeyword: "JsonSerializer.Serialize"
+        },
+        74: {
+            title: "다중 인터페이스 구현",
+            desc: "Python 다중 상속 vs C# 다중 인터페이스 구현.",
+            pyStarter: "class Flyable:\n    def fly(self): return 'FLYING'\nclass Swimmable:\n    def swim(self): return 'SWIMMING'\n\nclass Duck(Flyable, Swimmable): pass\n\nd = Duck()\nprint(d.fly())\nprint(d.swim())",
+            csStarter: "interface IFly { string Fly(); }\ninterface ISwim { string Swim(); }\nclass Duck : IFly, ISwim {\n    public string Fly() => \"FLYING\";\n    public string Swim() => \"SWIMMING\";\n}\nvar d = new Duck();\nConsole.WriteLine(d.Fly());\nConsole.WriteLine(d.Swim());",
+            pyKeyword: "FLYING",
+            csKeyword: "IFly, ISwim"
+        },
+        75: {
+            title: "Unity — Animator 애니메이션",
+            desc: "캐릭터 애니메이션을 코드로 제어합니다.",
+            pyStarter: "class Animator:\n    def SetBool(self, k, v): print(f'BOOL {k}={v}')\n    def SetFloat(self, k, v): print(f'FLOAT {k}={v}')\n    def SetTrigger(self, k): print(f'TRIGGER: {k}')\n\nanim = Animator()\nanim.SetBool('isRunning', True)\nanim.SetTrigger('attack')",
+            csStarter: "Animator anim = GetComponent<Animator>();\nanim.SetBool(\"isRunning\", true);\nanim.SetFloat(\"speed\", 5.0f);\nanim.SetTrigger(\"attack\");\nConsole.WriteLine(\"TRIGGER: attack\");",
+            pyKeyword: "TRIGGER: attack",
+            csKeyword: "SetTrigger"
+        },
+        76: {
+            title: "Unity — UI 텍스트 업데이트",
+            desc: "게임 화면에 HP, 점수 등을 표시합니다. TextMeshPro 사용이 권장됩니다.",
+            pyStarter: "class TextUI:\n    def __init__(self): self.text=''\n    def set(self, t): self.text=t; print('UI:', t)\n\nhpText = TextUI()\nhpText.set('HP: 100/100')",
+            csStarter: "using TMPro;\n[SerializeField] TextMeshProUGUI hpText;\nvoid UpdateHP(int hp, int max) {\n    hpText.text = $\"HP: {hp}/{max}\";\n    Console.WriteLine($\"UI: HP: {hp}/{max}\");\n}",
+            pyKeyword: "UI: HP: 100/100",
+            csKeyword: "TextMeshProUGUI"
+        },
+        77: {
+            title: "Unity — Tag & Layer",
+            desc: "CompareTag로 오브젝트 종류를 구분합니다. string 비교보다 효율적입니다.",
+            pyStarter: "class GO:\n    def __init__(self, tag): self.tag=tag\n    def CompareTag(self, t): return self.tag==t\n\nenemy = GO('Enemy')\nif enemy.CompareTag('Enemy'):\n    print('ENEMY_DETECTED')",
+            csStarter: "void OnTriggerEnter(Collider other) {\n    if (other.CompareTag(\"Enemy\")) {\n        Console.WriteLine(\"ENEMY_DETECTED\");\n        TakeDamage(10);\n    }\n}",
+            pyKeyword: "ENEMY_DETECTED",
+            csKeyword: "CompareTag"
+        },
+        78: {
+            title: "Unity — Raycast 광선 충돌",
+            desc: "광선을 쏴서 충돌을 감지합니다. 조준선, 지면 감지에 사용합니다.",
+            pyStarter: "import math\ndef raycast(orig, obstacles, max_d):\n    for obs, pos in obstacles:\n        d = math.dist(orig, pos)\n        if d <= max_d: return True, obs\n    return False, None\n\nhit, obj = raycast((0,0), [('Enemy',(5,0)),('Wall',(15,0))], 10)\nprint('HIT:', hit, obj)",
+            csStarter: "void Shoot() {\n    if (Physics.Raycast(transform.position, transform.forward, out RaycastHit hit, 100f)) {\n        Console.WriteLine(\"HIT: True \" + hit.collider.name);\n    }\n}",
+            pyKeyword: "HIT: True Enemy",
+            csKeyword: "Physics.Raycast"
+        },
+        79: {
+            title: "Unity — 카메라 추적 (Lerp)",
+            desc: "Vector3.Lerp로 카메라가 플레이어를 부드럽게 따라가도록 합니다.",
+            pyStarter: "def lerp(a, b, t): return a+(b-a)*t\n\nclass Cam:\n    def __init__(self): self.x=0.0\n    def follow(self, tx, s=0.1): self.x=lerp(self.x, tx, s)\n\ncam=Cam(); cam.follow(10.0)\nprint(f'CAM: {cam.x:.1f}')",
+            csStarter: "void LateUpdate() {\n    Vector3 target = player.transform.position + offset;\n    transform.position = Vector3.Lerp(\n        transform.position, target, smooth * Time.deltaTime\n    );\n    Console.WriteLine(\"CAM: 1.0\");\n}",
+            pyKeyword: "CAM: 1.0",
+            csKeyword: "Vector3.Lerp"
+        },
+        80: {
+            title: "Unity — 씬 전환 (SceneManager)",
+            desc: "씬을 로드하고 전환합니다. LoadScene, DontDestroyOnLoad 패턴.",
+            pyStarter: "class SceneManager:\n    current = 'MainMenu'\n    @classmethod\n    def LoadScene(cls, name):\n        cls.current=name\n        print(f'LOADING: {name}')\n\nSceneManager.LoadScene('GameScene')",
+            csStarter: "using UnityEngine.SceneManagement;\nSceneManager.LoadScene(\"GameScene\");\nIEnumerator LoadAsync(string name) {\n    var op = SceneManager.LoadSceneAsync(name);\n    while (!op.isDone) yield return null;\n    Console.WriteLine(\"LOADING: \" + name);\n}",
+            pyKeyword: "LOADING: GameScene",
+            csKeyword: "SceneManager.LoadScene"
+        },
+        81: {
+            title: "Unity — AudioSource 사운드",
+            desc: "효과음과 배경음악을 재생합니다.",
+            pyStarter: "class AudioSource:\n    def __init__(self): self.clip=None; self.volume=1.0\n    def Play(self): print(f'SOUND: {self.clip} vol={self.volume}')\n\naudio=AudioSource()\naudio.clip='explosion.wav'; audio.volume=0.8\naudio.Play()",
+            csStarter: "[SerializeField] AudioSource audioSrc;\n[SerializeField] AudioClip clip;\nvoid PlaySFX() {\n    audioSrc.PlayOneShot(clip, 0.8f);\n    Console.WriteLine(\"SOUND: explosion vol=0.8\");\n}",
+            pyKeyword: "SOUND: explosion.wav vol=0.8",
+            csKeyword: "PlayOneShot"
+        },
+        82: {
+            title: "Unity — NavMesh 길찾기",
+            desc: "AI가 장애물을 피해 목적지로 자동 이동합니다.",
+            pyStarter: "class NavAgent:\n    def __init__(self): self.speed=3.5; self.dest=None\n    def SetDestination(self, pos):\n        self.dest=pos\n        print(f'NAVIGATE_TO: {pos}')\n\nag=NavAgent()\nag.SetDestination((10,0,5))",
+            csStarter: "using UnityEngine.AI;\nNavMeshAgent agent = GetComponent<NavMeshAgent>();\nagent.speed = 3.5f;\nagent.SetDestination(new Vector3(10, 0, 5));\nConsole.WriteLine(\"NAVIGATE_TO: (10, 0, 5)\");",
+            pyKeyword: "NAVIGATE_TO: (10, 0, 5)",
+            csKeyword: "NavMeshAgent"
+        },
+        83: {
+            title: "의존성 주입 — Dependency Injection",
+            desc: "외부에서 의존성을 주입해 결합도를 낮춥니다.",
+            pyStarter: "class Logger:\n    def log(self, msg): print(f'LOG: {msg}')\n\nclass Service:\n    def __init__(self, logger): self.log=logger.log\n    def run(self): self.log('SERVICE_STARTED')\n\nService(Logger()).run()",
+            csStarter: "interface ILogger { void Log(string m); }\nclass Logger : ILogger { public void Log(string m) => Console.WriteLine(\"LOG: \" + m); }\nclass Service {\n    ILogger _l;\n    public Service(ILogger l){_l=l;}\n    public void Run() => _l.Log(\"SERVICE_STARTED\");\n}\nnew Service(new Logger()).Run();",
+            pyKeyword: "LOG: SERVICE_STARTED",
+            csKeyword: "ILogger"
+        },
+        84: {
+            title: "Unity — 인벤토리 시스템",
+            desc: "아이템 추가/제거/조회 로직을 구현합니다.",
+            pyStarter: "class Inventory:\n    def __init__(self, max): self.items=[]; self.max=max\n    def add(self, item):\n        if len(self.items)<self.max: self.items.append(item); return True\n        return False\n\ninv=Inventory(3)\nfor i in ['Sword','Shield','Potion']: inv.add(i)\nprint('FULL:', not inv.add('Gem'))\nprint('SIZE:', len(inv.items))",
+            csStarter: "class Inventory {\n    List<string> _items=new(); int _max;\n    public Inventory(int m){_max=m;}\n    public bool Add(string i){\n        if(_items.Count>=_max) return false;\n        _items.Add(i); return true;\n    }\n    public int Count=>_items.Count;\n}",
+            pyKeyword: "FULL: True",
+            csKeyword: "class Inventory"
+        },
+        85: {
+            title: "Unity — 퀘스트 시스템",
+            desc: "목표 달성을 추적하는 퀘스트 시스템입니다.",
+            pyStarter: "class Quest:\n    def __init__(self, name, goal):\n        self.name=name; self.goal=goal; self.progress=0\n    def update(self, n):\n        self.progress=min(self.progress+n, self.goal)\n        if self.progress>=self.goal:\n            print(f'QUEST_COMPLETE: {self.name}')\n\nq=Quest('Kill Goblins', 5)\nfor _ in range(5): q.update(1)",
+            csStarter: "class Quest {\n    public string Name; public int Goal, Progress;\n    public bool Done => Progress>=Goal;\n    public void Update(int n) {\n        Progress=Math.Min(Progress+n, Goal);\n        if(Done) Console.WriteLine(\"QUEST_COMPLETE: \"+Name);\n    }\n}",
+            pyKeyword: "QUEST_COMPLETE: Kill Goblins",
+            csKeyword: "Progress>=Goal"
+        },
+        86: {
+            title: "Unity — 능력치 시스템 (Stats)",
+            desc: "기본값과 수식자(modifier)로 능력치를 관리합니다.",
+            pyStarter: "class Stat:\n    def __init__(self, base): self.base=base; self.mods=[]\n    def add_mod(self, v): self.mods.append(v)\n    @property\n    def value(self): return self.base+sum(self.mods)\n\nhp=Stat(100); hp.add_mod(20); hp.add_mod(10)\nprint('HP:', hp.value)",
+            csStarter: "class Stat {\n    float _b; List<float> _m=new();\n    public Stat(float b){_b=b;}\n    public void AddMod(float v)=>_m.Add(v);\n    public float Value=>_b+_m.Sum();\n}\nvar hp=new Stat(100);\nhp.AddMod(20); hp.AddMod(10);\nConsole.WriteLine(\"HP: \"+hp.Value);",
+            pyKeyword: "HP: 130",
+            csKeyword: "_m.Sum()"
+        },
+        87: {
+            title: "비트 플래그 — [Flags] Enum",
+            desc: "여러 상태를 하나의 정수로 효율적으로 표현합니다.",
+            pyStarter: "FLYING=1; STEALTH=2; SHIELD=4\n\nstatus = FLYING | SHIELD\nprint('FLYING:', bool(status & FLYING))\nprint('STEALTH:', bool(status & STEALTH))",
+            csStarter: "[Flags] enum Status { None=0, Flying=1, Stealth=2, Shield=4 }\nStatus s = Status.Flying | Status.Shield;\nConsole.WriteLine(\"FLYING: \" + s.HasFlag(Status.Flying));\nConsole.WriteLine(\"STEALTH: \" + s.HasFlag(Status.Stealth));",
+            pyKeyword: "FLYING: True",
+            csKeyword: "[Flags]"
+        },
+        88: {
+            title: "이벤트 버스 — Event Bus",
+            desc: "전역 이벤트를 발행/구독합니다. 씬 간 통신에 유용합니다.",
+            pyStarter: "class EventBus:\n    _h = {}\n    @classmethod\n    def on(cls, e, fn): cls._h.setdefault(e,[]).append(fn)\n    @classmethod\n    def emit(cls, e, *a):\n        for fn in cls._h.get(e,[]): fn(*a)\n\nEventBus.on('death', lambda n: print(f'{n} DIED'))\nEventBus.emit('death', 'Goblin')",
+            csStarter: "static class Bus {\n    static Dictionary<string,Action<string>> _h=new();\n    public static void On(string e,Action<string> fn){\n        if(!_h.ContainsKey(e))_h[e]=null; _h[e]+=fn;\n    }\n    public static void Emit(string e,string d)=>_h[e]?.Invoke(d);\n}\nBus.On(\"death\",n=>Console.WriteLine(n+\" DIED\"));\nBus.Emit(\"death\",\"Goblin\");",
+            pyKeyword: "Goblin DIED",
+            csKeyword: "Action<string>"
+        },
+        89: {
+            title: "Unity — 세이브 시스템",
+            desc: "게임 데이터를 JSON으로 저장하고 불러옵니다.",
+            pyStarter: "import json\n\ndata = {'level':5, 'score':1200, 'hp':80}\nsaved = json.dumps(data)\nprint('SAVED:', 'level' in saved)\nloaded = json.loads(saved)\nprint('LEVEL:', loaded['level'])",
+            csStarter: "using System.IO;\nusing System.Text.Json;\n[Serializable] class Save{public int Level,Score,Hp;}\nstatic class SaveSys {\n    public static void Save(Save d,string p){\n        File.WriteAllText(p,JsonSerializer.Serialize(d));\n        Console.WriteLine(\"SAVED: True\");\n    }\n}",
+            pyKeyword: "SAVED: True",
+            csKeyword: "SaveSys"
+        },
+        90: {
+            title: "Unity — 다이얼로그 시스템",
+            desc: "NPC 대화를 순서대로 출력하는 시스템입니다.",
+            pyStarter: "class Dialog:\n    def __init__(self, lines): self.lines=lines; self.i=0\n    def next(self):\n        if self.i<len(self.lines):\n            print(self.lines[self.i]); self.i+=1; return True\n        return False\n\nd=Dialog(['HELLO!','I AM NPC.','BYE.'])\nwhile d.next(): pass",
+            csStarter: "class Dialog {\n    string[] _l; int _i;\n    public Dialog(string[] l){_l=l;}\n    public bool Next(){\n        if(_i>=_l.Length) return false;\n        Console.WriteLine(_l[_i++]); return true;\n    }\n}\nvar d=new Dialog(new[]{\"HELLO!\",\"I AM NPC.\",\"BYE.\"});\nwhile(d.Next());",
+            pyKeyword: "HELLO!",
+            csKeyword: "class Dialog"
+        },
+        91: {
+            title: "절차적 생성 — Procedural Gen",
+            desc: "코드로 맵, 던전, 지형을 자동 생성합니다.",
+            pyStarter: "class Dungeon:\n    def __init__(self, w, h):\n        self.grid=[['#']*w for _ in range(h)]\n    def carve(self, x, y):\n        self.grid[y][x]='.'\n\nd=Dungeon(5,5)\nfor pos in [(1,1),(2,1),(3,1)]:\n    d.carve(*pos)\nfloors=sum(r.count('.') for r in d.grid)\nprint('FLOORS:', floors)",
+            csStarter: "class Dungeon {\n    char[,] _g;\n    public Dungeon(int w,int h){_g=new char[h,w]; for(int i=0;i<h;i++) for(int j=0;j<w;j++) _g[i,j]='#';}\n    public void Carve(int x,int y){_g[y,x]='.';}\n}\nvar d=new Dungeon(5,5);\nd.Carve(1,1);d.Carve(2,1);d.Carve(3,1);\nConsole.WriteLine(\"FLOORS: 3\");",
+            pyKeyword: "FLOORS: 3",
+            csKeyword: "class Dungeon"
+        },
+        92: {
+            title: "Unity — 타이머 & 쿨다운",
+            desc: "스킬 쿨다운, 카운트다운 등을 구현합니다.",
+            pyStarter: "class Cooldown:\n    def __init__(self, dur): self.dur=dur; self.rem=0\n    def use(self):\n        if self.rem<=0: self.rem=self.dur; print('SKILL_USED'); return True\n        print(f'WAIT: {self.rem:.1f}s'); return False\n    def tick(self, dt): self.rem=max(0,self.rem-dt)\n\ncd=Cooldown(3.0); cd.use(); cd.tick(1.0); cd.use()",
+            csStarter: "class Cooldown {\n    float _dur, _rem;\n    public Cooldown(float d){_dur=d;}\n    public bool Use(){\n        if(_rem>0){Console.WriteLine($\"WAIT: {_rem:F1}s\");return false;}\n        _rem=_dur; Console.WriteLine(\"SKILL_USED\"); return true;\n    }\n    public void Tick(float dt)=>_rem=Math.Max(0,_rem-dt);\n}",
+            pyKeyword: "SKILL_USED",
+            csKeyword: "class Cooldown"
+        },
+        93: {
+            title: "Unity — 오브젝트 풀 관리자",
+            desc: "풀 매니저로 여러 타입의 풀을 통합 관리합니다.",
+            pyStarter: "class PoolManager:\n    _pools = {}\n    @classmethod\n    def get(cls, key, factory, size=5):\n        if key not in cls._pools:\n            cls._pools[key]=[factory() for _ in range(size)]\n        return cls._pools[key]\n\npool=PoolManager.get('bullet', lambda: {'active':False})\nprint('POOL_SIZE:', len(pool))",
+            csStarter: "class PoolManager {\n    Dictionary<string,Queue<GameObject>> _pools=new();\n    public GameObject Get(string key, GameObject prefab){\n        if(!_pools.ContainsKey(key)) _pools[key]=new();\n        return _pools[key].Count>0?_pools[key].Dequeue():Instantiate(prefab);\n    }\n    public void Return(string key,GameObject o)=>_pools[key].Enqueue(o);\n}",
+            pyKeyword: "POOL_SIZE: 5",
+            csKeyword: "PoolManager"
+        },
+        94: {
+            title: "Unity — 미니맵 좌표 변환",
+            desc: "월드 좌표를 미니맵 UI 좌표로 변환합니다.",
+            pyStarter: "def world_to_map(wx, wz, world_size=100, map_size=200):\n    mx = (wx / world_size) * map_size\n    my = (wz / world_size) * map_size\n    return round(mx), round(my)\n\nprint('MAP:', world_to_map(25, 50))",
+            csStarter: "Vector2 WorldToMap(Vector3 wp, float wSize=100, float mSize=200) =>\n    new Vector2((wp.x/wSize)*mSize, (wp.z/wSize)*mSize);\nvar mp = WorldToMap(new Vector3(25,0,50));\nConsole.WriteLine($\"MAP: ({mp.x}, {mp.y})\");",
+            pyKeyword: "MAP: (50, 100)",
+            csKeyword: "WorldToMap"
+        },
+        95: {
+            title: "Unity — 멀티플레이어 기초 (Netcode)",
+            desc: "Unity Netcode for GameObjects의 기본 패턴입니다.",
+            pyStarter: "class NetworkBehaviour:\n    def __init__(self, is_owner): self.IsOwner=is_owner\n\nclass PlayerCtrl(NetworkBehaviour):\n    def Update(self):\n        if self.IsOwner:\n            print('LOCAL: input accepted')\n        else:\n            print('REMOTE: sync only')\n\nPlayerCtrl(True).Update()",
+            csStarter: "using Unity.Netcode;\npublic class PlayerCtrl : NetworkBehaviour {\n    void Update() {\n        if (!IsOwner) return;\n        Console.WriteLine(\"LOCAL: input accepted\");\n        HandleInput();\n    }\n}",
+            pyKeyword: "LOCAL: input accepted",
+            csKeyword: "NetworkBehaviour"
+        },
+        96: {
+            title: "머신러닝 맛보기 — 경사 하강법",
+            desc: "간단한 선형 회귀를 경사 하강법으로 학습합니다.",
+            pyStarter: "data=[(1,2),(2,4),(3,6),(4,8)]\na,b,lr=0,0,0.01\nfor _ in range(200):\n    for x,y in data:\n        e=a*x+b-y\n        a-=lr*e*x; b-=lr*e\nprint(f'a={a:.1f}')",
+            csStarter: "var data=new[]{(1,2),(2,4),(3,6),(4,8)};\ndouble a=0,b=0,lr=0.01;\nfor(int e=0;e<200;e++)\n    foreach(var (x,y) in data){\n        double err=a*x+b-y;\n        a-=lr*err*x; b-=lr*err;\n    }\nConsole.WriteLine($\"a={a:F1}\");",
+            pyKeyword: "a=2.0",
+            csKeyword: "double a=0"
+        },
+        97: {
+            title: "Unity — 셰이더 Material 제어",
+            desc: "코드로 머티리얼 색상과 속성을 변경합니다.",
+            pyStarter: "class Material:\n    def __init__(self): self.color=(1,1,1)\n    def SetColor(self, prop, c):\n        self.color=c\n        print(f'COLOR: {prop}={c}')\n\nmat=Material()\nmat.SetColor('_Color', (1,0,0))",
+            csStarter: "Renderer rend = GetComponent<Renderer>();\nrend.material.SetColor(\"_Color\", Color.red);\nConsole.WriteLine(\"COLOR: _Color=(1,0,0)\");\n// 런타임 색상 변경\nStartCoroutine(Flash(rend.material));",
+            pyKeyword: "COLOR: _Color=(1, 0, 0)",
+            csKeyword: "SetColor"
+        },
+        98: {
+            title: "Unity — 성능 최적화 팁",
+            desc: "Update 대신 이벤트, 캐싱, 오브젝트 풀 등으로 성능을 높입니다.",
+            pyStarter: "import time\n\n# 캐싱 예시\nclass Monster:\n    def __init__(self, name): self.name=name\n    # 나쁜 예: 매번 find\n    # 좋은 예: Start에서 한번만 캐싱\n    def cached_name(self): return self.name\n\nm=Monster('Goblin')\nprint('CACHED:', m.cached_name())",
+            csStarter: "// 최적화 패턴 모음\n// 1. 컴포넌트 캐싱\nTransform _t;\nvoid Awake() { _t = transform; }  // GetComponent 매 프레임 X\n// 2. WaitForSeconds 캐싱\nWaitForSeconds _wait = new WaitForSeconds(1f);\n// 3. String.Format 대신 StringBuilder\nConsole.WriteLine(\"CACHED: Goblin\");",
+            pyKeyword: "CACHED: Goblin",
+            csKeyword: "WaitForSeconds"
+        },
+        99: {
+            title: "Unity — 모바일 터치 입력",
+            desc: "터치스크린 입력을 처리합니다. Input.GetTouch(), TouchPhase.",
+            pyStarter: "class Touch:\n    def __init__(self, pos, phase): self.position=pos; self.phase=phase\n\nclass Input:\n    touches=[Touch((100,200),'Began')]\n    @classmethod\n    def GetTouch(cls, i): return cls.touches[i]\n    @classmethod\n    def touchCount(cls): return len(cls.touches)\n\nfor i in range(Input.touchCount()):\n    t=Input.GetTouch(i)\n    if t.phase=='Began':\n        print('TOUCH:', t.position)",
+            csStarter: "void Update() {\n    foreach (Touch t in Input.touches) {\n        if (t.phase == TouchPhase.Began) {\n            Console.WriteLine(\"TOUCH: \" + t.position);\n            Ray ray = Camera.main.ScreenPointToRay(t.position);\n        }\n    }\n}",
+            pyKeyword: "TOUCH: (100, 200)",
+            csKeyword: "TouchPhase.Began"
+        },
+        100: {
+            title: "★ FINAL BOSS — Python × C# 마스터",
+            desc: "지금까지 배운 모든 것을 활용해 미니 RPG 시스템을 완성하세요!",
+            pyStarter: "from dataclasses import dataclass\n\n@dataclass\nclass Hero:\n    name: str\n    hp: int = 100\n    atk: int = 25\n\n    def fight(self, enemy):\n        dmg = self.atk\n        enemy.hp -= dmg\n        return dmg\n\nhero = Hero('Arthur', 100, 25)\nboss = Hero('Dragon', 200, 0)\ndmg = hero.fight(boss)\nprint(f'DEAL:{dmg} BOSS_HP:{boss.hp}')",
+            csStarter: "record Hero(string Name, int Hp, int Atk) {\n    public int Hp { get; set; } = Hp;\n}\n\nstatic int Fight(Hero a, Hero t) {\n    int dmg = a.Atk;\n    t.Hp -= dmg;\n    return dmg;\n}\n\nvar hero = new Hero(\"Arthur\", 100, 25);\nvar boss = new Hero(\"Dragon\", 200, 0);\nint dmg = Fight(hero, boss);\nConsole.WriteLine($\"DEAL:{dmg} BOSS_HP:{boss.Hp}\");",
+            pyKeyword: "DEAL:25 BOSS_HP:175",
+            csKeyword: "record Hero"
         }
     };
     return list[num] || {
@@ -715,7 +1473,122 @@ async function verifyAndOpenDoor() {
     }, 500);
 }
 
-// 6. 3D 엔진 및 도어즈 가상 공간
+// 6. 자동완성 엔진
+const PY_AC = [
+    {t:'print()',k:'func'},{t:'input()',k:'func'},{t:'range()',k:'func'},
+    {t:'len()',k:'func'},{t:'int()',k:'func'},{t:'str()',k:'func'},
+    {t:'float()',k:'func'},{t:'list()',k:'func'},{t:'dict()',k:'func'},
+    {t:'tuple()',k:'func'},{t:'set()',k:'func'},{t:'type()',k:'func'},
+    {t:'isinstance()',k:'func'},{t:'super()',k:'func'},{t:'enumerate()',k:'func'},
+    {t:'zip()',k:'func'},{t:'map()',k:'func'},{t:'filter()',k:'func'},
+    {t:'sorted()',k:'func'},{t:'reversed()',k:'func'},{t:'open()',k:'func'},
+    {t:'def ',k:'kw'},{t:'class ',k:'kw'},{t:'return ',k:'kw'},
+    {t:'import ',k:'kw'},{t:'from ',k:'kw'},{t:'as ',k:'kw'},
+    {t:'if ',k:'kw'},{t:'elif ',k:'kw'},{t:'else:',k:'kw'},
+    {t:'for ',k:'kw'},{t:'while ',k:'kw'},{t:'in ',k:'kw'},
+    {t:'not ',k:'kw'},{t:'and ',k:'kw'},{t:'or ',k:'kw'},
+    {t:'lambda ',k:'kw'},{t:'try:',k:'kw'},{t:'except ',k:'kw'},
+    {t:'finally:',k:'kw'},{t:'with ',k:'kw'},{t:'yield ',k:'kw'},
+    {t:'pass',k:'kw'},{t:'break',k:'kw'},{t:'continue',k:'kw'},
+    {t:'True',k:'const'},{t:'False',k:'const'},{t:'None',k:'const'},
+    {t:'self',k:'var'},{t:'__init__',k:'meth'},{t:'__str__',k:'meth'},
+    {t:'append()',k:'meth'},{t:'extend()',k:'meth'},{t:'remove()',k:'meth'},
+    {t:'pop()',k:'meth'},{t:'keys()',k:'meth'},{t:'values()',k:'meth'},
+    {t:'items()',k:'meth'},{t:'upper()',k:'meth'},{t:'lower()',k:'meth'},
+    {t:'strip()',k:'meth'},{t:'split()',k:'meth'},{t:'join()',k:'meth'},
+    {t:'replace()',k:'meth'},{t:'format()',k:'meth'},
+];
+const CS_AC = [
+    {t:'Console.WriteLine()',k:'func'},{t:'Console.ReadLine()',k:'func'},
+    {t:'Console.Write()',k:'func'},{t:'Math.Abs()',k:'func'},
+    {t:'Math.Max()',k:'func'},{t:'Math.Min()',k:'func'},
+    {t:'int.Parse()',k:'func'},{t:'Convert.ToInt32()',k:'func'},
+    {t:'string.IsNullOrEmpty()',k:'func'},
+    {t:'using ',k:'kw'},{t:'namespace ',k:'kw'},{t:'class ',k:'kw'},
+    {t:'public ',k:'kw'},{t:'private ',k:'kw'},{t:'protected ',k:'kw'},
+    {t:'static ',k:'kw'},{t:'override ',k:'kw'},{t:'virtual ',k:'kw'},
+    {t:'abstract ',k:'kw'},{t:'readonly ',k:'kw'},{t:'const ',k:'kw'},
+    {t:'new ',k:'kw'},{t:'return ',k:'kw'},{t:'var ',k:'kw'},
+    {t:'if (',k:'kw'},{t:'else {',k:'kw'},{t:'else if (',k:'kw'},
+    {t:'for (',k:'kw'},{t:'foreach (',k:'kw'},{t:'while (',k:'kw'},
+    {t:'try {',k:'kw'},{t:'catch (',k:'kw'},{t:'finally {',k:'kw'},
+    {t:'throw ',k:'kw'},{t:'this.',k:'kw'},{t:'base.',k:'kw'},
+    {t:'int ',k:'type'},{t:'string ',k:'type'},{t:'bool ',k:'type'},
+    {t:'float ',k:'type'},{t:'double ',k:'type'},{t:'decimal ',k:'type'},
+    {t:'char ',k:'type'},{t:'object ',k:'type'},{t:'void ',k:'type'},
+    {t:'List<',k:'type'},{t:'Dictionary<',k:'type'},{t:'Array',k:'type'},
+    {t:'true',k:'const'},{t:'false',k:'const'},{t:'null',k:'const'},
+    {t:'Count',k:'prop'},{t:'Length',k:'prop'},{t:'ToString()',k:'meth'},
+    {t:'ToUpper()',k:'meth'},{t:'ToLower()',k:'meth'},{t:'Trim()',k:'meth'},
+    {t:'Contains()',k:'meth'},{t:'Replace()',k:'meth'},{t:'Split()',k:'meth'},
+    {t:'Add()',k:'meth'},{t:'Remove()',k:'meth'},{t:'Clear()',k:'meth'},
+];
+
+let acItems = [], acIdx = 0;
+
+function getWordBefore(ta) {
+    const before = ta.value.substring(0, ta.selectionStart);
+    const m = before.match(/[\w.]+$/);
+    return m ? m[0] : '';
+}
+
+function showAC(ta) {
+    const word = getWordBefore(ta);
+    if (word.length < 1) { hideAC(); return; }
+    const pool = currentLang === 'py' ? PY_AC : CS_AC;
+    const wl = word.toLowerCase();
+    acItems = pool.filter(c => c.t.toLowerCase().startsWith(wl) && c.t !== word).slice(0, 9);
+    if (!acItems.length) { hideAC(); return; }
+    acIdx = 0;
+    renderAC();
+    positionAC(ta);
+}
+
+function renderAC() {
+    document.getElementById('autocomplete-dropdown').innerHTML =
+        acItems.map((c,i) =>
+            `<div class="ac-item${i===acIdx?' ac-selected':''}" onmousedown="applyAC(${i})">
+                <span>${c.t}</span><span class="ac-badge">${c.k}</span>
+            </div>`
+        ).join('');
+    document.getElementById('autocomplete-dropdown').style.display = 'block';
+}
+
+function positionAC(ta) {
+    const r = ta.getBoundingClientRect();
+    const lines = ta.value.substring(0, ta.selectionStart).split('\n');
+    const lh = 22;
+    let y = r.top + lines.length * lh - ta.scrollTop + 4;
+    y = Math.min(y, window.innerHeight - 220);
+    const dd = document.getElementById('autocomplete-dropdown');
+    dd.style.left = (r.left + 12) + 'px';
+    dd.style.top = y + 'px';
+}
+
+function hideAC() {
+    document.getElementById('autocomplete-dropdown').style.display = 'none';
+    acItems = []; acIdx = 0;
+}
+
+function navigateAC(dir) {
+    acIdx = (acIdx + dir + acItems.length) % acItems.length;
+    renderAC();
+}
+
+function applyAC(i) {
+    const ta = document.getElementById('code-editor');
+    const word = getWordBefore(ta);
+    const completion = acItems[i].t;
+    const pos = ta.selectionStart;
+    const before = ta.value.substring(0, pos - word.length);
+    const after = ta.value.substring(pos);
+    ta.value = before + completion + after;
+    ta.selectionStart = ta.selectionEnd = before.length + completion.length;
+    ta.focus();
+    hideAC();
+}
+
+// 7. 3D 엔진 및 도어즈 가상 공간
 let scene, camera, renderer, controls;
 let completedRooms = 0;
 let moveF = false, moveB = false, moveL = false, moveR = false, isSprint = false;
@@ -770,14 +1643,27 @@ function init3D() {
         if(e.key === 'Enter') sendAiChat();
     });
 
-    // 코드 에디터 Tab 키: 들여쓰기 삽입
+    // 코드 에디터 키 핸들러 (Tab 들여쓰기 + 자동완성 탐색)
     document.getElementById('code-editor').addEventListener('keydown', function(e) {
+        const ddVisible = document.getElementById('autocomplete-dropdown').style.display === 'block';
         if (e.key === 'Tab') {
             e.preventDefault();
+            if (ddVisible && acItems.length > 0) { applyAC(acIdx); return; }
             const s = this.selectionStart, en = this.selectionEnd;
             this.value = this.value.substring(0, s) + '    ' + this.value.substring(en);
             this.selectionStart = this.selectionEnd = s + 4;
+        } else if (e.key === 'ArrowDown' && ddVisible) {
+            e.preventDefault(); navigateAC(1);
+        } else if (e.key === 'ArrowUp' && ddVisible) {
+            e.preventDefault(); navigateAC(-1);
+        } else if (e.key === 'Enter' && ddVisible) {
+            e.preventDefault(); applyAC(acIdx);
+        } else if (e.key === 'Escape') {
+            hideAC();
         }
+    });
+    document.getElementById('code-editor').addEventListener('input', function() {
+        showAC(this);
     });
 
     renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -907,6 +1793,21 @@ function closeCockpit() {
     document.getElementById('cockpit-modal').style.display = 'none';
     isCockpitOpen = false;
     controls.lock();
+}
+
+// 방 번호 점프
+function jumpToRoom() {
+    const n = parseInt(document.getElementById('room-input').value);
+    if (n >= 1 && n <= 100) {
+        currentRoom = n;
+        document.getElementById('room-badge').textContent = String(n).padStart(3, '0');
+        buildRoom();
+        if (isCockpitOpen) closeCockpit();
+        closeConceptPanel();
+        hideAC();
+        document.getElementById('room-input').value = '';
+        if (!isCockpitOpen) controls.lock();
+    }
 }
 
 // 개념 패널 (Q키)
