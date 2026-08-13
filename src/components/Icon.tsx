@@ -22,7 +22,8 @@ export type IconName =
   | 'close'
   | 'external'
   | 'alert'
-  | 'bookmark';
+  | 'bookmark'
+  | 'code';
 
 const PATHS: Record<IconName, React.ReactNode> = {
   home: <path d="M3 10.5 12 3l9 7.5M5.5 9.5V20h13V9.5" />,
@@ -97,6 +98,13 @@ const PATHS: Record<IconName, React.ReactNode> = {
     </>
   ),
   bookmark: <path d="M6.5 4.5h11V20l-5.5-3.8L6.5 20z" />,
+  code: (
+    <>
+      <path d="M8.5 7.5 3.5 12l5 4.5" />
+      <path d="M15.5 7.5 20.5 12l-5 4.5" />
+      <path d="M14 5l-4 14" />
+    </>
+  ),
 };
 
 interface IconProps extends Omit<SVGProps<SVGSVGElement>, 'name'> {
