@@ -474,16 +474,26 @@
         <!-- 우측: VS Code 스타일 챗봇 터미널 -->
         <div class="pane">
             <div class="pane-header">
-                <span>💬 AI Assistant Terminal (Chat)</span>
+                <span>💬 Gemini AI Tutor</span>
+            </div>
+            <!-- API 키 입력 영역 -->
+            <div id="api-key-bar" style="display:flex;align-items:center;gap:6px;padding:6px 10px;background:#1e1e2e;border-bottom:1px solid #333;flex-shrink:0;">
+                <span style="color:#569cd6;font-size:11px;white-space:nowrap;">🔑 API Key</span>
+                <input id="gemini-api-key" type="password" placeholder="Gemini API 키 입력 후 Enter"
+                    style="flex:1;background:#2d2d2d;border:1px solid #444;border-radius:3px;color:#d4d4d4;font-size:11px;padding:3px 7px;outline:none;"
+                    onclick="event.stopPropagation()"
+                    onkeydown="if(event.key==='Enter'){event.stopPropagation();saveApiKey();}">
+                <button onclick="saveApiKey()" style="background:#0e639c;border:none;color:#fff;font-size:10px;padding:3px 8px;border-radius:3px;cursor:pointer;white-space:nowrap;">저장</button>
             </div>
             <div id="chat-container-wrapper">
                 <div id="gemini-chat">
                     <div class="chat-msg msg-ai">
-                        환영합니다! 파이썬으로 로직을 잡고, C# 탭으로 넘어가 동일한 코드를 타이핑해야 문이 열립니다. 질문이 있으면 입력하세요!
+                        환영합니다! Gemini API 키를 위에 입력하면 실제 AI 튜터와 대화할 수 있습니다.<br>
+                        <span style="color:#569cd6;font-size:11px;">aistudio.google.com → API 키 발급 (무료)</span>
                     </div>
                 </div>
                 <div class="chat-bar">
-                    <input type="text" class="chat-input" id="gemini-input" placeholder="Type a message or question...">
+                    <input type="text" class="chat-input" id="gemini-input" placeholder="질문을 입력하세요...">
                     <button class="btn-ask" onclick="sendAiChat()">전송</button>
                 </div>
             </div>
@@ -1404,23 +1414,98 @@ function appendMsg(text, isUser = false) {
     log.scrollTop = log.scrollHeight;
 }
 
-// 4. 에뮬레이터 AI 튜터
-function sendAiChat() {
+// 4. Gemini API 키 관리
+let geminiApiKey = localStorage.getItem('gemini_api_key') || '';
+(function initApiKeyUI() {
+    if (geminiApiKey) {
+        document.addEventListener('DOMContentLoaded', () => {
+            const el = document.getElementById('gemini-api-key');
+            if (el) { el.value = '●'.repeat(20); el.placeholder = 'API 키 저장됨 ✓'; }
+            const bar = document.getElementById('api-key-bar');
+            if (bar) bar.style.borderBottom = '1px solid #0e639c';
+        });
+    }
+})();
+
+function saveApiKey() {
+    const el = document.getElementById('gemini-api-key');
+    const raw = el.value.trim();
+    if (!raw || raw === '●'.repeat(20)) {
+        appendMsg('[시스템] API 키를 입력해주세요.'); return;
+    }
+    geminiApiKey = raw;
+    localStorage.setItem('gemini_api_key', geminiApiKey);
+    el.value = '●'.repeat(20);
+    el.placeholder = 'API 키 저장됨 ✓';
+    document.getElementById('api-key-bar').style.borderBottom = '1px solid #0e639c';
+    appendMsg('[시스템] Gemini API 키가 저장되었습니다. 이제 질문하세요!');
+}
+
+// 4. 에뮬레이터 AI 튜터 (Gemini API 실제 연동)
+async function sendAiChat() {
     const input = document.getElementById('gemini-input');
     const q = input.value.trim();
     if (!q) return;
     input.value = '';
-
     appendMsg(q, true);
-    const mission = getMission(currentRoom);
 
-    setTimeout(() => {
-        let reply = "파이썬과 C# 에디터를 번갈아가며 코드를 꼼꼼히 타이핑해보세요!";
-        if (q.includes("힌트") || q.includes("모르")) {
-            reply = `[힌트] 파이썬 결과값에는 '${mission.pyKeyword}'가, C# 코드에는 '${mission.csKeyword}' 문법이 포함되어야 합니다.`;
+    const mission = getMission(currentRoom);
+    const pyCode = userCodes.py || '';
+    const csCode = userCodes.cs || '';
+
+    if (!geminiApiKey) {
+        // API 키 없으면 에뮬 모드 (규칙 기반 응답)
+        setTimeout(() => {
+            let reply = "파이썬과 C# 에디터를 번갈아가며 코드를 꼼꼼히 타이핑해보세요!";
+            const lq = q.toLowerCase();
+            if (lq.includes("힌트") || lq.includes("모르") || lq.includes("hint")) {
+                reply = `[힌트] Python 결과에 '${mission.pyKeyword}'가, C# 코드에 '${mission.csKeyword}' 키워드가 있어야 합니다.`;
+            } else if (lq.includes("미션") || lq.includes("뭐") || lq.includes("what")) {
+                reply = `현재 미션: ${mission.title}\n${mission.desc}`;
+            } else if (lq.includes("api") || lq.includes("키") || lq.includes("gemini")) {
+                reply = "실제 AI 답변을 받으려면 위 🔑 입력창에 Gemini API 키를 저장하세요. (aistudio.google.com에서 무료 발급)";
+            }
+            appendMsg(reply);
+        }, 300);
+        return;
+    }
+
+    const systemCtx = `당신은 Python과 C# 코딩 튜터입니다. 학생이 방탈출 게임에서 코딩 미션을 풀고 있습니다.
+현재 미션: Room ${currentRoom} - ${mission.title}
+미션 설명: ${mission.desc}
+학생의 Python 코드:\n${pyCode || '(아직 없음)'}
+학생의 C# 코드:\n${csCode || '(아직 없음)'}
+답변은 한국어로, 100자 이내로 간결하게. 직접적인 정답 대신 힌트를 주세요.`;
+
+    const thinkingEl = document.createElement('div');
+    thinkingEl.className = 'chat-msg msg-ai';
+    thinkingEl.textContent = '...';
+    document.getElementById('gemini-chat').appendChild(thinkingEl);
+    document.getElementById('gemini-chat').scrollTop = 999999;
+
+    try {
+        const res = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`,
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: systemCtx + '\n\n학생 질문: ' + q }] }],
+                    generationConfig: { maxOutputTokens: 300, temperature: 0.7 }
+                })
+            }
+        );
+        const data = await res.json();
+        if (data.error) {
+            thinkingEl.textContent = '[오류] ' + (data.error.message || 'API 오류');
+        } else {
+            const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || '응답을 받지 못했습니다.';
+            thinkingEl.textContent = reply;
         }
-        appendMsg(reply);
-    }, 400);
+    } catch(err) {
+        thinkingEl.textContent = '[네트워크 오류] ' + err.message;
+    }
+    document.getElementById('gemini-chat').scrollTop = 999999;
 }
 
 // 5. 듀얼 미션 검증 및 3D 도어 개방
