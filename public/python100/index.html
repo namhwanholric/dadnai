@@ -143,7 +143,7 @@ html, body { width: 100%; }
   <p><b>&#xD30C;&#xC774;&#xC36C; &#xD0C8;&#xCD9C; FPS</b> &#x2014; &#xC815;&#xBA74;&#xC5D0; &#xBB38;&#xC81C;&#xC640; <b>A&#xB7;B&#xB7;C&#xB7;D &#xB124; &#xAC1C;&#xC758; &#xBB38;</b>&#xC774; &#xC788;&#xC2B5;&#xB2C8;&#xB2E4;.<br>
      &#xC815;&#xB2F5; &#xBB38;&#xC744; <b>&#xC3D8;&#xBA74;</b> &#xBB38;&#xC774; &#xC5F4;&#xB9AC;&#xACE0; &#xB2E4;&#xC74C; &#xBC29;&#xC73C;&#xB85C;. &#xC606; &#xBCBD;&#xC5D0;&#xB294; &#xAC1C;&#xB150;&#xACFC; &#xC608;&#xC81C;&#xAC00;, &#xB4A4;&#xCABD;&#xC5D0;&#xB294; &#xC774;&#xC804; &#xBC29;&#xC73C;&#xB85C; &#xAC00;&#xB294; &#xBB38;&#xC774; &#xC788;&#xC2B5;&#xB2C8;&#xB2E4;.</p>
   <div class="keys" id="keyHelpPC">
-    <span>W A S D &#xC774;&#xB3D9;</span><span>&#xB9C8;&#xC6B0;&#xC2A4; &#xC2DC;&#xC810;</span><span>&#xD074;&#xB9AD; &#xBC1C;&#xC0AC;</span><span>Shift &#xB2EC;&#xB9AC;&#xAE30;</span><span>ESC &#xC7A0;&#xAE08;&#xD574;&#xC81C;</span>
+    <span>W A S D &#xC774;&#xB3D9;</span><span>&#xB9C8;&#xC6B0;&#xC2A4; &#xC2DC;&#xC810;</span><span>&#xD074;&#xB9AD; &#xBC1C;&#xC0AC;</span><span>Shift &#xB2EC;&#xB9AC;&#xAE30;</span><span>F &#xB808;&#xC774;&#xC800;</span><span>ESC &#xC7A0;&#xAE08;&#xD574;&#xC81C;</span>
   </div>
   <div class="keys" id="keyHelpMobile" style="display:none">
     <span>&#xC67C;&#xCABD; &#xC870;&#xC774;&#xC2A4;&#xD2F1; &#xC774;&#xB3D9;</span><span>&#xC624;&#xB978;&#xCABD; &#xD654;&#xBA74; &#xB4DC;&#xB798;&#xADF8; &#xC2DC;&#xC810;</span><span>FIRE &#xBC1C;&#xC0AC;</span>
@@ -55565,11 +55565,14 @@ const wallMat = new THREE.MeshStandardMaterial({ color: 0x1a2338, roughness: .95
 const floorMat = new THREE.MeshStandardMaterial({ color: 0x0e1626, roughness: 1 });
 const ceilMat = new THREE.MeshStandardMaterial({ color: 0x0a1120, roughness: 1 });
 
+// \uB808\uC774\uC800\uAC00 \uB9DE\uC744 \uD45C\uBA74\uB4E4 \u2014 \uBCBD\u00B7\uBC14\uB2E5\u00B7\uBB38\u00B7\uCE74\uB4DC (\uB808\uC774\uC800 \uC790\uC2E0\uC740 \uB123\uC9C0 \uC54A\uB294\uB2E4)
+const solids = [];
+
 function addWall(w, h, mat, pos, rotY) {
   const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), mat);
   m.position.set(pos[0], pos[1], pos[2]);
   if (rotY) m.rotation.y = rotY;
-  scene.add(m);
+  scene.add(m); solids.push(m);
   return m;
 }
 const frontWall = addWall(ROOM.W, ROOM.H, wallMat, [0, ROOM.H / 2, -HD], 0);
@@ -55577,9 +55580,9 @@ const backWall  = addWall(ROOM.W, ROOM.H, wallMat, [0, ROOM.H / 2,  HD], Math.PI
 const leftWall  = addWall(ROOM.D, ROOM.H, wallMat, [-HW, ROOM.H / 2, 0], Math.PI / 2);
 const rightWall = addWall(ROOM.D, ROOM.H, wallMat, [ HW, ROOM.H / 2, 0], -Math.PI / 2);
 const floor = new THREE.Mesh(new THREE.PlaneGeometry(ROOM.W, ROOM.D), floorMat);
-floor.rotation.x = -Math.PI / 2; scene.add(floor);
+floor.rotation.x = -Math.PI / 2; scene.add(floor); solids.push(floor);
 const ceil = new THREE.Mesh(new THREE.PlaneGeometry(ROOM.W, ROOM.D), ceilMat);
-ceil.rotation.x = Math.PI / 2; ceil.position.y = ROOM.H; scene.add(ceil);
+ceil.rotation.x = Math.PI / 2; ceil.position.y = ROOM.H; scene.add(ceil); solids.push(ceil);
 
 // \uBC14\uB2E5 \uACA9\uC790 \u2014 \uACF5\uAC04\uAC10\uC758 \uD575\uC2EC
 const grid = new THREE.GridHelper(ROOM.D, 20, 0x2a4772, 0x1b2c48);
@@ -55600,7 +55603,7 @@ lampBack.position.set(0, ROOM.H - 1.2, HD - 4); scene.add(lampBack);
 const qPanel = makePanelTexture(1400, 200);
 const qMesh = planeMesh(13.2, 1.9, qPanel.tex);
 qMesh.position.set(0, Q_TOP - 0.95, -HD + 0.1);
-scene.add(qMesh);
+scene.add(qMesh); solids.push(qMesh);
 
 function drawQuestion(room) {
   const q = QUESTIONS[room], { ctx, canvas, tex } = qPanel;
@@ -55650,7 +55653,8 @@ for (let i = 0; i < 4; i++) {
     new THREE.MeshStandardMaterial({ color: 0x161f33, roughness: .9 })
   );
   frame.position.set(DOOR_X[i], (DOOR.h + 0.25) / 2, DOOR.z - 0.12);
-  scene.add(frame);
+  scene.add(frame); solids.push(frame);
+  solids.push(d.mesh);
 }
 
 function drawDoorFace(i, text, state) {
@@ -55700,7 +55704,7 @@ backDoorObj.pivot.position.set(-BACK_DOOR.w / 2, 0, BACK_DOOR.z);
 backDoorObj.pivot.rotation.y = Math.PI;   // \uB4A4\uCABD \uBCBD\uC774\uBBC0\uB85C \uB3CC\uB824 \uC138\uC6B4\uB2E4
 backDoorObj.pivot.position.x = BACK_DOOR.w / 2;
 backDoorObj.mesh.userData = { kind: "back" };
-scene.add(backDoorObj.pivot);
+scene.add(backDoorObj.pivot); solids.push(backDoorObj.mesh);
 
 function drawBackDoor(room) {
   const { ctx, canvas, tex } = backPanel;
@@ -55737,7 +55741,7 @@ for (const side of ["L", "R"]) {
     const m = planeMesh(CARD_W, CARD_H, p.tex);
     m.position.set(side === "L" ? -HW + 0.09 : HW - 0.09, CARD_Y, CARD_Z[i]);
     m.rotation.y = side === "L" ? Math.PI / 2 : -Math.PI / 2;
-    scene.add(m);
+    scene.add(m); solids.push(m);
     cardPanels[side].push(p);
   }
 }
@@ -55762,6 +55766,68 @@ function drawCard(p, card, accent, isNow) {
   tex.needsUpdate = true;
 }
 
+// \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 \uB808\uC774\uC800 \uC0AC\uC774\uD2B8 \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+// \uCD1D\uAD6C\uC5D0\uC11C \uB098\uAC00\uB294 \uBE54 + \uBCBD\uC5D0 \uB9FA\uD788\uB294 \uC810. \uBCBD\uC758 \uAE00\uC744 \uC9DA\uC5B4 \uAC00\uBA70 \uC77D\uC73C\uB77C\uACE0 \uBD99\uC600\uB2E4.
+const laser = new THREE.Group();
+const beamMat = new THREE.MeshBasicMaterial({
+  color: 0xff2d4a, transparent: true, opacity: 0.5, depthWrite: false,
+});
+// \uAE38\uC774 1 \uC9DC\uB9AC \uC6D0\uAE30\uB465\uC744 \uB9CC\uB4E4\uC5B4 \uB9E4 \uD504\uB808\uC784 \uB298\uB824 \uC4F4\uB2E4. \uCD95\uC744 +Z \uB85C \uB3CC\uB824 \uB193\uB294\uB2E4.
+const beamGeo = new THREE.CylinderGeometry(0.004, 0.004, 1, 6, 1, true);
+beamGeo.translate(0, 0.5, 0);
+beamGeo.rotateX(Math.PI / 2);
+const beam = new THREE.Mesh(beamGeo, beamMat);
+const dot = new THREE.Mesh(
+  new THREE.SphereGeometry(0.022, 10, 8),
+  new THREE.MeshBasicMaterial({ color: 0xff5566, depthWrite: false })
+);
+const halo = new THREE.Mesh(
+  new THREE.SphereGeometry(0.055, 10, 8),
+  new THREE.MeshBasicMaterial({
+    color: 0xff2d4a, transparent: true, opacity: 0.28,
+    depthWrite: false, blending: THREE.AdditiveBlending,
+  })
+);
+laser.add(beam, dot, halo);
+scene.add(laser);
+
+const laserRay = new THREE.Raycaster();
+const muzzle = new THREE.Vector3(), hitPt = new THREE.Vector3();
+const MUZZLE_OFFSET = new THREE.Vector3(0.16, -0.17, -0.25);   // \uCE74\uBA54\uB77C \uAE30\uC900 \uCD1D\uAD6C \uC704\uCE58
+let laserOn = true;
+
+function updateLaser() {
+  if (!laserOn || !state.running) { laser.visible = false; return; }
+  laser.visible = true;
+
+  camera.updateMatrixWorld();
+  scene.updateMatrixWorld(true);
+  laserRay.setFromCamera(CENTER, camera);
+
+  const hits = laserRay.intersectObjects(solids, false);
+  const dist = hits.length ? hits[0].distance : 40;
+  if (hits.length) hitPt.copy(hits[0].point);
+  else hitPt.copy(laserRay.ray.origin).addScaledVector(laserRay.ray.direction, dist);
+
+  // \uCD1D\uAD6C\uB294 \uCE74\uBA54\uB77C\uBCF4\uB2E4 \uC0B4\uC9DD \uC544\uB798\u00B7\uC624\uB978\uCABD \u2014 \uBE54\uC774 \uD654\uBA74\uC744 \uAC00\uB9AC\uC9C0 \uC54A\uAC8C
+  muzzle.copy(MUZZLE_OFFSET).applyQuaternion(camera.quaternion).add(camera.position);
+
+  beam.position.copy(muzzle);
+  beam.lookAt(hitPt);
+  beam.scale.set(1, 1, muzzle.distanceTo(hitPt));
+
+  // \uC810\uC740 \uD45C\uBA74\uC5D0\uC11C \uC0B4\uC9DD \uB744\uC6CC z-\uD30C\uC774\uD305\uC744 \uD53C\uD55C\uB2E4
+  const n = hits.length && hits[0].face
+    ? hits[0].face.normal.clone().transformDirection(hits[0].object.matrixWorld)
+    : new THREE.Vector3(0, 0, 1);
+  dot.position.copy(hitPt).addScaledVector(n, 0.012);
+  halo.position.copy(dot.position);
+  // \uBA40\uC218\uB85D \uC810\uC744 \uD0A4\uC6CC \uD654\uBA74\uC5D0\uC11C \uBE44\uC2B7\uD55C \uD06C\uAE30\uB85C \uBCF4\uC774\uAC8C
+  const s = Math.max(1, dist / 6);
+  dot.scale.setScalar(s);
+  halo.scale.setScalar(s);
+}
+
 // \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 \uC0C1\uD0DC \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 const state = {
   room: 0, reached: 0, shots: 0, hits: 0, wrongs: [], roomWrong: false,
@@ -55775,7 +55841,7 @@ if (isTouch) {
 }
 $("hint").textContent = isTouch
   ? "\uC67C\uCABD \uC870\uC774\uC2A4\uD2F1 \uC774\uB3D9 \u00B7 \uC624\uB978\uCABD \uB4DC\uB798\uADF8 \uC2DC\uC810 \u00B7 FIRE \uBC1C\uC0AC"
-  : "W A S D \uC774\uB3D9 \u00B7 \uB9C8\uC6B0\uC2A4 \uC2DC\uC810 \u00B7 \uD074\uB9AD \uBC1C\uC0AC \u00B7 Shift \uB2EC\uB9AC\uAE30";
+  : "W A S D \uC774\uB3D9 \u00B7 \uB9C8\uC6B0\uC2A4 \uC2DC\uC810 \u00B7 \uD074\uB9AD \uBC1C\uC0AC \u00B7 Shift \uB2EC\uB9AC\uAE30 \u00B7 F \uB808\uC774\uC800";
 
 function updateHUD() {
   $("roomNo").textContent = `ROOM ${state.room + 1} / ${TOTAL}`;
@@ -55949,6 +56015,7 @@ function look(dx, dy, k) {
 addEventListener("keydown", e => {
   keys[e.code] = true;
   if (e.code === "Space") { e.preventDefault(); shoot(); }
+  if (e.code === "KeyF") { laserOn = !laserOn; toast(laserOn ? "\uB808\uC774\uC800 ON" : "\uB808\uC774\uC800 OFF", "#ff8fa3"); }
 });
 addEventListener("keyup", e => { keys[e.code] = false; });
 function releaseAll() {
@@ -56077,6 +56144,7 @@ function frame() {
     const h = aimHit();
     $("cross").classList.toggle("hot", !!h);
   }
+  updateLaser();
 
   renderer.render(scene, camera);
   requestAnimationFrame(frame);
@@ -56165,7 +56233,9 @@ frame();
 $("loading").style.display = "none";
 $("startScreen").classList.remove("hide");
 
-window.__dbg = { state, camera, doors, backDoorObj, aimHit, shoot, keys,
+window.__dbg = { state, camera, scene, renderer, doors, backDoorObj, aimHit, shoot, keys,
+                 laser, beam, dot, solids, updateLaser,
+                 render: () => { updateLaser(); renderer.render(scene, camera); },
                  look: (x, y) => look(x, y, LOOK), setYaw: v => { yaw = v; } };
 
 </script>
